@@ -31,7 +31,7 @@ appsLinkPos="410, 130"
 iconSize=80
 textSize=13
 
-unset name version appName appPath bundleName pkgProj rmName appsLink dmgName dmgPath imgBackground html bundlePath rmPath releaseDir volumeName downloadUrl sshKeyname localizeDir
+unset name version appName appPath bundleName pkgProj rmName appsLink dmgName dmgPath imgBackground html bundlePath rmPath releaseDir volumeName downloadUrl downloadUrlPrefix sshKeyname localizeDir
 
 
 source "Makefile.config"
@@ -48,6 +48,7 @@ fi
 dmgName=${dmgName:-"$name-$version.dmg"}
 dmgPath=${dmgPath:-"build/$dmgName"}
 volumeName=${volumeName:-"$name"}
+downloadUrl=${downloadUrl:-"${downloadUrlPrefix}${dmgName}"}
 #-------------------------------------------------------------------------
 
 
@@ -57,8 +58,8 @@ volumeName=${volumeName:-"$name"}
 #-------------------------------------------------------------------------
 read -p "Create DMG [y/n]? " input
 
-if [ "x$input" == "xy" -o "x$input" == "xY" ]; then	
-	
+if [ "x$input" == "xy" -o "x$input" == "xY" ]; then
+
 	if [ -n "$pkgProj" ]; then
     	if [ -e /usr/local/bin/packagesbuild ]; then
 	    	echo "Building the installer..."
@@ -73,20 +74,19 @@ if [ "x$input" == "xy" -o "x$input" == "xY" ]; then
 
 	echo "Removing old files..."
 	rm -f "$dmgPath"
-	
-	
+
+
 	echo "Creating temp directory..."
 	mkdir "$dmgTempDir"
-	
-	
+
 	echo "Copying files..."
     cp -PR "$bundlePath" "$dmgTempDir/"
-	
+
 	if [ -n "$localizeDir" ]; then
 		mkdir "$dmgTempDir/.localized"
         cp -PR "$localizeDir/" "$dmgTempDir/.localized/"
     fi
-	if [ -n "$rmPath" ]; then
+    if [ -n "$rmPath" ]; then
         cp -PR "$rmPath" "$dmgTempDir/$rmName"
     fi
 	if [ "0$appsLink" -eq 1 ]; then
@@ -175,9 +175,14 @@ if [ "x$input" == "xy" -o "x$input" == "xY" ]; then
 	hdiutil detach -quiet "$mountPoint"
 	hdiutil convert "$tempDMG" -quiet -format UDZO -imagekey zlib-level=9 -o "$dmgPath"
 
-
-	echo -e "DMG created\n\n"
-	#open "$dmgPath"
+	echo "Information...";
+	date=$(LC_TIME=en_US date +"%a, %d %b %G %T %z")
+	size=$(stat -f "%z" "$dmgPath")
+    sha1=$(shasum "$dmgPath")
+    echo " * Filename: $dmgPath";
+    echo " * Size: $size";
+    echo " * Date: $date";
+    echo " * SHA1: $sha1";
 fi
 #-------------------------------------------------------------------------
 
