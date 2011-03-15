@@ -13,7 +13,7 @@ echo "  * $YOURKEY";
 
 echo "*** Showing installed binaries...";
 echo "  * GPG1:"
-which gpg; gpg --version; 
+which gpg; gpg --version;
 echo "  * GPG2:"
 which gpg2; gpg2 --version
 
@@ -25,6 +25,9 @@ echo "  * GPG1:"
 echo "test"|gpg -aer "$YOURKEY"|gpg
 echo "  * GPG2:"
 echo "test"|gpg2 -aer "$YOURKEY"|gpg2
+echo "test"|gpg2 --default-recipient-self -ae
+echo "test"|gpg2 -as
+echo "test"|gpg2 --default-recipient-self -aes
 
 echo "*** Showing installed bundles...";
 echo "  * /L/M/B:"
@@ -37,5 +40,5 @@ defaults write org.gpgtools.gpgmail GPGMailDebug -int 1
 /Applications/Mail.app/Contents/MacOS/Mail &
 exec 1>&3 2>&4
 
-echo "Please send the file '$0.log' to the developers." 
+echo "Please send the file '$0.log' to the developers."
 
