@@ -1,7 +1,7 @@
 #!/bin/sh
 
 if [ "$1" == "" ]; then
-  echo "Usage: $0 <0xYOURKEY>";
+  echo "Usage: $0 <YOURKEY>";
   exit 1;
 fi
 
@@ -28,6 +28,8 @@ echo "test"|gpg2 -aer "$YOURKEY"|gpg2
 echo "test"|gpg2 --default-recipient-self -ae
 echo "test"|gpg2 -as
 echo "test"|gpg2 --default-recipient-self -aes
+echo "  * The secret keys:";
+gpg2 -K
 
 echo "*** Showing installed bundles...";
 echo "  * /L/M/B:"
