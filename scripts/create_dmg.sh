@@ -31,7 +31,9 @@ appsLinkPos="410, 130"
 iconSize=80
 textSize=13
 
-unset name version appName appPath bundleName pkgProj rmName appsLink dmgName dmgPath imgBackground html bundlePath rmPath releaseDir volumeName downloadUrl downloadUrlPrefix sshKeyname localizeDir
+unset name version appName appPath bundleName pkgProj rmName appsLink \
+	dmgName dmgPath imgBackground html bundlePath rmPath releaseDir \
+	volumeName downloadUrl downloadUrlPrefix sshKeyname localizeDir
 
 
 source "Makefile.config"
@@ -175,16 +177,25 @@ if [ "x$input" == "xy" -o "x$input" == "xY" ]; then
 	hdiutil detach -quiet "$mountPoint"
 	hdiutil convert "$tempDMG" -quiet -format UDZO -imagekey zlib-level=9 -o "$dmgPath"
 
+fi
+#-------------------------------------------------------------------------
+
+
+if [ -e "$dmgPath" ] ;then
 	echo "Information...";
 	date=$(LC_TIME=en_US date +"%a, %d %b %G %T %z")
 	size=$(stat -f "%z" "$dmgPath")
-    sha1=$(shasum "$dmgPath")
+    sha1=$(shasum "$dmgPath" | cut -d " " -f 1)
     echo " * Filename: $dmgPath";
     echo " * Size: $size";
     echo " * Date: $date";
     echo " * SHA1: $sha1";
+else
+	echo "No DMG... Exiting"
+	exit 0
 fi
-#-------------------------------------------------------------------------
+
+
 
 
 #-------------------------------------------------------------------------
@@ -203,7 +214,7 @@ fi
 #-------------------------------------------------------------------------
 ## todo: update Makefile.conf
 ####################################################
-read -p "Create Sparkle appcast entry [y/n]? " input
+read -p "Create Sparkle entry [y/n]? " input
 
 if [ "x$input" == "xy" -o "x$input" == "xY" ]; then
 	PRIVATE_KEY_NAME="$sshKeyname"
@@ -212,22 +223,16 @@ if [ "x$input" == "xy" -o "x$input" == "xY" ]; then
 	  openssl dgst -dss1 -sign <(security find-generic-password -g -s "$PRIVATE_KEY_NAME" 2>&1 >/dev/null | perl -pe '($_) = /<key>NOTE<\/key>.*<string>(.*)<\/string>/; s/\\012/\n/g') |
 	  openssl enc -base64)
 
-	date=$(LC_TIME=en_US date +"%a, %d %b %G %T %z")
-	size=$(stat -f "%z" "$dmgPath")
-	echo -e "\n====== Sparkle appcast: ======\n"
+	echo -e "\n====== Sparkle data: ======\n"
 
 	cat <<-EOT
-		<item>
-			<title>Version ${version}</title>
-			<description>Visit http://www.gpgtools.org/$html.html for further information.</description>
-			<sparkle:releaseNotesLink>http://www.gpgtools.org/$html_sparkle.html</sparkle:releaseNotesLink>
-			<pubDate>${date}</pubDate>
-			<enclosure url="$downloadUrl"
-					   sparkle:version="${version}"
-					   sparkle:dsaSignature="${signature}"
-					   length="${size}"
-					   type="application/octet-stream" />
-		</item>
+		'${version}' => array(date('d. F Y', \$release['${version}']), array(
+		    'sparkle_date' => date(DATE_RFC2822, \$release['${version}']),
+		    'sparkle_url' => '${downloadUrl}',
+		    'sparkle_sig' => '${signature}',
+		    'sparkle_size' => '${size}',
+		    'sha' => 'Checksum: ${sha1} (SHA-1)'
+		)),
 	EOT
 
 	echo -e "\n==============================\n"
