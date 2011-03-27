@@ -58,6 +58,22 @@ downloadUrl=${downloadUrl:-"${downloadUrlPrefix}${dmgName}"}
 
 
 #-------------------------------------------------------------------------
+read -p "Update version strings to '$version' [y/n]? " input
+if [ "x$input" == "xy" -o "x$input" == "xY" ]; then
+    if [ "$pkgReadme" == "" ]; then
+      echo "Add 'pkgReadme' to Makefile.config";
+    exit 2;
+    fi
+    if [ "$pkgInfo" == "" ]; then
+      echo "Add 'pkgInfo' to Makefile.config";
+      exit 3;
+    fi
+    /usr/libexec/PlistBuddy -c "Set :CFBundleVersion '${version}'" $pkgInfo
+    /usr/libexec/PlistBuddy -c "Set :PACKAGES:0:PACKAGE_SETTINGS:VERSION '${version}'" $pkgProj
+    sed -i '' "s/Version: [0-9\.]*/Version: $version/g" $pkgReadme
+fi
+
+
 read -p "Create DMG [y/n]? " input
 
 if [ "x$input" == "xy" -o "x$input" == "xY" ]; then
@@ -223,19 +239,7 @@ if [ "x$input" == "xy" -o "x$input" == "xY" ]; then
 	  openssl dgst -dss1 -sign <(security find-generic-password -g -s "$PRIVATE_KEY_NAME" 2>&1 >/dev/null | perl -pe '($_) = /<key>NOTE<\/key>.*<string>(.*)<\/string>/; s/\\012/\n/g') |
 	  openssl enc -base64)
 
-	echo -e "\n====== Sparkle data: ======\n"
-
-	cat <<-EOT
-		'${version}' => array(date('d. F Y', \$release['${version}']), array(
-		    'sparkle_date' => date(DATE_RFC2822, \$release['${version}']),
-		    'sparkle_url' => '${downloadUrl}',
-		    'sparkle_sig' => '${signature}',
-		    'sparkle_size' => '${size}',
-		    'sha' => 'Checksum: ${sha1} (SHA-1)'
-		)),
-	EOT
-
-	echo -e "\n==============================\n"
+    echo " * Sparkle signature: $signature";
 fi
 #-------------------------------------------------------------------------
 
@@ -243,7 +247,7 @@ fi
 #-------------------------------------------------------------------------
 ## todo: implement this
 ####################################################
-read -p "Create github tag [y/n]? " input
+read -p "Create github tag (not implemented yet) [y/n]? " input
 if [ "x$input" == "xy" -o "x$input" == "xY" ]; then
     echo "to be implemented. start this e.g. for each release"
 fi
