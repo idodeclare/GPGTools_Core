@@ -5,6 +5,7 @@ if [ "$1" == "" ]; then
   exit 1;
 fi
 
+:> $0.log
 exec 3>&1 4>&2 >$0.log 2>&1
 
 echo "*** Setup...";
@@ -36,6 +37,12 @@ echo "  * /L/M/B:"
 ls -l /Library/Mail/Bundles*
 echo "  * ~/L/M/B:"
 ls -l ~/Library/Mail/Bundles*
+
+echo "*** Bundle configuration...";
+echo "  * Bundles enabled: ";
+defaults read com.apple.mail EnableBundles
+echo "  * Bundles compatibility: ";
+defaults read com.apple.mail BundleCompatibilityVersion
 
 echo "*** Some debugging information...";
 defaults write org.gpgtools.gpgmail GPGMailDebug -int 1
