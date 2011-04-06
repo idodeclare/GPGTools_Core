@@ -1,13 +1,13 @@
 #!/bin/bash
 
-echo "WARNING: this might break your system! Press ctrl+c to cancel.";
-echo "You might want to remove gpg using brew/macports/fink/... instead.";
-read
-
 if [ ! "$UID" == "0" ]; then
     echo "You've to be root";
     exit 1;
 fi
+
+echo "WARNING: this will remove MacGPG1 and MacGPG2 from your system!"
+echo "Press ctrl+c to cancel.";
+read
 
 echo "Removing MacGPG2 >= 2.0.17...";
 rm -f /usr/local/bin/gpg2
@@ -17,7 +17,19 @@ rm -f /Library/LaunchAgents/org.gpgtools.macgpg2.gpg-agent.plist
 rm -f /private/etc/paths.d/MacGPG2
 rm -f /private/etc/man.d/MacGPG2
 
-echo "Removing MacGPG2 <= 2.0.16...";
+echo "Removing MacGPG1...";
+rm -f /usr/local/bin/gpg
+rm -fr /usr/local/MacGPG1
+rm -f /private/etc/paths.d/MacGPG1
+rm -f /private/etc/man.d/MacGPG1
+
+echo "WARNING: this will remove other gpg1 and gpg2 installations!"
+echo "WARNING: the next steps might break your system!"
+echo "You might want to remove gpg using brew/macports/fink/... instead.";
+echo "Press ctrl+c to cancel.";
+read
+
+echo "Removing MacGPG2 <= 2.0.16 and other gpg2 installations...";
 rm -fr /Applications/start-gpg-agent.app
 rm -f /usr/local/lib/charset.alias
 rm -fr /usr/local/lib/gettext
@@ -146,7 +158,7 @@ rm -f /usr/local/lib/libpth.dylib
 rm -f /usr/local/lib/libpth.la
 rm -fr /usr/local/pinentry-mac.app
 
-echo "Removing MacGPG1...";
+echo "Removing other gpg1 installations...";
 rm -f /usr/local/bin/gpg
 rm -f /usr/local/bin/gpg-agent
 rm -f /usr/local/bin/gpg-error
