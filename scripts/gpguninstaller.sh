@@ -1,7 +1,7 @@
 #!/bin/bash
 
 echo "WARNING: this might break your system! Press ctrl+c to cancel.";
-echo "You might want to remove gpg using brew/mac port/fink/ instead.";
+echo "You might want to remove gpg using brew/macports/fink/... instead.";
 read
 
 if [ ! "$UID" == "0" ]; then
