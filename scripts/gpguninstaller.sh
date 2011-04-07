@@ -10,6 +10,7 @@ echo "Press ctrl+c to cancel.";
 read
 
 echo "Removing MacGPG2 >= 2.0.17...";
+rm -f /usr/local/bin/gpg-agent
 rm -f /usr/local/bin/gpg2
 rm -fr /usr/local/MacGPG2
 rm -f /Library/LaunchAgents/com.sourceforge.macgpg2.gpg-agent.plist
