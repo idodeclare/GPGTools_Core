@@ -71,5 +71,13 @@ defaults write org.gpgtools.gpgmail GPGMailDebug -int 1
 /Applications/Mail.app/Contents/MacOS/Mail &
 exec 1>&3 2>&4
 
-echo "Please send the file '$0.log' to the developers."
 
+echo "tell application \"Mail\"
+    activate
+    set MyEmail to make new outgoing message with properties {visible:true, subject:\"Debugging GPGTools\", content:\"Your Message Here\n\n\n\"}
+    tell MyEmail
+        make new to recipient at end of to recipients with properties {address:\"gpgtools-devel@lists.gpgtools.org\"}
+        make new attachment with properties {file name:((\"`pwd`/$0.log\" as POSIX file) as alias)}
+    end tell
+end tell
+" | osascript
