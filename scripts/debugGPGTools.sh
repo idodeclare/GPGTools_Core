@@ -3,6 +3,18 @@
 :> $0.log
 exec 3>&1 4>&2 >$0.log 2>&1
 
+echo "*** Applications...";
+[ -d /Applications/GPG\ Keychain\ Access.app ]; echo "  * GKA: $?";
+[ -d /Library/Services/GPGServices.service ]; echo "  * GPGServices: $?";
+[ -d ~/Library/Services/GPGServices.service ]; echo "  * GPGServices~: $?";
+[ -d /usr/local/MacGPG1 ]; echo "  * MacGPG1: $?";
+[ -d /usr/local/MacGPG2 ]; echo "  * MacGPG2: $?";
+[ -d ~/Library/Mail/Bundles/GPGMail.mailbundle ]; echo "  * GPGMail~: $?";
+[ -d /Library/Mail/Bundles/GPGMail.mailbundle ]; echo "  * GPGMail: $?";
+[ -d /Library/PreferencePanes/GPGTools.prefPane ]; echo "  * GPGPref: $?";
+[ -d ~/Library/PreferencePanes/GPGTools.prefPane ]; echo "  * GPGPref~: $?";
+
+
 echo "*** Setup...";
 YOURKEY="`grep ^default-key ~/.gnupg/gpg.conf|awk '{print $2}'`"
 echo "  * Default key: $YOURKEY";
