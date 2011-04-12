@@ -64,13 +64,15 @@ if [ "x$input" == "xy" -o "x$input" == "xY" ]; then
       echo "Add 'pkgReadme' to Makefile.config";
     exit 2;
     fi
-    if [ "$pkgInfo" == "" ]; then
-      echo "Add 'pkgInfo' to Makefile.config";
-      exit 3;
+    if [ ! "$pkgInfo" == "" ]; then
+        /usr/libexec/PlistBuddy -c "Set :CFBundleVersion '${version}'" $pkgInfo
     fi
-    /usr/libexec/PlistBuddy -c "Set :CFBundleVersion '${version}'" $pkgInfo
-    /usr/libexec/PlistBuddy -c "Set :PACKAGES:0:PACKAGE_SETTINGS:VERSION '${version}'" $pkgProj
-    sed -i '' "s/Version: [0-9\.]*/Version: $version/g" $pkgReadme
+    if [ ! "$pkgProj" == "" ]; then
+      /usr/libexec/PlistBuddy -c "Set :PACKAGES:0:PACKAGE_SETTINGS:VERSION '${version}'" $pkgProj
+    fi
+    if [ ! "$pkgReadme" == "" ]; then
+      sed -i '' "s/^Version: .*/Version: $version/g" $pkgReadme
+    fi
 fi
 
 
