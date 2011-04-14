@@ -4,29 +4,29 @@
 exec 3>&1 4>&2 >$0.log 2>&1
 
 echo "*** Applications...";
-[ -d /Applications/GPG\ Keychain\ Access.app ]; echo "  * GKA: $?";
-[ -d /Library/Services/GPGServices.service ]; echo "  * GPGServices: $?";
-[ -d ~/Library/Services/GPGServices.service ]; echo "  * GPGServices~: $?";
-[ -d /usr/local/MacGPG1 ]; echo "  * MacGPG1: $?";
-[ -d /usr/local/MacGPG2 ]; echo "  * MacGPG2: $?";
-[ -d ~/Library/Mail/Bundles/GPGMail.mailbundle ]; echo "  * GPGMail~: $?";
-[ -d /Library/Mail/Bundles/GPGMail.mailbundle ]; echo "  * GPGMail: $?";
-[ -d /Library/PreferencePanes/GPGTools.prefPane ]; echo "  * GPGPref: $?";
-[ -d ~/Library/PreferencePanes/GPGTools.prefPane ]; echo "  * GPGPref~: $?";
+[ ! -d /Applications/GPG\ Keychain\ Access.app ]; echo "  * GKA: $?";
+[ ! -d /Library/Services/GPGServices.service ]; echo "  * GPGServices in /: $?";
+[ ! -d ~/Library/Services/GPGServices.service ]; echo "  * GPGServices in ~: $?";
+[ ! -d /usr/local/MacGPG1 ]; echo "  * MacGPG1: $?";
+[ ! -d /usr/local/MacGPG2 ]; echo "  * MacGPG2: $?";
+[ ! -d /Library/Mail/Bundles/GPGMail.mailbundle ]; echo "  * GPGMail in /: $?";
+[ ! -d ~/Library/Mail/Bundles/GPGMail.mailbundle ]; echo "  * GPGMail in ~: $?";
+[ ! -d /Library/PreferencePanes/GPGTools.prefPane ]; echo "  * GPGPref in /: $?";
+[ ! -d ~/Library/PreferencePanes/GPGTools.prefPane ]; echo "  * GPGPref in ~: $?";
 
 
 echo "*** Setup...";
 YOURKEY="`grep ^default-key ~/.gnupg/gpg.conf|awk '{print $2}'`"
 echo "  * Default key: $YOURKEY";
 
+
 echo "*** Showing installed binaries...";
-echo "  * GPG1:"
-which gpg; gpg --version;
-echo "  * GPG2:"
-which gpg2; gpg2 --version
+bin="`which gpg`"; echo "  * GPG1: `ls -l $bin`"; gpg --version;
+bin="`which gpg2`"; echo "  * GPG2: `ls -l $bin`"; gpg --version;
 
 echo "*** Testing configuration...";
-gpg2 --gpgconf-test; echo $?
+gpg2 --gpgconf-test; echo "  * Config check: $?";
+echo "  * Config permissions: `ls -lad $HOME/.gnupg`";
 
 echo "*** The secret keys:";
 echo "  * GPG1:"
