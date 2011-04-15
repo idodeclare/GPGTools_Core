@@ -22,7 +22,7 @@ echo "  * Default key: $YOURKEY";
 
 echo "*** Showing installed binaries...";
 bin="`which gpg`"; echo "  * GPG1: `ls -l $bin`"; gpg --version;
-bin="`which gpg2`"; echo "  * GPG2: `ls -l $bin`"; gpg --version;
+bin="`which gpg2`"; echo "  * GPG2: `ls -l $bin`"; gpg2 --version;
 
 echo "*** Testing configuration...";
 gpg2 --gpgconf-test; echo "  * Config check: $?";
