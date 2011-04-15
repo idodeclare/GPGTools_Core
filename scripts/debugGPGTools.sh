@@ -53,8 +53,10 @@ echo "test"|gpg2 --default-recipient-self -aes
 
 echo "*** Showing installed bundles...";
 echo "  * /L/M/B:"
+ls -lad /Library/Mail/Bundles*
 ls -l /Library/Mail/Bundles*
 echo "  * ~/L/M/B:"
+ls -lad ~/Library/Mail/Bundles*
 ls -l ~/Library/Mail/Bundles*
 
 echo "*** Bundle configuration...";
