@@ -31,7 +31,9 @@ appsLinkPos="410, 130"
 iconSize=80
 textSize=13
 
-unset name version appName appPath bundleName pkgProj rmName appsLink dmgName dmgPath imgBackground html bundlePath rmPath releaseDir volumeName downloadUrl sshKeyname localizeDir
+unset name version appName appPath bundleName pkgProj rmName appsLink \
+	dmgName dmgPath imgBackground html bundlePath rmPath releaseDir \
+	volumeName downloadUrl downloadUrlPrefix sshKeyname localizeDir
 
 
 source "Makefile.config"
@@ -48,6 +50,7 @@ fi
 dmgName=${dmgName:-"$name-$version.dmg"}
 dmgPath=${dmgPath:-"build/$dmgName"}
 volumeName=${volumeName:-"$name"}
+downloadUrl=${downloadUrl:-"${downloadUrlPrefix}${dmgName}"}
 #-------------------------------------------------------------------------
 
 
@@ -55,6 +58,24 @@ volumeName=${volumeName:-"$name"}
 
 
 #-------------------------------------------------------------------------
+read -p "Update version strings to '$version' [y/n]? " input
+if [ "x$input" == "xy" -o "x$input" == "xY" ]; then
+    if [ "$pkgReadme" == "" ]; then
+      echo "Add 'pkgReadme' to Makefile.config";
+    exit 2;
+    fi
+    if [ ! "$pkgInfo" == "" ]; then
+        /usr/libexec/PlistBuddy -c "Set :CFBundleVersion '${version}'" $pkgInfo
+    fi
+    if [ ! "$pkgProj" == "" ]; then
+      /usr/libexec/PlistBuddy -c "Set :PACKAGES:0:PACKAGE_SETTINGS:VERSION '${version}'" $pkgProj
+    fi
+    if [ ! "$pkgReadme" == "" ]; then
+      sed -i '' "s/^Version: .*/Version: $version/g" $pkgReadme
+    fi
+fi
+
+
 read -p "Create DMG [y/n]? " input
 
 if [ "x$input" == "xy" -o "x$input" == "xY" ]; then
@@ -174,16 +195,25 @@ if [ "x$input" == "xy" -o "x$input" == "xY" ]; then
 	hdiutil detach -quiet "$mountPoint"
 	hdiutil convert "$tempDMG" -quiet -format UDZO -imagekey zlib-level=9 -o "$dmgPath"
 
+fi
+#-------------------------------------------------------------------------
+
+
+if [ -e "$dmgPath" ] ;then
 	echo "Information...";
 	date=$(LC_TIME=en_US date +"%a, %d %b %G %T %z")
 	size=$(stat -f "%z" "$dmgPath")
-    sha1=$(shasum "$dmgPath")
+    sha1=$(shasum "$dmgPath" | cut -d " " -f 1)
     echo " * Filename: $dmgPath";
     echo " * Size: $size";
     echo " * Date: $date";
     echo " * SHA1: $sha1";
+else
+	echo "No DMG... Exiting"
+	exit 0
 fi
-#-------------------------------------------------------------------------
+
+
 
 
 #-------------------------------------------------------------------------
@@ -202,7 +232,7 @@ fi
 #-------------------------------------------------------------------------
 ## todo: update Makefile.conf
 ####################################################
-read -p "Create Sparkle appcast entry [y/n]? " input
+read -p "Create Sparkle entry [y/n]? " input
 
 if [ "x$input" == "xy" -o "x$input" == "xY" ]; then
 	PRIVATE_KEY_NAME="$sshKeyname"
@@ -211,25 +241,7 @@ if [ "x$input" == "xy" -o "x$input" == "xY" ]; then
 	  openssl dgst -dss1 -sign <(security find-generic-password -g -s "$PRIVATE_KEY_NAME" 2>&1 >/dev/null | perl -pe '($_) = /<key>NOTE<\/key>.*<string>(.*)<\/string>/; s/\\012/\n/g') |
 	  openssl enc -base64)
 
-	date=$(LC_TIME=en_US date +"%a, %d %b %G %T %z")
-	size=$(stat -f "%z" "$dmgPath")
-	echo -e "\n====== Sparkle appcast: ======\n"
-
-	cat <<-EOT
-		<item>
-			<title>Version ${version}</title>
-			<description>Visit http://www.gpgtools.org/$html.html for further information.</description>
-			<sparkle:releaseNotesLink>http://www.gpgtools.org/$html_sparkle.html</sparkle:releaseNotesLink>
-			<pubDate>${date}</pubDate>
-			<enclosure url="$downloadUrl"
-					   sparkle:version="${version}"
-					   sparkle:dsaSignature="${signature}"
-					   length="${size}"
-					   type="application/octet-stream" />
-		</item>
-	EOT
-
-	echo -e "\n==============================\n"
+    echo " * Sparkle signature: $signature";
 fi
 #-------------------------------------------------------------------------
 
@@ -237,7 +249,7 @@ fi
 #-------------------------------------------------------------------------
 ## todo: implement this
 ####################################################
-read -p "Create github tag [y/n]? " input
+read -p "Create github tag (not implemented yet) [y/n]? " input
 if [ "x$input" == "xy" -o "x$input" == "xY" ]; then
     echo "to be implemented. start this e.g. for each release"
 fi
