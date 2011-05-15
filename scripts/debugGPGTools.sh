@@ -14,6 +14,18 @@ echo "*** Applications...";
 [ ! -d /Library/PreferencePanes/GPGTools.prefPane ]; echo "  * GPGPref in /: $?";
 [ ! -d ~/Library/PreferencePanes/GPGTools.prefPane ]; echo "  * GPGPref in ~: $?";
 
+echo "*** Permissions...";
+ls -lad /Library/Services/
+ls -lad /Library/Services/GPGServices.service
+ls -lad ~/Library/Services/
+ls -lad ~/Library/Services/GPGServices.service
+ls -lad /usr/local/
+ls -lad /usr/local/MacGPG1
+ls -lad /usr/local/MacGPG2
+ls -lad /Library/Mail/Bundles
+ls -lad ~/Library/Mail/Bundles
+ls -lad /Library/Mail/Bundles/GPGMail.mailbundle
+ls -lad ~/Library/Mail/Bundles/GPGMail.mailbundle
 
 echo "*** Setup...";
 YOURKEY="`grep ^default-key ~/.gnupg/gpg.conf|awk '{print $2}'`"
