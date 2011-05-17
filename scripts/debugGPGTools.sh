@@ -1,5 +1,8 @@
 #!/bin/sh
 
+echo "=============================================="
+echo "If you're asked for a user ID just press enter"
+echo "=============================================="
 :> $0.log
 exec 3>&1 4>&2 >$0.log 2>&1
 
@@ -14,6 +17,20 @@ echo "*** Applications...";
 [ ! -d /Library/PreferencePanes/GPGTools.prefPane ]; echo "  * GPGPref in /: $?";
 [ ! -d ~/Library/PreferencePanes/GPGTools.prefPane ]; echo "  * GPGPref in ~: $?";
 
+echo "*** Permissions...";
+ls -lad /Library/Services/
+ls -lad /Library/Services/GPGServices.service
+ls -lad $HOME/Library/Services/
+ls -lad $HOME/Library/Services/GPGServices.service
+ls -lad /usr/local/
+ls -lad /usr/local/MacGPG1
+ls -lad /usr/local/MacGPG2
+ls -lad /Library/Mail/Bundles
+ls -lad $HOME/Library/Mail/Bundles
+ls -lad /Library/Mail/Bundles/GPGMail.mailbundle
+ls -lad $HOME/Library/Mail/Bundles/GPGMail.mailbundle
+ls -lad $HOME/.gnupg
+
 
 echo "*** Setup...";
 YOURKEY="`grep ^default-key ~/.gnupg/gpg.conf|awk '{print $2}'`"
@@ -26,7 +43,6 @@ bin="`which gpg2`"; echo "  * GPG2: `ls -l $bin`"; gpg2 --version;
 
 echo "*** Testing configuration...";
 gpg2 --gpgconf-test; echo "  * Config check: $?";
-echo "  * Config permissions: `ls -lad $HOME/.gnupg`";
 
 echo "*** The secret keys:";
 echo "  * GPG1:"
@@ -71,6 +87,8 @@ cat ~/.gnupg/gpg.conf
 echo "*** Some debugging information...";
 defaults write org.gpgtools.gpgmail GPGMailDebug -int 1
 /Applications/Mail.app/Contents/MacOS/Mail &
+sleep 2
+defaults write org.gpgtools.gpgmail GPGMailDebug -int 0
 exec 1>&3 2>&4
 
 
