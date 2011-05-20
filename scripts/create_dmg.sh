@@ -230,10 +230,10 @@ fi
 
 
 #-------------------------------------------------------------------------
-## todo: update Makefile.conf
-####################################################
-read -p "Create Sparkle entry [y/n]? " input
-
+input="n"
+if [ "$sshKeyname" != "" ]; then
+	read -p "Create Sparkle signature [y/n]? " input
+fi
 if [ "x$input" == "xy" -o "x$input" == "xY" ]; then
 	PRIVATE_KEY_NAME="$sshKeyname"
 
@@ -247,11 +247,10 @@ fi
 
 
 #-------------------------------------------------------------------------
-## todo: implement this
-####################################################
-read -p "Create github tag (not implemented yet) [y/n]? " input
+read -p "Create github tag for version '$version' [y/n]? " input
 if [ "x$input" == "xy" -o "x$input" == "xY" ]; then
-    echo "to be implemented. start this e.g. for each release"
+    git tag -u 76D78F0500D026C4 -m "Version $version" "$version"
+    git push --tags
 fi
 #-------------------------------------------------------------------------
 
