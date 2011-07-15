@@ -1,8 +1,10 @@
 #!/bin/bash
 
-thunderbirdextensiondir=$HOME/Library/Thunderbird/Profiles/$(ls $HOME/Library/Thunderbird/Profiles | grep default)/extensions
+thunderbirddir=$HOME/Library/Thunderbird/Profiles/$(ls $HOME/Library/Thunderbird/Profiles | grep default)/Mail
+thunderbirdextensiondir=$thunderbirddir/../extensions
 
-if ( test -e $thunderbirdextensiondir ) then
+if ( test -e $thunderbirddir ) then
+    mkdir -p $thunderbirdextensiondir
 	exit 0
 fi
 

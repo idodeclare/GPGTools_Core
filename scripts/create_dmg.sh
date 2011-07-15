@@ -58,22 +58,23 @@ downloadUrl=${downloadUrl:-"${downloadUrlPrefix}${dmgName}"}
 
 
 #-------------------------------------------------------------------------
-read -p "Update version strings to '$version' [y/n]? " input
-if [ "x$input" == "xy" -o "x$input" == "xY" ]; then
-    if [ "$pkgReadme" == "" ]; then
-      echo "Add 'pkgReadme' to Makefile.config";
-    exit 2;
-    fi
-    if [ ! "$pkgInfo" == "" ]; then
-        /usr/libexec/PlistBuddy -c "Set :CFBundleVersion '${version}'" $pkgInfo
-    fi
-    if [ ! "$pkgProj" == "" ]; then
-      /usr/libexec/PlistBuddy -c "Set :PACKAGES:0:PACKAGE_SETTINGS:VERSION '${version}'" $pkgProj
-    fi
-    if [ ! "$pkgReadme" == "" ]; then
-      sed -i '' "s/^Version: .*/Version: $version/g" $pkgReadme
-    fi
-fi
+# doesn't work reliable
+#read -p "Update version strings to '$version' [y/n]? " input
+#if [ "x$input" == "xy" -o "x$input" == "xY" ]; then
+#    if [ "$pkgReadme" == "" ]; then
+#      echo "Add 'pkgReadme' to Makefile.config";
+#    exit 2;
+#    fi
+#    if [ ! "$pkgInfo" == "" ]; then
+#        /usr/libexec/PlistBuddy -c "Set :CFBundleVersion '${version}'" $pkgInfo
+#    fi
+#    if [ ! "$pkgProj" == "" ]; then
+#      /usr/libexec/PlistBuddy -c "Set :PACKAGES:0:PACKAGE_SETTINGS:VERSION '${version}'" $pkgProj
+#    fi
+#    if [ ! "$pkgReadme" == "" ]; then
+#      sed -i '' "s/^Version: .*/Version: $version/g" $pkgReadme
+#    fi
+#fi
 
 
 read -p "Create DMG [y/n]? " input
@@ -249,7 +250,7 @@ fi
 #-------------------------------------------------------------------------
 read -p "Create github tag for version '$version' [y/n]? " input
 if [ "x$input" == "xy" -o "x$input" == "xY" ]; then
-    git tag -u 76D78F0500D026C4 -m "Version $version" "$version"
+    git tag -f -u 76D78F0500D026C4 -m "Version $version" "$version"
     git push --tags
 fi
 #-------------------------------------------------------------------------
