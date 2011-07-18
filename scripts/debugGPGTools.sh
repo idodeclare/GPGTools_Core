@@ -30,7 +30,7 @@ ls -lad $HOME/Library/Mail/Bundles
 ls -lad /Library/Mail/Bundles/GPGMail.mailbundle
 ls -lad $HOME/Library/Mail/Bundles/GPGMail.mailbundle
 ls -lad $HOME/.gnupg
-
+ls -lad $HOME/.gnupg/S.gpg-agent
 
 echo "*** Setup...";
 YOURKEY="`grep ^default-key ~/.gnupg/gpg.conf|awk '{print $2}'`"
@@ -81,7 +81,8 @@ defaults read com.apple.mail EnableBundles
 echo "  * Bundles compatibility: ";
 defaults read com.apple.mail BundleCompatibilityVersion
 
-echo "*** Configuration...";
+echo "*** More about the configuration...";
+uname -a
 ls -la ~/.gnupg/
 file ~/.gnupg/S.gpg-agent
 cat ~/.gnupg/gpg.conf
