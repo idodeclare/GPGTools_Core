@@ -86,6 +86,7 @@ uname -a
 ls -la ~/.gnupg/
 file ~/.gnupg/S.gpg-agent
 cat ~/.gnupg/gpg.conf
+mount
 
 echo "*** Some debugging information...";
 defaults write org.gpgtools.gpgmail GPGMailDebug -int 1
