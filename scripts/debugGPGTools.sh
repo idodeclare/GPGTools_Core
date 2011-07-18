@@ -82,6 +82,8 @@ echo "  * Bundles compatibility: ";
 defaults read com.apple.mail BundleCompatibilityVersion
 
 echo "*** Configuration...";
+ls -la ~/.gnupg/
+file ~/.gnupg/S.gpg-agent
 cat ~/.gnupg/gpg.conf
 
 echo "*** Some debugging information...";
@@ -90,7 +92,6 @@ defaults write org.gpgtools.gpgmail GPGMailDebug -int 1
 sleep 2
 defaults write org.gpgtools.gpgmail GPGMailDebug -int 0
 exec 1>&3 2>&4
-
 
 echo "tell application \"Mail\"
     activate
