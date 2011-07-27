@@ -24,8 +24,12 @@ echo "========================================================================="
 [ ! -f /Library/LaunchAgents/org.gpgtools.macgpg2.gpg-agent.plist ]; echo "  * MacGPGAgent in /: $?";
 [ ! -f ~/Library/LaunchAgents/org.gpgtools.macgpg2.gpg-agent.plist ]; echo "  * MacGPGAgent in ~: $?";
 [ ! -S ~/.gnupg/S.gpg-agent ]; echo "  * MacGPGAgent has a socket: $?";
-[ "`launchctl list|grep macgpg`" == "" ]; echo "  * MacGPGAgent in launchd: $?";
-[ "`ps waux|grep -i gpg-agent|grep -v grep`" == "" ]; echo "  * MacGPGAgent running: $?";
+[ "`launchctl list|grep gpg-agent`" == "" ]; echo "  * MacGPGAgent in launchd: $?";
+[ "`ps waux|grep gpg-agent|grep -v grep`" == "" ]; echo "  * MacGPGAgent running: $?";
+echo -n "  * Path to agent: "; which gpg-agent;
+echo -n "  * Is agent running (directly): "; /usr/local/MacGPG2/bin/gpg-agent
+echo -n "  * Version of agent: "; gpg-agent --version
+echo -n "  * Version of agent (directly): "; /usr/local/MacGPG2/bin/gpg-agent --version;
 echo "========================================================================="
 
 echo "*** Permissions...";
