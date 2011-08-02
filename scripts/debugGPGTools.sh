@@ -45,8 +45,8 @@ echo -n " * LMB: "; ls -lad /Library/Mail/Bundles
 echo -n " * HLMB: "; ls -lad $HOME/Library/Mail/Bundles
 echo -n " * LMBG: "; ls -lad /Library/Mail/Bundles/GPGMail.mailbundle
 echo -n " * HLMBG: "; ls -lad $HOME/Library/Mail/Bundles/GPGMail.mailbundle
-echo -n " * HG: "; ls -lad $HOME/.gnupg
-echo -n " * HGS: "; ls -lad $HOME/.gnupg/S.gpg-agent
+echo -n " * HG: "; ls -lade $HOME/.gnupg
+echo -n " * HGS: "; ls -lade $HOME/.gnupg/S.gpg-agent
 echo "========================================================================="
 
 echo "*** Setup...";
@@ -100,7 +100,7 @@ defaults read com.apple.mail BundleCompatibilityVersion
 
 echo "*** More about the configuration...";
 uname -a
-ls -la ~/.gnupg/
+ls -lae ~/.gnupg/
 file ~/.gnupg/S.gpg-agent
 cat ~/.gnupg/gpg.conf
 mount
