@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 echo "=============================================="
 echo "If you're asked for a user ID just press enter"
@@ -7,6 +7,7 @@ echo "=============================================="
 exec 3>&1 4>&2 >$0.log 2>&1
 
 echo "*** Applications...";
+echo "========================================================================="
 [ ! -d /Applications/GPG\ Keychain\ Access.app ]; echo "  * GKA: $?";
 [ ! -d /Library/Services/GPGServices.service ]; echo "  * GPGServices in /: $?";
 [ ! -d ~/Library/Services/GPGServices.service ]; echo "  * GPGServices in ~: $?";
@@ -16,21 +17,37 @@ echo "*** Applications...";
 [ ! -d ~/Library/Mail/Bundles/GPGMail.mailbundle ]; echo "  * GPGMail in ~: $?";
 [ ! -d /Library/PreferencePanes/GPGTools.prefPane ]; echo "  * GPGPref in /: $?";
 [ ! -d ~/Library/PreferencePanes/GPGTools.prefPane ]; echo "  * GPGPref in ~: $?";
+echo "========================================================================="
+
+echo "** MacGPG agent...";
+echo "========================================================================="
+[ ! -f /Library/LaunchAgents/org.gpgtools.macgpg2.gpg-agent.plist ]; echo "  * MacGPGAgent in /: $?";
+[ ! -f ~/Library/LaunchAgents/org.gpgtools.macgpg2.gpg-agent.plist ]; echo "  * MacGPGAgent in ~: $?";
+[ ! -S ~/.gnupg/S.gpg-agent ]; echo "  * MacGPGAgent has a socket: $?";
+[ "`launchctl list|grep gpg-agent`" == "" ]; echo "  * MacGPGAgent in launchd: $?";
+[ "`ps waux|grep gpg-agent|grep -v grep`" == "" ]; echo "  * MacGPGAgent running: $?";
+echo -n "  * Path to agent: "; which gpg-agent;
+echo -n "  * Is agent running (directly): "; /usr/local/MacGPG2/bin/gpg-agent
+echo -n "  * Version of agent: "; gpg-agent --version
+echo -n "  * Version of agent (directly): "; /usr/local/MacGPG2/bin/gpg-agent --version;
+echo "========================================================================="
 
 echo "*** Permissions...";
-ls -lad /Library/Services/
-ls -lad /Library/Services/GPGServices.service
-ls -lad $HOME/Library/Services/
-ls -lad $HOME/Library/Services/GPGServices.service
-ls -lad /usr/local/
-ls -lad /usr/local/MacGPG1
-ls -lad /usr/local/MacGPG2
-ls -lad /Library/Mail/Bundles
-ls -lad $HOME/Library/Mail/Bundles
-ls -lad /Library/Mail/Bundles/GPGMail.mailbundle
-ls -lad $HOME/Library/Mail/Bundles/GPGMail.mailbundle
-ls -lad $HOME/.gnupg
-ls -lad $HOME/.gnupg/S.gpg-agent
+echo "========================================================================="
+echo -n " * LS: "; ls -lad /Library/Services/
+echo -n " * LSG: "; ls -lad /Library/Services/GPGServices.service
+echo -n " * HLS: "; ls -lad $HOME/Library/Services/
+echo -n " * HLSG: "; ls -lad $HOME/Library/Services/GPGServices.service
+echo -n " * UL: "; ls -lad /usr/local/
+echo -n " * UL1: "; ls -lad /usr/local/MacGPG1
+echo -n " * UL2: "; ls -lad /usr/local/MacGPG2
+echo -n " * LMB: "; ls -lad /Library/Mail/Bundles
+echo -n " * HLMB: "; ls -lad $HOME/Library/Mail/Bundles
+echo -n " * LMBG: "; ls -lad /Library/Mail/Bundles/GPGMail.mailbundle
+echo -n " * HLMBG: "; ls -lad $HOME/Library/Mail/Bundles/GPGMail.mailbundle
+echo -n " * HG: "; ls -lade $HOME/.gnupg
+echo -n " * HGS: "; ls -lade $HOME/.gnupg/S.gpg-agent
+echo "========================================================================="
 
 echo "*** Setup...";
 YOURKEY="`grep ^default-key ~/.gnupg/gpg.conf|awk '{print $2}'`"
@@ -83,7 +100,7 @@ defaults read com.apple.mail BundleCompatibilityVersion
 
 echo "*** More about the configuration...";
 uname -a
-ls -la ~/.gnupg/
+ls -lae ~/.gnupg/
 file ~/.gnupg/S.gpg-agent
 cat ~/.gnupg/gpg.conf
 mount
@@ -94,6 +111,8 @@ defaults write org.gpgtools.gpgmail GPGMailDebug -int 1
 sleep 2
 defaults write org.gpgtools.gpgmail GPGMailDebug -int 0
 exec 1>&3 2>&4
+
+echo "Thank you. Please send the file `pwd`/$0.log to gpgtools-devel@lists.gpgtools.org";
 
 echo "tell application \"Mail\"
     activate
