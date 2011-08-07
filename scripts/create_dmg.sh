@@ -85,6 +85,10 @@ if [ "x$input" == "xy" -o "x$input" == "xY" ]; then
     	if [ -e /usr/local/bin/packagesbuild ]; then
 	    	echo "Building the installer..."
 		    /usr/local/bin/packagesbuild "$pkgProj"
+		if [ "$?" != "0" ]; then
+			echo "ERROR: installer failed!";
+			exit 1;
+		fi
     	else
 	    	echo "ERROR: You need the Application \"Packages\"!" >&2
 		    echo "get it at http://s.sudre.free.fr/Software/Packages.html" >&2
