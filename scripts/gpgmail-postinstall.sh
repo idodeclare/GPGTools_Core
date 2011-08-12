@@ -133,4 +133,5 @@ else
   echo "[$_bundleId] successfully patched";
 fi
 
+chown -R $USER "$_target"
 exit 0
