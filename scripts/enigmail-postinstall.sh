@@ -6,6 +6,7 @@ enigmaildir="$thunderbirdextensiondir/$enigmailid/";
 
 mkdir -p "$enigmaildir";
 unzip $tempdir/enigmail*.xpi -d "$enigmaildir";
+rm $tempdir/enigmail*.xpi
 chown -R "$USER:staff" "$enigmaildir";
 
 # cleanup tempdir "rm -d" deletes the temporary installation dir only if empty.
