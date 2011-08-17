@@ -84,6 +84,7 @@ if [ "x$input" == "xy" -o "x$input" == "xY" ]; then
 	if [ -n "$pkgProj" ]; then
     	if [ -e /usr/local/bin/packagesbuild ]; then
 	    	echo "Building the installer..."
+		    [ "$pkgProj_core" != "" ] && /usr/local/bin/packagesbuild "$pkgProj_core"
 		    /usr/local/bin/packagesbuild "$pkgProj"
 		if [ "$?" != "0" ]; then
 			echo "ERROR: installer failed!";
