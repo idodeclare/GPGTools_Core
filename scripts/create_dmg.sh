@@ -106,6 +106,10 @@ if [ "x$input" == "xy" -o "x$input" == "xY" ]; then
 
 	echo "Copying files..."
     cp -PR "$bundlePath" "$dmgTempDir/"
+	if [ "$?" != "0" ]; then
+		echo "ERROR: could not copy '$bundlePath'!";
+		exit 1;
+	fi
 
 	if [ -n "$localizeDir" ]; then
 		mkdir "$dmgTempDir/.localized"
