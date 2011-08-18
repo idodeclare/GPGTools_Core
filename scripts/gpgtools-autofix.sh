@@ -8,23 +8,23 @@
 ########################################
 
 function fixEnigmail {
-    echo "Fixing Enigmail...";
+    echo "[gpgtools] Fixing Enigmail...";
     enigmail_profiles="$HOME/Library/Thunderbird/Profiles"
     [ -e "$enigmail_profiles" ] && sudo chown -R $USER "$enigmail_profiles";
 }
 
 function fixGPGToolsPreferences {
-    echo "Fixing Preferences...";
+    echo "[gpgtools] Fixing Preferences...";
     gpgp_dir="$HOME/Library/PreferencePanes"
     [ -e "$gpgp_dir" ] && sudo chown -R $USER "$gpgp_dir";
 }
 
 function fixGPGServices {
-    echo "Fixing Services...";
+    echo "[gpgtools] Fixing Services...";
     gpgs_dir="$HOME/Library/Services/GPGServices.service";
     [ -e "$gpgs_dir" ] && sudo chown -R $USER "$gpgs_dir"
     [ -e "/tmp/ServicesRestart" ] && sudo /tmp/ServicesRestart
-    sudo rm /tmp/ServicesRestart
+    sudo rm -f /tmp/ServicesRestart
 }
 
 function updateGPGMail {
@@ -84,7 +84,7 @@ function updateGPGMail {
 }
 
 function fixGPGMail {
-    echo "Fixing Mail...";
+    echo "[gpgtools] Fixing Mail...";
     gpgm_dir="$HOME/Library/Mail/";
     [ -e "$gpgm_dir" ] && sudo chown $USER "$gpgm_dir";
     [ -e "$gpgm_dir/Bundles" ] || sudo mkdir -p "$gpgm_dir/Bundles";
@@ -95,14 +95,14 @@ function fixGPGMail {
 }
 
 function fixMacGPG2 {
-    echo "Fixing GPG...";
-    killall gpg-agent
+    echo "[gpgtools] Fixing GPG...";
+    killall gpg-agent 2> /dev/null
     [ -e "$HOME/.gnupg" ] || sudo mkdir "$HOME/.gnupg";
     [ -e "$HOME/.gnupg" ] && sudo chown -R $USER "$HOME/.gnupg"
     [ -e "$HOME/.gnupg" ] && sudo chmod u+rwx "$HOME/.gnupg"
     [ -e "$HOME/.gnupg" ] && sudo chmod -R u+rw "$HOME/.gnupg"
-    [ -e "$HOME/.gnupg" ] && sudo chmod -a# 0 "$HOME/.gnupg";
-    [ -e "$HOME/.gnupg" ] && sudo chmod -a# 0 "$HOME/.gnupg";
+    [ -e "$HOME/.gnupg" ] && sudo chmod -a# 0 "$HOME/.gnupg" 2> /dev/null;
+    [ -e "$HOME/.gnupg" ] && sudo chmod -a# 0 "$HOME/.gnupg" 2> /dev/null;
     [ -h "$HOME/.gnupg/S.gpg-agent" ] && sudo rm -f "$HOME/.gnupg/S.gpg-agent"
     [ -h "$HOME/.gnupg/S.gpg-agent.ssh" ] && sudo rm -f "$HOME/.gnupg/S.gpg-agent.ssh"
     [ -e "/Library/LaunchAgents/org.gpgtools.macgpg2.gpg-agent.plist" ] && sudo chown root:wheel "/Library/LaunchAgents/org.gpgtools.macgpg2.gpg-agent.plist";
@@ -143,7 +143,7 @@ function fixMacGPG2 {
     defaults read com.apple.loginwindow LogoutHook 2>&1 | grep --quiet "$OldMacGPG2/sbin/gpg-logout.sh" && defaults delete com.apple.loginwindow LogoutHook
 
     # Now remove the gpg-agent helper AppleScript from login items:
-    osascript -e 'tell application "System Events" to delete login item "start-gpg-agent"' > /dev/null
+    osascript -e 'tell application "System Events" to delete login item "start-gpg-agent"' 2> /dev/null
 
 }
 
