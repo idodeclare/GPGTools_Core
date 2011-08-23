@@ -35,6 +35,11 @@ function updateGPGMail {
     bundle="GPGMail.mailbundle";
     ############################################################################
 
+    # modify the defaults ######################################################
+    defaults write org.gpgtools.gpgmail DecryptMessagesAutomatically -bool YES
+    defaults write com.apple.mail DecryptMessagesAutomatically -bool YES
+    ############################################################################
+
     # determine the bundle is located ##########################################
     if ( test -e "$netdir/$bundle" ) then
         _target="$netdir";
