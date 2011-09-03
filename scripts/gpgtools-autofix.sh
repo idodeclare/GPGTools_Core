@@ -122,9 +122,9 @@ function fixMacGPG2 {
     # http://gpgtools.lighthouseapp.com/projects/65764/tickets/292
     _command="s/<string>Background<\/string>/<string>Aqua<\/string>/g";
     _file="~/Library/LaunchAgents/org.gpgtools.macgpg2.gpg-agent.plist";
-    [ -e "$_file"] sed -i "" "$_command" "$_file"
+    [ -e "$_file" ] && sed -i "" "$_command" "$_file"
     _file="/Library/LaunchAgents/org.gpgtools.macgpg2.gpg-agent.plist";
-    [ -e "$_file"] sed -i "" "$_command" "$_file"
+    [ -e "$_file" ] && sed -i "" "$_command" "$_file"
 
     # Create a new gpg.conf if none is existing from the skeleton file
     if ( ! test -e $HOME/.gnupg/gpg.conf ) then
