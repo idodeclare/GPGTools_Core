@@ -118,6 +118,14 @@ function fixMacGPG2 {
     sudo ln -s /usr/local/MacGPG2/bin/gpg-agent "/usr/local/bin/gpg-agent";
     [ ! -e "/usr/local/bin/gpg" ] && sudo ln -s /usr/local/MacGPG2/bin/gpg2 "/usr/local/bin/gpg";
 
+    # Lion: pinentry Mac "Save in Keychain" doesn't work
+    # http://gpgtools.lighthouseapp.com/projects/65764/tickets/292
+    _command="s/<string>Background<\/string>/<string>Aqua<\/string>/g";
+    _file="~/Library/LaunchAgents/org.gpgtools.macgpg2.gpg-agent.plist";
+    [ -e "$_file"] sed -i "" "$_command" "$_file"
+    _file="/Library/LaunchAgents/org.gpgtools.macgpg2.gpg-agent.plist";
+    [ -e "$_file"] sed -i "" "$_command" "$_file"
+
     # Create a new gpg.conf if none is existing from the skeleton file
     if ( ! test -e $HOME/.gnupg/gpg.conf ) then
     	echo "Create!"
