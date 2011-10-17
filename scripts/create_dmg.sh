@@ -5,13 +5,18 @@
 # (c) by Felix Co & Alexander Willner & Roman Zechmeister
 #
 
-pushd "$1" > /dev/null
+#pushd "$1" > /dev/null
 
 if [ ! -e Makefile.config ]; then
 	echo "Wrong directory..." >&2
 	exit 1
 fi
 
+if [ "$1" == "auto" ]; then
+  auto="1";
+else
+  auto="0";
+fi
 
 
 #config ------------------------------------------------------------------
@@ -76,10 +81,11 @@ downloadUrl=${downloadUrl:-"${downloadUrlPrefix}${dmgName}"}
 #    fi
 #fi
 
+if [ "$auto" != "1" ]; then
+  read -p "Create DMG [y/n]? " input
+fi
 
-read -p "Create DMG [y/n]? " input
-
-if [ "x$input" == "xy" -o "x$input" == "xY" ]; then
+if [ "$auto" == "1" -o "x$input" == "xy" -o "x$input" == "xY" ]; then
 
 	if [ -n "$pkgProj" ]; then
     	if [ -e /usr/local/bin/packagesbuild ]; then
@@ -227,7 +233,10 @@ fi
 
 
 #-------------------------------------------------------------------------
-read -p "Create a detached signature [y/n]? " input
+
+if [ "$auto" != "1" ]; then
+  read -p "Create a detached signature [y/n]? " input
+fi
 
 if [ "x$input" == "xy" -o "x$input" == "xY" ]; then
 	echo "Removing old signature..."
@@ -242,7 +251,9 @@ fi
 #-------------------------------------------------------------------------
 input="n"
 if [ "$sshKeyname" != "" ]; then
-	read -p "Create Sparkle signature [y/n]? " input
+	if [ "$auto" != "1" ]; then
+		read -p "Create Sparkle signature [y/n]? " input
+	fi
 fi
 if [ "x$input" == "xy" -o "x$input" == "xY" ]; then
 	PRIVATE_KEY_NAME="$sshKeyname"
@@ -257,7 +268,9 @@ fi
 
 
 #-------------------------------------------------------------------------
-read -p "Create github tag for version '$version' [y/n]? " input
+if [ "$auto" != "1" ]; then
+	read -p "Create github tag for version '$version' [y/n]? " input
+fi
 if [ "x$input" == "xy" -o "x$input" == "xY" ]; then
     git tag -f -u 76D78F0500D026C4 -m "Version $version" "$version"
     git push --tags
@@ -269,5 +282,5 @@ echo "Cleanup..."
 rm -rf "$tempPath"
 
 
-popd > /dev/null
+#popd > /dev/null
 
