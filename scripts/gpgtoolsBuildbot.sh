@@ -12,6 +12,7 @@
 #
 # ##############################################################################
 
+cd /Data/Temp/GPGTools_QA/
 
 # config #######################################################################
 name_master="gpgtools-master"
@@ -33,7 +34,8 @@ while true; do
   echo " 2) Stop master and slave"
   echo " 3) Show buildbot"
   echo " 4) Reload config"
-  echo " 5) Invoke change"
+  echo " 5) Invoke change for all projects"
+  echo " 6) Invoke change for specific project"
   echo "========================================="
   echo -n "Your choice: "
 
@@ -61,7 +63,11 @@ while true; do
   elif [ "$input" == "4" ]; then
     buildbot reconfig "$name_master"
   elif [ "$input" == "5" ]; then
-    buildbot sendchange --master "$conf_port" --who "script" manual
+    buildbot sendchange --project "all" --master "$conf_port" --who "script" manual
+  elif [ "$input" == "6" ]; then
+    echo -n "Which project: "
+    read project
+    buildbot sendchange --project "$project" --master "$conf_port" --who "script" manual
   fi
 done
 # ##############################################################################
