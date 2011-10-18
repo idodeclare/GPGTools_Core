@@ -157,7 +157,10 @@ function fixMacGPG2 {
 
     # Now remove the gpg-agent helper AppleScript from login items:
     osascript -e 'tell application "System Events" to delete login item "start-gpg-agent"' 2> /dev/null
-
+    
+    # ~/.gnupg on NFS volumes
+    # http://gpgtools.lighthouseapp.com/projects/66001-macgpg2/tickets/55
+    /tmp/testSockets.py $HOME/.gnupg/ || echo "no-use-standard-socket" >> $HOME/.gnupg/gpg.conf
 }
 
 fixEnigmail
