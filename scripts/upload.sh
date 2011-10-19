@@ -5,8 +5,6 @@
 # @author   Alex
 #
 
-#pushd "$1" > /dev/null
-
 if [ ! -e Makefile.config ]; then
 	echo "Wrong directory..." >&2
 	exit 1
@@ -26,16 +24,18 @@ dmgPath=${dmgPath:-"build/$dmgName"}
 #-------------------------------------------------------------------------
 
 #-------------------------------------------------------------------------
-if [ "`which github_upload`" == "" ]; then
-  echo "ERROR: You need the Application \"github_upload\"!" >&2
-  echo "get it at https://github.com/GPGTools/upload" >&2
+if [ "`which ruby`" == "" ]; then
+  echo "ERROR: You need ruby!" >&2
   exit 1
 fi
 
 if [ "$dmgPath" == "" -o "$dmgUrl" == "" -o "$version" == "" -o ! -e "$dmgPath" ] ; then
-  echo "ERROR: config not complete".
+  echo "ERROR: config not complete" >&2
+  echo " * dmgPath: $dmgPath" >&2
+  echo " * dmgUrl: $dmgUrl" >&2
+  echo " * version: $version" >&2
   exit 2
 fi
 
-github_upload "$dmgPath" "$dmgUrl"
+ruby ./Dependencies/GPGTools_Core/scripts/github_upload.rb "$dmgPath" "$dmgUrl"
 #-------------------------------------------------------------------------
