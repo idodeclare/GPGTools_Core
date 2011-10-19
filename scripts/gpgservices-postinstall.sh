@@ -23,11 +23,14 @@ mv /private/tmp/GPGServices.service "$_target"
 # Cleanup
 if [ -e "$HOME/Library/Services/GPGServices.service" ]; then
     chown -R $USER "$_target"
+else
+    chown -R root:admin "$_target"
+    chmod -R 755 "$_target"
 fi
 
 # Reload keyboard preferences
-./ServicesRestart
+$_target/GPGServices.service/Contents/Resources/ServicesRestart
 sleep 2
-sudo ./ServicesRestart
+sudo $_target/GPGServices.service/Contents/Resources/ServicesRestart
 
 exit 0
