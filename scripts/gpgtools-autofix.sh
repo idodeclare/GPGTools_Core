@@ -102,6 +102,16 @@ function fixGPGMail {
 function fixMacGPG2 {
     echo "[gpgtools] Fixing GPG...";
     killall gpg-agent 2> /dev/null
+
+    # Lion: pinentry Mac "Save in Keychain" doesn't work
+    # http://gpgtools.lighthouseapp.com/projects/65764/tickets/292
+    _key="LimitLoadToSessionType"
+    _value="Aqua";
+    _file="$HOME/Library/LaunchAgents/org.gpgtools.macgpg2.gpg-agent.plist";
+    [ -e "$_file" ] && defaults write "$_file" "$_key" "$_value";
+    _file="/Library/LaunchAgents/org.gpgtools.macgpg2.gpg-agent.plist";
+    [ -e "$_file" ] && sudo defaults write "$_file" "$_key" "$_value";
+
     [ -e "$HOME/.gnupg" ] || sudo mkdir "$HOME/.gnupg";
     [ -e "$HOME/.gnupg" ] && sudo chown -R $USER "$HOME/.gnupg"
     [ -e "$HOME/.gnupg" ] && sudo chmod u+rwx "$HOME/.gnupg"
@@ -111,20 +121,15 @@ function fixMacGPG2 {
     [ -h "$HOME/.gnupg/S.gpg-agent" ] && sudo rm -f "$HOME/.gnupg/S.gpg-agent"
     [ -h "$HOME/.gnupg/S.gpg-agent.ssh" ] && sudo rm -f "$HOME/.gnupg/S.gpg-agent.ssh"
     [ -e "/Library/LaunchAgents/org.gpgtools.macgpg2.gpg-agent.plist" ] && sudo chown root:wheel "/Library/LaunchAgents/org.gpgtools.macgpg2.gpg-agent.plist";
+    [ -e "/Library/LaunchAgents/org.gpgtools.macgpg2.gpg-agent.plist" ] && sudo chmod 644 "/Library/LaunchAgents/org.gpgtools.macgpg2.gpg-agent.plist";
+    [ -e "$HOME/Library/LaunchAgents/org.gpgtools.macgpg2.gpg-agent.plist" ] && sudo chown $USER "$HOME/Library/LaunchAgents/org.gpgtools.macgpg2.gpg-agent.plist";
+    [ -e "$HOME/Library/LaunchAgents/org.gpgtools.macgpg2.gpg-agent.plist" ] && sudo chmod 644 "$HOME/Library/LaunchAgents/org.gpgtools.macgpg2.gpg-agent.plist";
     sudo mkdir -p "/usr/local/bin";
     sudo rm -f "/usr/local/bin/gpg2";
     sudo ln -s /usr/local/MacGPG2/bin/gpg2 "/usr/local/bin/gpg2";
     sudo rm -f "/usr/local/bin/gpg-agent";
     sudo ln -s /usr/local/MacGPG2/bin/gpg-agent "/usr/local/bin/gpg-agent";
     [ ! -e "/usr/local/bin/gpg" ] && sudo ln -s /usr/local/MacGPG2/bin/gpg2 "/usr/local/bin/gpg";
-
-    # Lion: pinentry Mac "Save in Keychain" doesn't work
-    # http://gpgtools.lighthouseapp.com/projects/65764/tickets/292
-    _param="LimitLoadToSessionType Aqua";
-    _file="$HOME/Library/LaunchAgents/org.gpgtools.macgpg2.gpg-agent.plist";
-    [ -e "$_file" ] && defaults write "$_file" $_param;
-    _file="/Library/LaunchAgents/org.gpgtools.macgpg2.gpg-agent.plist";
-    [ -e "$_file" ] && echo defaults write "$_file" $_param;
 
     # Create a new gpg.conf if none is existing from the skeleton file
     if ( ! test -e $HOME/.gnupg/gpg.conf ) then
@@ -157,7 +162,7 @@ function fixMacGPG2 {
 
     # Now remove the gpg-agent helper AppleScript from login items:
     osascript -e 'tell application "System Events" to delete login item "start-gpg-agent"' 2> /dev/null
-    
+
     # ~/.gnupg on NFS volumes
     # http://gpgtools.lighthouseapp.com/projects/66001-macgpg2/tickets/55
     /tmp/testSockets.py $HOME/.gnupg/ || echo "no-use-standard-socket" >> $HOME/.gnupg/gpg.conf
