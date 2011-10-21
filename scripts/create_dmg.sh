@@ -7,10 +7,17 @@
 
 #pushd "$1" > /dev/null
 
-if [ ! -e Makefile.config ]; then
-	echo "Wrong directory..." >&2
+function errExit() {
+	echo -e "\033[1;31m$* (line ${BASH_LINENO[0]})\033[0m" >&2
 	exit 1
-fi
+}
+function echoBold() {
+	echo -e "\033[1m$*\033[0m"
+}
+
+[ -e Makefile.config ] ||
+	errExit "Wrong directory..." 
+
 
 auto="0";
 for var in "$@"; do
@@ -86,19 +93,13 @@ fi
 if [ "x$input" == "xy" -o "x$input" == "xY" ]; then
 
 	if [ -n "$pkgProj" ]; then
-    	if [ -e /usr/local/bin/packagesbuild ]; then
-	    	echo "Building the installer..."
-		    [ "$pkgProj_core" != "" ] && /usr/local/bin/packagesbuild "$pkgProj_core"
-		    /usr/local/bin/packagesbuild "$pkgProj"
-		if [ "$?" != "0" ]; then
-			echo "ERROR: installer failed!";
-			exit 1;
-		fi
-    	else
-	    	echo "ERROR: You need the Application \"Packages\"!" >&2
-		    echo "get it at http://s.sudre.free.fr/Software/Packages.html" >&2
-    		exit 1
-	    fi
+    	[ -e /usr/local/bin/packagesbuild ] ||
+			errExit "ERROR: You need the Application \"Packages\"!\nget it at http://s.sudre.free.fr/Software/Packages.html"
+
+		echo "Building the installer..."
+		[ "$pkgProj_core" != "" ] && /usr/local/bin/packagesbuild "$pkgProj_core"
+		/usr/local/bin/packagesbuild "$pkgProj" ||
+			errExit "ERROR: installer failed!"
 	fi
 
 
@@ -110,11 +111,9 @@ if [ "x$input" == "xy" -o "x$input" == "xY" ]; then
 	mkdir "$dmgTempDir"
 
 	echo "Copying files..."
-    cp -PR "$bundlePath" "$dmgTempDir/"
-	if [ "$?" != "0" ]; then
-		echo "ERROR: could not copy '$bundlePath'!";
-		exit 1;
-	fi
+    cp -PR "$bundlePath" "$dmgTempDir/" ||
+		errExit "ERROR: could not copy '$bundlePath'!"
+	
 
 	if [ -n "$localizeDir" ]; then
 		mkdir "$dmgTempDir/.localized"
@@ -143,8 +142,12 @@ if [ "x$input" == "xy" -o "x$input" == "xY" ]; then
 
 
 	echo "Creating DMG..."
-	hdiutil create -scrub -quiet -fs HFS+ -fsargs "-c c=64,a=16,e=16" -format UDRW -srcfolder "$dmgTempDir" -volname "$volumeName" "$tempDMG"
-	mountInfo=$(hdiutil attach -readwrite -noverify "$tempDMG")
+	hdiutil create -scrub -quiet -fs HFS+ -fsargs "-c c=64,a=16,e=16" -format UDRW -srcfolder "$dmgTempDir" -volname "$volumeName" "$tempDMG" ||
+		errExit "ERROR: Create DMG failed!"
+
+	mountInfo=$(hdiutil attach -readwrite -noverify "$tempDMG") ||
+		errExit "ERROR: Attach DMG failed!"
+
 	device=$(echo "$mountInfo" | head -1 | cut -d " " -f 1)
 	mountPoint=$(echo "$mountInfo" | tail -1 | sed -En 's/([^	]+[	]+){2}//p')
 
@@ -213,19 +216,16 @@ fi
 #-------------------------------------------------------------------------
 
 
-if [ -e "$dmgPath" ] ;then
-	echo "Information...";
-	date=$(LC_TIME=en_US date +"%a, %d %b %G %T %z")
-	size=$(stat -f "%z" "$dmgPath")
-    sha1=$(shasum "$dmgPath" | cut -d " " -f 1)
-    echo " * Filename: $dmgPath";
-    echo " * Size: $size";
-    echo " * Date: $date";
-    echo " * SHA1: $sha1";
-else
-	echo "No DMG... Exiting"
-	exit 0
-fi
+[ -e "$dmgPath" ] || errExit "No DMG... Exiting"
+
+echo "Information...";
+date=$(LC_TIME=en_US date +"%a, %d %b %G %T %z")
+size=$(stat -f "%z" "$dmgPath")
+sha1=$(shasum "$dmgPath" | cut -d " " -f 1)
+echoBold " * Filename: $dmgPath";
+echoBold " * Size: $size";
+echoBold " * Date: $date";
+echoBold " * SHA1: $sha1";
 
 
 
@@ -258,7 +258,7 @@ if [ "$sshKeyname" != "" ]; then
 	  openssl dgst -dss1 -sign <(security find-generic-password -g -s "$PRIVATE_KEY_NAME" 2>&1 >/dev/null | perl -pe '($_) = /<key>NOTE<\/key>.*<string>(.*)<\/string>/; s/\\012/\n/g') |
 	  openssl enc -base64)
 
-    echo " * Sparkle signature: $signature";
+    echoBold " * Sparkle signature: $signature";
     fi
 fi
 #-------------------------------------------------------------------------
