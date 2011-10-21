@@ -15,8 +15,8 @@ echo "========================================================================="
 [ ! -d /usr/local/MacGPG2 ]; echo "  * MacGPG2: $?";
 [ ! -d /Library/Mail/Bundles/GPGMail.mailbundle ]; echo "  * GPGMail in /: $?";
 [ ! -d ~/Library/Mail/Bundles/GPGMail.mailbundle ]; echo "  * GPGMail in ~: $?";
-[ ! -d /Library/PreferencePanes/GPGTools.prefPane ]; echo "  * GPGPref in /: $?";
-[ ! -d ~/Library/PreferencePanes/GPGTools.prefPane ]; echo "  * GPGPref in ~: $?";
+[ ! -d /Library/PreferencePanes/GPGPreferences.prefPane ]; echo "  * GPGPref in /: $?";
+[ ! -d ~/Library/PreferencePanes/GPGPreferences.prefPane ]; echo "  * GPGPref in ~: $?";
 echo "========================================================================="
 
 echo "** MacGPG agent...";
