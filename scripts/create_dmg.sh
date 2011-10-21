@@ -12,12 +12,10 @@ if [ ! -e Makefile.config ]; then
 	exit 1
 fi
 
-if [ "$1" == "auto" ]; then
-  auto="1";
-else
-  auto="0";
-fi
-
+auto="0";
+for var in "$@"; do
+    if [ "$var" == "auto" ]; then auto="1"; input="y"; fi
+done
 
 #config ------------------------------------------------------------------
 setIcon="./Dependencies/GPGTools_Core/bin/setfileicon"
@@ -85,7 +83,7 @@ if [ "$auto" != "1" ]; then
   read -p "Create DMG [y/n]? " input
 fi
 
-if [ "$auto" == "1" -o "x$input" == "xy" -o "x$input" == "xY" ]; then
+if [ "x$input" == "xy" -o "x$input" == "xY" ]; then
 
 	if [ -n "$pkgProj" ]; then
     	if [ -e /usr/local/bin/packagesbuild ]; then
@@ -207,7 +205,7 @@ if [ "$auto" == "1" -o "x$input" == "xy" -o "x$input" == "xY" ]; then
 
 
 
-	echo "Convert DMG..."
+	echo "Converting DMG..."
 	hdiutil detach -quiet "$mountPoint"
 	hdiutil convert "$tempDMG" -quiet -format UDZO -imagekey zlib-level=9 -o "$dmgPath"
 
@@ -249,13 +247,11 @@ fi
 
 
 #-------------------------------------------------------------------------
-input="n"
 if [ "$sshKeyname" != "" ]; then
 	if [ "$auto" != "1" ]; then
 		read -p "Create Sparkle signature [y/n]? " input
 	fi
-fi
-if [ "x$input" == "xy" -o "x$input" == "xY" ]; then
+    if [ "x$input" == "xy" -o "x$input" == "xY" ]; then
 	PRIVATE_KEY_NAME="$sshKeyname"
 
 	signature=$(openssl dgst -sha1 -binary < "$dmgPath" |
@@ -263,6 +259,7 @@ if [ "x$input" == "xy" -o "x$input" == "xY" ]; then
 	  openssl enc -base64)
 
     echo " * Sparkle signature: $signature";
+    fi
 fi
 #-------------------------------------------------------------------------
 
