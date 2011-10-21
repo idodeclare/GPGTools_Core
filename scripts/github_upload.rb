@@ -54,9 +54,10 @@ end
 
 def die(message, with_usage = false)
   puts "ERROR: #{message}"
-  puts %Q|Usage: #{__FILE__} file_to_upload [repo]
+  puts %Q|Usage: #{__FILE__} file_to_upload repo description
   file_to_upload: File to be uploaded.
-  repo: GitHub repo to upload to.  Ex: "tekkub/sandbox".  If omitted, the repo from `git remote show origin` will be used.| if with_usage
+  repo: GitHub repo to upload to.
+  description: The description.| if with_usage
   exit 1
 end
 
@@ -70,10 +71,9 @@ die "No file specified", true unless filename = ARGV[0]
 die "Target file does not exist" unless File.size?(filename)
 basename=File.basename(filename)
 
-repo = ARGV[1]
-repo = $1 if repo.nil? && `git remote show origin` =~ /git@github.com:(.+?)\.git/
-die("Unable to find GitHub repo", true) if repo.nil?
+die "No GitHub repo specified", true unless repo = ARGV[1]
 
+die "No description specified", true unless descr = ARGV[2]
 
 file = File.new(filename)
 mime_type = MIME::Types.type_for(filename)[0] || MIME::Types["application/octet-stream"][0]
@@ -90,7 +90,7 @@ res = http.post_form("/#{repo}/downloads", {
   :file_size => File.size(filename),
   :content_type => mime_type.simplified,
   :file_name => basename,
-  :description => 'Latest EXPERIMENTAL build',
+  :description => descr,
   :login => user,
   :token => token,
 })
@@ -98,7 +98,7 @@ die "Repo not found" if res.class == Net::HTTPNotFound
 date = res["Date"]
 
 if res.body == "Filename has already been taken"
-  puts "Filename has already been taken"
+  puts "Filename '" + basename + "' has already been taken"
   exit 0
 end
 
