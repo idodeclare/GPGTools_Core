@@ -105,7 +105,7 @@ end
 data = JSON.parse(res.body)
 die "Unable to authorize upload" if data["signature"].nil?
 
-printf("Signature: %s", data["signature"])
+printf("Signature: %s\n", data["signature"])
 
 puts "Post to S3..."
 url = URI.parse "http://github.s3.amazonaws.com/"
@@ -121,7 +121,7 @@ res = http.post_multipart("/", {
   :success_action_status => 201
 })
 
-printf("Result: %s", res.class)
+printf("Result: %s\n", res.class)
 
 die "File upload failed" unless res.class == Net::HTTPCreated
 puts "File uploaded successfully"
