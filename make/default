@@ -1,4 +1,28 @@
 deploy: compile
 	@./Dependencies/GPGTools_Core/scripts/create_dmg.sh auto
-	@./Dependencies/GPGTools_Core/scripts/upload.sh	
+	@./Dependencies/GPGTools_Core/scripts/upload.sh
 
+check-all-warnings: clean
+	make compile | grep "warning: "
+
+check-warnings: clean
+	make compile | grep "warning: "|grep -v "#warning"
+
+check: clean
+	@if [ "`which scan-build`" == "" ]; then echo 'usage: PATH=$$PATH:path_to_scan_build make check'; echo "see: http://clang-analyzer.llvm.org/"; exit 1; fi
+	@echo "";
+	@echo "Have a closer look at these warnings:";
+	@echo "=====================================";
+	@echo "";
+	@echo "(then have a look at build/report/ or at error.log)";
+	@echo "";
+	@scan-build -analyzer-check-objc-missing-dealloc \
+	            -analyzer-check-dead-stores \
+	            -analyzer-check-idempotent-operations \
+	            -analyzer-check-llvm-conventions \
+	            -analyzer-check-objc-mem \
+	            -analyzer-check-objc-methodsigs \
+	            -analyzer-check-objc-missing-dealloc \
+	            -analyzer-check-objc-unused-ivars \
+	            -analyzer-check-security-syntactic \
+	            --use-cc clang -o build/report make compile 2>error.log|grep "is deprecated"
