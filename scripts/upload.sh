@@ -24,6 +24,7 @@ dmgPath=${dmgPath:-"build/$dmgName"}
 dmgHash="$(shasum "$dmgPath"|cut -d " " -f 1)"
 sigPath="$dmgPath.sig"
 sigHash="$(shasum "$sigPath"|cut -d " " -f 1)"
+today=$(date -u '+%F');
 #-------------------------------------------------------------------------
 
 #-------------------------------------------------------------------------
@@ -40,11 +41,12 @@ if [ "$dmgPath" == "" -o "$dmgUrl" == "" -o "$version" == "" -o ! -e "$dmgPath" 
   echo " * dmgHash: $dmgHash" >&2
   echo " * sigHash: $sigHash" >&2
   echo " * version: $version" >&2
+  echo " * date: $today" >&2
   exit 2
 fi
 
-ruby ./Dependencies/GPGTools_Core/scripts/github_upload.rb "$dmgPath" "$dmgUrl" "SHA1 = $dmgHash"
+ruby ./Dependencies/GPGTools_Core/scripts/github_upload.rb "$dmgPath" "$dmgUrl" "Version $version ($today) SHA1 = $dmgHash"
 if [ -e "$sigPath" ]; then
-    ruby ./Dependencies/GPGTools_Core/scripts/github_upload.rb "$sigPath" "$dmgUrl" "SHA1 = $sigHash"
+    ruby ./Dependencies/GPGTools_Core/scripts/github_upload.rb "$sigPath" "$dmgUrl" "Version $version ($today) SHA1 = $sigHash"
 fi
 #-------------------------------------------------------------------------
