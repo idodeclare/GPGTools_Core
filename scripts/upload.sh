@@ -21,9 +21,9 @@ if [ -z "$version" ]; then
 fi
 dmgName=${dmgName:-"$name-$version.dmg"}
 dmgPath=${dmgPath:-"build/$dmgName"}
-dmgHash="`shasum $dmgPath|cut -d " " -f 1`"
+dmgHash="$(shasum "$dmgPath"|cut -d " " -f 1)"
 sigPath="$dmgPath.sig"
-sigHash="`shasum $sigPath|cut -d " " -f 1`"
+sigHash="$(shasum "$sigPath"|cut -d " " -f 1)"
 #-------------------------------------------------------------------------
 
 #-------------------------------------------------------------------------
