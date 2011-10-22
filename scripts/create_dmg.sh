@@ -9,20 +9,16 @@
 
 function errExit() {
 	echo -e "\033[1;31m$* (line ${BASH_LINENO[0]})\033[0m" >&2
+	
+	if [ -n "$mountPoint"] ;then
+		hdiutil detach -quiet "$mountPoint"
+	fi
+	
 	exit 1
 }
 function echoBold() {
 	echo -e "\033[1m$*\033[0m"
 }
-
-[ -e Makefile.config ] ||
-	errExit "Wrong directory..." 
-
-
-auto="0";
-for var in "$@"; do
-    if [ "$var" == "auto" ]; then auto="1"; input="y"; fi
-done
 
 #config ------------------------------------------------------------------
 setIcon="./Dependencies/GPGTools_Core/bin/setfileicon"
@@ -43,8 +39,12 @@ textSize=13
 
 unset name version appName appPath bundleName pkgProj rmName appsLink \
 	dmgName dmgPath imgBackground html bundlePath rmPath releaseDir \
-	volumeName downloadUrl downloadUrlPrefix sshKeyname localizeDir
+	volumeName downloadUrl downloadUrlPrefix sshKeyname localizeDir mountPoint
 
+
+
+[ -e Makefile.config ] ||
+	errExit "Wrong directory..." 
 
 source "Makefile.config"
 
@@ -63,6 +63,10 @@ volumeName=${volumeName:-"$name"}
 downloadUrl=${downloadUrl:-"${downloadUrlPrefix}${dmgName}"}
 #-------------------------------------------------------------------------
 
+auto="0";
+for var in "$@"; do
+	if [ "$var" == "auto" ]; then auto="1"; input="y"; fi
+done
 
 
 
@@ -173,6 +177,7 @@ if [ "x$input" == "xy" -o "x$input" == "xY" ]; then
 			end tell
 		end tell
 	EOT
+	[ $? -eq 0 ] || errExit "ERROR: Set attributes failed!"
 
 	if [ -n "$rmName" ]; then # Set position of the Uninstaller
 		osascript >/dev/null <<-EOT
@@ -182,6 +187,7 @@ if [ "x$input" == "xy" -o "x$input" == "xY" ]; then
 				end tell
 			end tell
 		EOT
+		[ $? -eq 0 ] || errExit "ERROR: Set position of the Uninstaller failed!"
 	fi
 	if [ "0$appsLink" -eq 1 ]; then # Set position of the Symlink to /Applications
 		osascript >/dev/null <<-EOT
@@ -191,6 +197,7 @@ if [ "x$input" == "xy" -o "x$input" == "xY" ]; then
 				end tell
 			end tell
 		EOT
+		[ $? -eq 0 ] || errExit "ERROR: Set position of Applications-Symlink failed!"
 	fi
 
 	osascript >/dev/null <<-EOT
@@ -201,16 +208,18 @@ if [ "x$input" == "xy" -o "x$input" == "xY" ]; then
 			end tell
 		end tell
 	EOT
+	[ $? -eq 0 ] || errExit "ERROR: Update attributes failed!"
 
 
-	chmod -Rf +r,go-w "$mountPoint"
+	chmod -Rf +r,go-w "$mountPoint" || errExit "ERROR: chmod failed!"
 	rm -r "$mountPoint/.Trashes" "$mountPoint/.fseventsd"
 
 
 
 	echo "Converting DMG..."
 	hdiutil detach -quiet "$mountPoint"
-	hdiutil convert "$tempDMG" -quiet -format UDZO -imagekey zlib-level=9 -o "$dmgPath"
+	hdiutil convert "$tempDMG" -quiet -format UDZO -imagekey zlib-level=9 -o "$dmgPath" ||
+		errExit "ERROR: Convert DMG failed!!"
 
 fi
 #-------------------------------------------------------------------------
@@ -242,6 +251,9 @@ if [ "x$input" == "xy" -o "x$input" == "xY" ]; then
 
 	echo "Signing..."
 	gpg2 -bau 76D78F0500D026C4 -o "${dmgPath}.sig"  "$dmgPath"
+
+	gpg2 --verify "${dmgPath}.sig" "$dmgPath" >/dev/null 2>&1 ||
+		errExit "ERROR: Sign failed!"
 fi
 #-------------------------------------------------------------------------
 
