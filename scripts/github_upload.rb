@@ -1,5 +1,6 @@
 #!/usr/bin/env ruby
 
+################################################################################
 begin
     require "net/http"
     require 'net/https'
@@ -10,8 +11,12 @@ begin
     require 'CGI'
 rescue LoadError
   puts "ERROR: Some requirements are not met. Please try to run 'gem install json mime-types'."
+  exit 1
 end
+################################################################################
 
+
+################################################################################
 module Net
   class HTTP
     def urlencode(str)
@@ -54,8 +59,10 @@ module Net
     end
   end
 end
+################################################################################
 
 
+################################################################################
 def die(message, with_usage = false)
   puts "ERROR: #{message}"
   puts %Q|Usage: #{__FILE__} file_to_upload repo description
@@ -64,31 +71,36 @@ def die(message, with_usage = false)
   description: The description.| if with_usage
   exit 1
 end
+################################################################################
 
 
+# Check input/config ###########################################################
 user  = `git config --global github.user`.strip
 token = `git config --global github.token`.strip
 die "Cannot find login credentials" if user.empty? || token.empty?
-
-
 die "No file specified", true unless filename = ARGV[0]
 die "Target file does not exist" unless File.size?(filename)
-basename=File.basename(filename)
-
 die "No GitHub repo specified", true unless repo = ARGV[1]
-
 die "No description specified", true unless descr = ARGV[2]
+################################################################################
 
+
+# Setup ########################################################################
+basename = File.basename(filename)
 file = File.new(filename)
 mime_type = MIME::Types.type_for(filename)[0] || MIME::Types["application/octet-stream"][0]
+################################################################################
 
 
-# Check for conflict
+# Check for conflict ###########################################################
 url = URI.parse "https://github.com/"
 http = Net::HTTP.new url.host, url.port
 http.use_ssl = url.scheme == 'https'
 http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+################################################################################
 
+
+################################################################################
 puts "Get the info we need from GitHub to post to S3..."
 res = http.post_form("/#{repo}/downloads", {
   :file_size => File.size(filename),
@@ -98,19 +110,20 @@ res = http.post_form("/#{repo}/downloads", {
   :login => user,
   :token => token,
 })
+
 die "Repo not found" if res.class == Net::HTTPNotFound
 date = res["Date"]
-
 if res.body == "Filename has already been taken"
   puts "Filename '" + basename + "' has already been taken"
   exit 0
 end
-
 data = JSON.parse(res.body)
 die "Unable to authorize upload" if data["signature"].nil?
-
 printf("Signature: %s\n", data["signature"])
+################################################################################
 
+
+################################################################################
 puts "Post to S3..."
 url = URI.parse "http://github.s3.amazonaws.com/"
 http = Net::HTTP.new url.host, url.port
@@ -126,6 +139,6 @@ res = http.post_multipart("/", {
 })
 
 printf("Result: %s\n", res.class)
-
 die "File upload failed" unless res.class == Net::HTTPCreated
 puts "File uploaded successfully"
+################################################################################
