@@ -15,3 +15,17 @@ check: clean
 	@scan-build --use-cc clang -o build/report \
 	    xcodebuild -project $(PROJECT).xcodeproj -target $(TARGET) \
 	    -configuration $(CONFIG) build
+style:
+	@if [ "`which uncrustify`" == "" ]; then echo 'usage: PATH=$$PATH:path_to_uncrustify make style'; echo "see: https://github.com/bengardner/uncrustify"; exit 1; fi
+	uncrustify -c ./Dependencies/GPGTools_Core/resources/uncrustify.cfg --no-backup Source/*.h
+	uncrustify -c ./Dependencies/GPGTools_Core/resources/uncrustify.cfg --no-backup Source/*.m
+
+compile:
+	@xcodebuild -project $(PROJECT).xcodeproj -target $(TARGET) -configuration $(CONFIG) build
+
+clean:
+	@xcodebuild -project $(PROJECT).xcodeproj -target $(TARGET) -configuration $(CONFIG) clean > /dev/null
+
+
+dmg: clean update compile
+	@./Dependencies/GPGTools_Core/scripts/create_dmg.sh
