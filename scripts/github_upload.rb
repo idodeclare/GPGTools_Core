@@ -1,12 +1,16 @@
 #!/usr/bin/env ruby
 
-require "net/http"
-require 'net/https'
-require "rubygems"
-require 'json'
-require "time"
-require 'mime/types'
-require 'CGI'
+begin
+    require "net/http"
+    require 'net/https'
+    require "rubygems"
+    require 'json'
+    require "time"
+    require 'mime/types'
+    require 'CGI'
+rescue LoadError
+  puts "ERROR: Some requirements are not met. Please try to run 'gem install json mime-types'."
+end
 
 module Net
   class HTTP
