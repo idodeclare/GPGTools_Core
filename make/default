@@ -11,7 +11,7 @@ check-warnings: clean
 	make compile | grep "warning: "|grep -v "#warning"
 
 check: clean
-	@if [ "`which scan-build`" == "" ]; then echo 'usage: PATH=$$PATH:path_to_scan_build make check'; echo "see: http://clang-analyzer.llvm.org/"; exit 1; fi
+	@if [ "`which scan-build`" == "" ]; then echo 'usage: PATH=$PATH:$path_to_scan_build make check'; echo "see: http://clang-analyzer.llvm.org/"; exit 1; fi
 	@scan-build --use-cc clang -o build/report \
 	    xcodebuild -project $(PROJECT).xcodeproj -target $(TARGET) \
 	    -configuration $(CONFIG) build
