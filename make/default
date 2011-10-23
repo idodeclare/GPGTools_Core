@@ -20,12 +20,5 @@ style:
 	uncrustify -c ./Dependencies/GPGTools_Core/resources/uncrustify.cfg --no-backup Source/*.h
 	uncrustify -c ./Dependencies/GPGTools_Core/resources/uncrustify.cfg --no-backup Source/*.m
 
-compile:
-	@xcodebuild -project $(PROJECT).xcodeproj -target $(TARGET) -configuration $(CONFIG) build
-
-clean:
-	@xcodebuild -project $(PROJECT).xcodeproj -target $(TARGET) -configuration $(CONFIG) clean > /dev/null
-
-
 dmg: clean update compile
 	@./Dependencies/GPGTools_Core/scripts/create_dmg.sh
