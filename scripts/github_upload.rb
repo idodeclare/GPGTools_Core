@@ -77,7 +77,7 @@ end
 # Check input/config ###########################################################
 user  = `git config --global github.user`.strip
 token = `git config --global github.token`.strip
-die "Cannot find login credentials" if user.empty? || token.empty?
+die "Cannot find login credentials. See git config --global github.user and git config --global github.token" if user.empty? || token.empty?
 die "No file specified", true unless filename = ARGV[0]
 die "Target file does not exist" unless File.size?(filename)
 die "No GitHub repo specified", true unless repo = ARGV[1]
