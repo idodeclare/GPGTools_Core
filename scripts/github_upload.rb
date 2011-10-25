@@ -92,16 +92,12 @@ mime_type = MIME::Types.type_for(filename)[0] || MIME::Types["application/octet-
 ################################################################################
 
 
-# Check for conflict ###########################################################
+################################################################################
+puts "Get the info we need from GitHub to post to S3..."
 url = URI.parse "https://github.com/"
 http = Net::HTTP.new url.host, url.port
 http.use_ssl = url.scheme == 'https'
 http.verify_mode = OpenSSL::SSL::VERIFY_NONE
-################################################################################
-
-
-################################################################################
-puts "Get the info we need from GitHub to post to S3..."
 res = http.post_form("/#{repo}/downloads", {
   :file_size => File.size(filename),
   :content_type => mime_type.simplified,
