@@ -23,6 +23,7 @@ conf_slave="example-slave"
 # ##############################################################################
 
 # auto setup ###################################################################
+export LC_LANG="en_US.UTF-8";
 function setupEasy {
     if [ "`which $1`" == "" ]; then
         echo "We need to install $1 first. Please press enter";
