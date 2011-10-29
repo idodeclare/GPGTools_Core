@@ -3,7 +3,7 @@
 #
 # Buildbot start script for GPGTools
 #
-# @version  1.0 (2011-10-15)
+# @version  1.1 (2011-10-29)
 # @author   Alex
 # @url      http://gpgtools.org
 # @url      https://raw.github.com/GPGTools/GPGTools_Core/master/resources/master.cfg
@@ -11,8 +11,6 @@
 # @history  1.0 Initial version
 #
 # ##############################################################################
-
-cd /Data/Temp/GPGTools_QA/
 
 # config #######################################################################
 name_master="gpgtools-master"
@@ -26,7 +24,7 @@ conf_slave="example-slave"
 
 # auto setup ###################################################################
 function setupEasy {
-    if [ "`which $1`" == "" ]; then 
+    if [ "`which $1`" == "" ]; then
         echo "We need to install $1 first. Please press enter";
         read
         easy_install $1
@@ -36,7 +34,7 @@ function setupEasy {
             sudo easy_install $1
             if [ "$?" != "0" ]; then
                 echo "Ok, no luck. Please install $1 yourself. Sorry."
-            fi    
+            fi
         fi
     fi
 }
