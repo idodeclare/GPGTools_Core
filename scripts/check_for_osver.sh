@@ -1,4 +1,4 @@
-#! /usr/bin/env bash
+#!/usr/bin/env PATH=$PATH:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin:/opt/local/bin bash
 
 ## Test for Mac OS X
 SW_VERS=`which sw_vers`
