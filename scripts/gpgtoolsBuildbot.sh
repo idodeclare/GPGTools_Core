@@ -3,7 +3,7 @@
 #
 # Buildbot start script for GPGTools
 #
-# @version  1.0 (2011-10-15)
+# @version  1.1 (2011-10-29)
 # @author   Alex
 # @url      http://gpgtools.org
 # @url      https://raw.github.com/GPGTools/GPGTools_Core/master/resources/master.cfg
@@ -11,8 +11,6 @@
 # @history  1.0 Initial version
 #
 # ##############################################################################
-
-cd /Data/Temp/GPGTools_QA/
 
 # config #######################################################################
 name_master="gpgtools-master"
@@ -24,6 +22,24 @@ conf_pwd="pass"
 conf_slave="example-slave"
 # ##############################################################################
 
+# auto setup ###################################################################
+export LC_LANG="en_US.UTF-8";
+function setupEasy {
+    if [ "`which $1`" == "" ]; then
+        echo "We need to install $1 first. Please press enter";
+        read
+        easy_install $1
+        if [ "$?" != "0" ]; then
+            echo "Ok, trying again as root. Please press enter";
+            read
+            sudo easy_install $1
+            if [ "$?" != "0" ]; then
+                echo "Ok, no luck. Please install $1 yourself. Sorry."
+            fi
+        fi
+    fi
+}
+# ##############################################################################
 
 # menu #########################################################################
 while true; do
@@ -44,14 +60,14 @@ while true; do
     exit 0
   elif [ "$input" == "1" ]; then
     # start master #############################################################
-    if [ "`which buildbot`" == "" ]; then easy_install buildbot; fi
+    if [ "`which buildbot`" == "" ]; then setupEasy buildbot; fi
     if [ ! -d "$name_master" ]; then buildbot create-master "$name_master"; fi
     if [ ! -f "$name_master/master.cfg" ]; then curl "$url_config" > "$name_master/master.cfg"; fi
     if [ "`ps waux|grep -i python|grep $name_master`" == "" ]; then buildbot start "$name_master"; fi
     # ##########################################################################
 
     # start slave ##################################################################
-    if [ "`which buildslave`" == "" ]; then easy_install buildbot-slave; fi
+    if [ "`which buildslave`" == "" ]; then setupEasy buildbot-slave; fi
     if [ ! -d "$name_slave" ]; then buildslave create-slave "$name_slave" "$conf_port" "$conf_slave" "$conf_pwd"; fi
     if [ "`ps waux|grep -i python|grep $name_slave`" == "" ]; then nice -n 15 buildslave start "$name_slave"; fi
     # ##############################################################################

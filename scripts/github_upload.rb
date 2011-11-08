@@ -77,7 +77,7 @@ end
 # Check input/config ###########################################################
 user  = `git config --global github.user`.strip
 token = `git config --global github.token`.strip
-die "Cannot find login credentials" if user.empty? || token.empty?
+die "Cannot find login credentials. See git config --global github.user and git config --global github.token" if user.empty? || token.empty?
 die "No file specified", true unless filename = ARGV[0]
 die "Target file does not exist" unless File.size?(filename)
 die "No GitHub repo specified", true unless repo = ARGV[1]
@@ -92,16 +92,12 @@ mime_type = MIME::Types.type_for(filename)[0] || MIME::Types["application/octet-
 ################################################################################
 
 
-# Check for conflict ###########################################################
+################################################################################
+puts "Get the info we need from GitHub to post to S3..."
 url = URI.parse "https://github.com/"
 http = Net::HTTP.new url.host, url.port
 http.use_ssl = url.scheme == 'https'
 http.verify_mode = OpenSSL::SSL::VERIFY_NONE
-################################################################################
-
-
-################################################################################
-puts "Get the info we need from GitHub to post to S3..."
 res = http.post_form("/#{repo}/downloads", {
   :file_size => File.size(filename),
   :content_type => mime_type.simplified,
