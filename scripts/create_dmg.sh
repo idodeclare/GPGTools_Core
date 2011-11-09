@@ -9,11 +9,11 @@
 
 function errExit() {
 	echo -e "\033[1;31m$* (line ${BASH_LINENO[0]})\033[0m" >&2
-	
+
 	if [ -n "$mountPoint"] ;then
 		hdiutil detach -quiet "$mountPoint"
 	fi
-	
+
 	exit 1
 }
 function echoBold() {
@@ -44,7 +44,7 @@ unset name version appName appPath bundleName pkgProj rmName appsLink \
 
 
 [ -e Makefile.config ] ||
-	errExit "Wrong directory..." 
+	errExit "Wrong directory..."
 
 source "Makefile.config"
 
@@ -105,7 +105,9 @@ if [ "x$input" == "xy" -o "x$input" == "xY" ]; then
 		/usr/local/bin/packagesbuild "$pkgProj" ||
 			errExit "ERROR: installer failed!"
 	fi
-
+    if [ "`mount|grep $volumeName`" != "" ]; then
+        errExit "ERROR: volume '$volumeName' is already mounted!"
+    fi
 
 	echo "Removing old files..."
 	rm -f "$dmgPath"
@@ -117,7 +119,7 @@ if [ "x$input" == "xy" -o "x$input" == "xY" ]; then
 	echo "Copying files..."
     cp -PR "$bundlePath" "$dmgTempDir/" ||
 		errExit "ERROR: could not copy '$bundlePath'!"
-	
+
 
 	if [ -n "$localizeDir" ]; then
 		mkdir "$dmgTempDir/.localized"
