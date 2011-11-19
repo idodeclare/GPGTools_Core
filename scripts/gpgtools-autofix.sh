@@ -75,6 +75,7 @@ function updateGPGMail {
     uuid2=`defaults read "$_plistFramework" "PluginCompatibilityUUID"`
     if [ "" == "$uuid1" ] || [ "" == "$uuid2" ] ; then
         echo "[$_bundleId] Warning: could not patch GPGMail. No UUIDs found.";
+        return;
     fi
     isPatched1=`grep $uuid1 "$_bundlePath/Contents/Info.plist" 2>/dev/null`
     isPatched2=`grep $uuid2 "$_bundlePath/Contents/Info.plist" 2>/dev/null`
