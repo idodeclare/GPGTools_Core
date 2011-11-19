@@ -283,6 +283,8 @@ if [ "$auto" != "1" ]; then
 	read -p "Create github tag for version '$version' [y/n]? " input
 fi
 if [ "x$input" == "xy" -o "x$input" == "xY" ]; then
+    git pull && git commit -m "Missing commits for version $version" .
+    git push
     git tag -f -u 76D78F0500D026C4 -m "Version $version" "$version"
     git push --tags
 fi
