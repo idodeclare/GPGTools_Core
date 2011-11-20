@@ -4,4 +4,4 @@
 osascript -e "quit app \"Mail\""
 
 # Remove possible leftovers of previous installations
-rm -rf "/tmp/GPGMail_Installation"
+rm -rf "/private/tmp/GPGMail_Installation"

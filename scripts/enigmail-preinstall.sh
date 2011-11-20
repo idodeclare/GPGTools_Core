@@ -1,4 +1,4 @@
 #!/bin/sh
 
 # Remove possible leftovers of previous installations
-rm -rf "/tmp/Enigmail_Installation"
+rm -rf "/private/tmp/Enigmail_Installation"

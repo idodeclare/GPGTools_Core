@@ -23,8 +23,8 @@ function fixGPGServices {
     echo "[gpgtools] Fixing Services...";
     gpgs_dir="$HOME/Library/Services/GPGServices.service";
     [ -e "$gpgs_dir" ] && sudo chown -R $USER "$gpgs_dir"
-    [ -e "/tmp/ServicesRestart" ] && sudo /tmp/ServicesRestart
-    sudo rm -f /tmp/ServicesRestart
+    [ -e "/private/tmp/ServicesRestart" ] && sudo /private/tmp/ServicesRestart
+    sudo rm -f /private/tmp/ServicesRestart
 }
 
 function updateGPGMail {
@@ -166,7 +166,7 @@ function fixMacGPG2 {
 
     # ~/.gnupg on NFS volumes
     # http://gpgtools.lighthouseapp.com/projects/66001-macgpg2/tickets/55
-    /tmp/testSockets.py $HOME/.gnupg/ || echo "no-use-standard-socket" >> $HOME/.gnupg/gpg.conf
+    /private/tmp/testSockets.py $HOME/.gnupg/ || echo "no-use-standard-socket" >> $HOME/.gnupg/gpg.conf
 }
 
 fixEnigmail
