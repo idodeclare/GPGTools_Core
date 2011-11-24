@@ -7,6 +7,7 @@
 PATH=$PATH:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin:/opt/local/bin
 
 keys="`gpg --homedir=$HOME/.gnupg  --list-secret-keys 2>/dev/null`";
+sudo chown -R $USER "$HOME/.gnupg"
 
 if [ "$keys" == "" ]; then
   open -a "GPG Keychain Access" --args --gen-key
