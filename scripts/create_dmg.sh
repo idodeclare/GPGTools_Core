@@ -70,7 +70,6 @@ done
 
 
 
-
 #-------------------------------------------------------------------------
 # doesn't work reliable
 #read -p "Update version strings to '$version' [y/n]? " input
@@ -89,6 +88,23 @@ done
 #      sed -i '' "s/^Version: .*/Version: $version/g" $pkgReadme
 #    fi
 #fi
+
+
+
+#-------------------------------------------------------------------------
+if [ "$auto" != "1" ]; then
+	read -p "Create github tag for version '$version' [y/n]? " input
+fi
+if [ "x$input" == "xy" -o "x$input" == "xY" ]; then
+	git pull && git commit -m "Missing commits for version $version" .
+	git push
+	git tag -u 76D78F0500D026C4 -m "Version $version" "$version" || errExit "ERROR: Can not create github tag!" # Prevent unwanted overriding of an existing tag.
+	git push --tags
+fi
+#-------------------------------------------------------------------------
+
+
+
 
 if [ "$auto" != "1" ]; then
   read -p "Create DMG [y/n]? " input
@@ -274,19 +290,6 @@ if [ "$sshKeyname" != "" ]; then
 
     echoBold " * Sparkle signature: $signature";
     fi
-fi
-#-------------------------------------------------------------------------
-
-
-#-------------------------------------------------------------------------
-if [ "$auto" != "1" ]; then
-	read -p "Create github tag for version '$version' [y/n]? " input
-fi
-if [ "x$input" == "xy" -o "x$input" == "xY" ]; then
-    git pull && git commit -m "Missing commits for version $version" .
-    git push
-    git tag -f -u 76D78F0500D026C4 -m "Version $version" "$version"
-    git push --tags
 fi
 #-------------------------------------------------------------------------
 
