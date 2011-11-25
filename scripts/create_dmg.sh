@@ -64,8 +64,13 @@ downloadUrl=${downloadUrl:-"${downloadUrlPrefix}${dmgName}"}
 #-------------------------------------------------------------------------
 
 auto="0";
+forcetag="-f"
 for var in "$@"; do
-	if [ "$var" == "auto" ]; then auto="1"; input="y"; fi
+	if [ "$var" == "auto" ]; then
+		auto="1"; input="y"
+	elif [ "$var" == "no-force-tag" ]; then
+		forcetag=""
+	fi
 done
 
 
@@ -98,7 +103,7 @@ fi
 if [ "x$input" == "xy" -o "x$input" == "xY" ]; then
 	git pull && git commit -m "Missing commits for version $version" .
 	git push
-	git tag -u 76D78F0500D026C4 -m "Version $version" "$version" || errExit "ERROR: Can not create github tag!" # Prevent unwanted overriding of an existing tag.
+	git tag $forcetag -u 76D78F0500D026C4 -m "Version $version" "$version" || errExit "ERROR: Can not create github tag!" # Prevent unwanted overriding of an existing tag.
 	git push --tags
 fi
 #-------------------------------------------------------------------------
