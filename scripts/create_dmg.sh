@@ -164,9 +164,8 @@ if [ "x$input" == "xy" -o "x$input" == "xY" ]; then
         "$setIcon" "$imgTrash" "$dmgTempDir/$rmName"
     fi
 
-
-
-
+        # Fix for Packages 1.1
+        chmod -R +w $dmgTempDir
 
 	echo "Creating DMG..."
 	hdiutil create -scrub -quiet -fs HFS+ -fsargs "-c c=64,a=16,e=16" -format UDRW -srcfolder "$dmgTempDir" -volname "$volumeName" "$tempDMG" ||
@@ -300,6 +299,7 @@ fi
 
 
 echo "Cleanup..."
+chmod -R +w "$tempPath"
 rm -rf "$tempPath"
 
 
