@@ -1,5 +1,21 @@
 #!/bin/bash
 
+disclaimer="A lot of your personal info is contained in this log! Please consider to edit it before sending if you don't wish to send us all that!"
+
+echo "=============================================="
+echo "DISCLAIMER"
+echo "=============================================="
+echo ""
+echo "$disclaimer"
+echo ""
+echo "Press 'y' to continue..."
+read n
+
+if [ "y" != "$n" ] && [ "Y" != "$n" ]; then
+  exit 1;
+fi
+
+echo ""
 echo "=============================================="
 echo "If you're asked for a user ID just press enter"
 echo "=============================================="
@@ -116,9 +132,9 @@ echo "Thank you. Please send the file `pwd`/$0.log to gpgtools-devel@lists.gpgto
 
 echo "tell application \"Mail\"
     activate
-    set MyEmail to make new outgoing message with properties {visible:true, subject:\"Debugging GPGTools\", content:\"Your Message Here\n\n\n\"}
+    set MyEmail to make new outgoing message with properties {visible:true, subject:\"Debugging GPGTools\", content:\"DISCLAIMER: $disclaimer\n\n\n\"}
     tell MyEmail
-        make new to recipient at end of to recipients with properties {address:\"gpgtools-devel@lists.gpgtools.org\"}
+        make new to recipient at end of to recipients with properties {address:\"gpgtools-org@lists.gpgtools.org\"}
         make new attachment with properties {file name:((\"`pwd`/$0.log\" as POSIX file) as alias)}
     end tell
 end tell
