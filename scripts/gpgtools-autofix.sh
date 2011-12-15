@@ -116,6 +116,7 @@ function fixMacGPG2 {
     [ -e "$HOME/.gnupg" ] || sudo mkdir "$HOME/.gnupg";
     [ -e "$HOME/.gnupg" ] && sudo chown -R $USER "$HOME/.gnupg"
     [ -e "$HOME/.gnupg" ] && sudo chmod u+rwx "$HOME/.gnupg"
+    [ -e "$HOME/.gnupg" ] && sudo chmod -R go-w "$HOME/.gnupg"
     [ -e "$HOME/.gnupg" ] && sudo chmod -R u+rw "$HOME/.gnupg"
     [ -e "$HOME/.gnupg" ] && sudo chmod -a# 0 "$HOME/.gnupg" 2> /dev/null;
     [ -e "$HOME/.gnupg" ] && sudo chmod -a# 0 "$HOME/.gnupg" 2> /dev/null;
