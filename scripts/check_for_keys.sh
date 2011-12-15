@@ -20,8 +20,7 @@ if [ ! -e "/Applications/GPG Keychain Access.app" ]; then
 fi
 
 echo "Test for keys..."
-keys="`gpg --homedir=$HOME/.gnupg -K 2>/dev/null`";
-sudo chown -R $USER "$HOME/.gnupg"
+keys="`su $USER -c 'gpg --homedir=$HOME/.gnupg -K 2>/dev/null'`";
 
 echo "Open GKA..."
 if [ "$keys" == "" ]; then
