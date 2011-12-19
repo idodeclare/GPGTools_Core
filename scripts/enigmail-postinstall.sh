@@ -5,7 +5,7 @@ enigmailid="{847b3a00-7ab1-11d4-8f02-006008948af5}";
 enigmaildir="$thunderbirdextensiondir/$enigmailid/";
 
 mkdir -p "$enigmaildir";
-unzip $tempdir/enigmail*.xpi -d "$enigmaildir";
+unzip -o $tempdir/enigmail*.xpi -d "$enigmaildir";
 rm $tempdir/enigmail*.xpi
 chown -R "$USER:staff" "$enigmaildir";
 
