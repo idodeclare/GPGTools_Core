@@ -118,6 +118,14 @@ function fixMacGPG2 {
     [ -e "$HOME/.gnupg" ] && sudo chmod u+rwx "$HOME/.gnupg"
     [ -e "$HOME/.gnupg" ] && sudo chmod -R go-w "$HOME/.gnupg"
     [ -e "$HOME/.gnupg" ] && sudo chmod -R u+rw "$HOME/.gnupg"
+    [ -e "$HOME/.gnupg" ] && sudo chmod 700 ~/.gnupg
+    [ -e "$HOME/.gnupg" ] && sudo chmod 644 ~/.gnupg/gpg-agent.conf
+    [ -e "$HOME/.gnupg" ] && sudo chmod 600 ~/.gnupg/gpg.conf
+    [ -e "$HOME/.gnupg" ] && sudo chmod 700 ~/.gnupg/private-keys-v1.d
+    [ -e "$HOME/.gnupg" ] && sudo chmod 600 ~/.gnupg/pubring.gpg
+    [ -e "$HOME/.gnupg" ] && sudo chmod 600 ~/.gnupg/random_seed
+    [ -e "$HOME/.gnupg" ] && sudo chmod 600 ~/.gnupg/secring.gpg
+    [ -e "$HOME/.gnupg" ] && sudo chmod 600 ~/.gnupg/trustdb.gpg
     [ -e "$HOME/.gnupg" ] && sudo chmod -a# 0 "$HOME/.gnupg" 2> /dev/null;
     [ -e "$HOME/.gnupg" ] && sudo chmod -a# 0 "$HOME/.gnupg" 2> /dev/null;
     [ -h "$HOME/.gnupg/S.gpg-agent" ] && sudo rm -f "$HOME/.gnupg/S.gpg-agent"
@@ -167,7 +175,7 @@ function fixMacGPG2 {
 
     # ~/.gnupg on NFS volumes
     # http://gpgtools.lighthouseapp.com/projects/66001-macgpg2/tickets/55
-    if [ -e /private/tmp/testSockets.py ]; then 
+    if [ -e /private/tmp/testSockets.py ]; then
       /private/tmp/testSockets.py $HOME/.gnupg/ || echo "no-use-standard-socket" >> $HOME/.gnupg/gpg-agent.conf
     fi
 }
