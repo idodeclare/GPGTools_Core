@@ -115,19 +115,13 @@ function fixMacGPG2 {
 
     [ -e "$HOME/.gnupg" ] || sudo mkdir "$HOME/.gnupg";
     [ -e "$HOME/.gnupg" ] && sudo chown -R $USER "$HOME/.gnupg"
-    [ -e "$HOME/.gnupg" ] && sudo chmod u+rwx "$HOME/.gnupg"
-    [ -e "$HOME/.gnupg" ] && sudo chmod -R go-w "$HOME/.gnupg"
-    [ -e "$HOME/.gnupg" ] && sudo chmod -R u+rw "$HOME/.gnupg"
-    [ -e "$HOME/.gnupg" ] && sudo chmod 700 ~/.gnupg
-    [ -e "$HOME/.gnupg" ] && sudo chmod 644 ~/.gnupg/gpg-agent.conf
-    [ -e "$HOME/.gnupg" ] && sudo chmod 600 ~/.gnupg/gpg.conf
-    [ -e "$HOME/.gnupg" ] && sudo chmod 700 ~/.gnupg/private-keys-v1.d
-    [ -e "$HOME/.gnupg" ] && sudo chmod 600 ~/.gnupg/pubring.gpg
-    [ -e "$HOME/.gnupg" ] && sudo chmod 600 ~/.gnupg/random_seed
-    [ -e "$HOME/.gnupg" ] && sudo chmod 600 ~/.gnupg/secring.gpg
-    [ -e "$HOME/.gnupg" ] && sudo chmod 600 ~/.gnupg/trustdb.gpg
     [ -e "$HOME/.gnupg" ] && sudo chmod -a# 0 "$HOME/.gnupg" 2> /dev/null;
     [ -e "$HOME/.gnupg" ] && sudo chmod -a# 0 "$HOME/.gnupg" 2> /dev/null;
+    [ -e "$HOME/.gnupg" ] && sudo chmod -a# 0 "$HOME/.gnupg/*" 2> /dev/null;
+    [ -e "$HOME/.gnupg" ] && sudo chmod -a# 0 "$HOME/.gnupg/*" 2> /dev/null;
+    [ -e "$HOME/.gnupg" ] && sudo chmod 700 "$HOME/.gnupg";
+    [ -e "$HOME/.gnupg" ] && sudo chmod -R 600 "$HOME/.gnupg/*";
+    [ -e "$HOME/.gnupg" ] && sudo chmod 700 "$HOME/.gnupg/private-keys-v1.d/";
     [ -h "$HOME/.gnupg/S.gpg-agent" ] && sudo rm -f "$HOME/.gnupg/S.gpg-agent"
     [ -h "$HOME/.gnupg/S.gpg-agent.ssh" ] && sudo rm -f "$HOME/.gnupg/S.gpg-agent.ssh"
     [ -e "/Library/LaunchAgents/org.gpgtools.macgpg2.gpg-agent.plist" ] && sudo chown root:wheel "/Library/LaunchAgents/org.gpgtools.macgpg2.gpg-agent.plist";
