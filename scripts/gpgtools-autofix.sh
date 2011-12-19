@@ -167,8 +167,9 @@ function fixMacGPG2 {
 
     # ~/.gnupg on NFS volumes
     # http://gpgtools.lighthouseapp.com/projects/66001-macgpg2/tickets/55
-    # Disabled for now: MacGPG 2.0.17 doesn't like this option and check seems not to work properly
-    #/private/tmp/testSockets.py $HOME/.gnupg/ || echo "no-use-standard-socket" >> $HOME/.gnupg/gpg.conf
+    if [ -e /private/tmp/testSockets.py ]; then 
+      /private/tmp/testSockets.py $HOME/.gnupg/ || echo "no-use-standard-socket" >> $HOME/.gnupg/gpg-agent.conf
+    fi
 }
 
 fixEnigmail
