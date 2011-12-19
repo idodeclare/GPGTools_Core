@@ -24,7 +24,10 @@ keys="`su $USER -c 'gpg --homedir=$HOME/.gnupg -K 2>/dev/null'`";
 
 echo "Open GKA..."
 if [ "$keys" == "" ]; then
-  su $USER -c "/Applications/GPG\ Keychain\ Access.app/Contents/MacOS/GPG\ Keychain\ Access --gen-key" &
+  #su - $USER -c "/Applications/GPG\ Keychain\ Access.app/Contents/MacOS/GPG\ Keychain\ Access --gen-key" &
+  su - $USER -c "open /Applications/GPG\ Keychain\ Access.app --args --gen-key"
+  #Again for 10.5
+  su - $USER -c "open /Applications/GPG\ Keychain\ Access.app"
 else
   echo "[Keys] Sec-Key found"
 fi
