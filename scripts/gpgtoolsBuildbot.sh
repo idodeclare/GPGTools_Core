@@ -15,7 +15,7 @@
 # config #######################################################################
 name_master="gpgtools-master"
 name_slave="gpgtools-slave"
-url_master="http://localhost:8010/waterfall"
+url_master="http://localhost:8811/waterfall"
 url_config="https://raw.github.com/GPGTools/GPGTools_Core/master/resources/master.cfg"
 conf_port="localhost:9989"
 conf_pwd="pass"
