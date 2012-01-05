@@ -14,7 +14,7 @@
 		<string>/Library/Python/2.6/site-packages</string>
 	</dict>
 	<key>GroupName</key>
-	<string>gpgmail</string>
+	<string>gpgtools</string>
 	<key>KeepAlive</key>
 	<dict>
 		<key>SuccessfulExit</key>
@@ -32,7 +32,7 @@
 	<key>RunAtLoad</key>
 	<true/>
 	<key>UserName</key>
-	<string>alex</string>
+	<string>gpgtools</string>
 	<key>WorkingDirectory</key>
 	<string>/GPGTools/buildbot/gpgtools-master</string>
 </dict>
