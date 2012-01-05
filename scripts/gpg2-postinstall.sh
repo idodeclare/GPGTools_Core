@@ -1,4 +1,6 @@
 #!/bin/sh
+# Copyright (c) Benjamin Donnachie 2011 and the GPGTools Project Team
+# Released under GPL V3
 
 killall gpg-agent
 
@@ -31,11 +33,11 @@ killall gpg-agent
         mv $HOME/.gnupg/gpg.conf $HOME/.gnupg/gpg.conf.moved-by-gpgtools-installer
         cp /usr/local/MacGPG2/share/gnupg/gpg-conf.skel $HOME/.gnupg/gpg.conf
     fi
-# Add our comment if it doesn't exit
+# Add our comment if it doesn't exists
     if [ "" == "`grep 'comment GPGTools' $HOME/.gnupg/gpg.conf`" ]; then
         echo "comment GPGTools - http://gpgtools.org" >> $HOME/.gnupg/gpg.conf;
     fi
-# Add a keyserver if none exits
+# Add a keyserver if none exists
     if [ "" == "`grep '^[ 	]*keyserver ' $HOME/.gnupg/gpg.conf`" ]; then
         echo "keyserver x-hkp://pool.sks-keyservers.net" >> $HOME/.gnupg/gpg.conf;
     fi
@@ -50,14 +52,8 @@ killall gpg-agent
   chown -R $USER:staff $HOME/Library/PreferencePanes/GPGPreferences.prefPane
   sudo chown root:wheel /Library/LaunchAgents/org.gpgtools.macgpg2.gpg-agent.plist
 
-###############################################################
-# copied from the MacGPG2 installer. This should be avoided:
-# http://gpgtools.lighthouseapp.com/projects/65162/tickets/30
-###############################################################
 
-# The post install MacGPG2 script for v2.0.17
-# Copyright (c) Benjamin Donnachie 2011
-# Released under GPL V3
+# The post install MacGPG2 script
 
 PATH=/sbin:/bin:/usr/sbin:/usr/bin
 
@@ -367,6 +363,7 @@ rm -f $OldMacGPG2/lib/libgpg-error.la &> /dev/null
 rm -fr /usr/local/libexec/pinentry-mac.app &> /dev/null
 rm -fr /Applications/start-gpg-agent.app &> /dev/null
 rm -f /Library/LaunchAgents/com.sourceforge.macgpg2.gpg-agent.plist &> /dev/null
+rm -f /Library/LaunchAgents/org.gpgtools.macgpg2.gpg-agent.plist &> /dev/null
 
 # Add symlinks in $OldMacGPG2/bin for any hardwired programs as necessary
 
@@ -374,5 +371,11 @@ mkdir -p $OldMacGPG2/bin/
 [ -f $OldMacGPG2/bin/gpg ]  || ln -s $MacGPG2/bin/gpg2 $OldMacGPG2/bin/gpg
 [ -f $OldMacGPG2/bin/gpg2 ] || ln -s $MacGPG2/bin/gpg2 $OldMacGPG2/bin/gpg2
 [ -f $OldMacGPG2/bin/gpg-agent ] || ln -s $MacGPG2/bin/gpg-agent $OldMacGPG2/bin/gpg-agent
+
+
+# Set Manpaths
+echo "/usr/local/MacGPG2/share/man" > /private/etc/manpaths.d/MacGPG2
+echo "/usr/local/MacGPG2/bin" > /private/etc/paths.d/MacGPG2
+
 
 exit 0
