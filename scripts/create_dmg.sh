@@ -183,8 +183,10 @@ if [ "x$input" == "xy" -o "x$input" == "xY" ]; then
 
 
 	echo "Setting attributes..."
+	echo "1"
 	SetFile -a C "$mountPoint"
 
+	echo "2"
 	osascript >/dev/null <<-EOT
 		tell application "Finder"
 			tell disk "$volumeName"
@@ -204,6 +206,7 @@ if [ "x$input" == "xy" -o "x$input" == "xY" ]; then
 	EOT
 	[ $? -eq 0 ] || errExit "ERROR: Set attributes failed!"
 
+	echo "3"
 	if [ -n "$rmName" ]; then # Set position of the Uninstaller
 		osascript >/dev/null <<-EOT
 			tell application "Finder"
@@ -214,6 +217,7 @@ if [ "x$input" == "xy" -o "x$input" == "xY" ]; then
 		EOT
 		[ $? -eq 0 ] || errExit "ERROR: Set position of the Uninstaller failed!"
 	fi
+	echo "4"
 	if [ "0$appsLink" -eq 1 ]; then # Set position of the Symlink to /Applications
 		osascript >/dev/null <<-EOT
 			tell application "Finder"
@@ -225,6 +229,7 @@ if [ "x$input" == "xy" -o "x$input" == "xY" ]; then
 		[ $? -eq 0 ] || errExit "ERROR: Set position of Applications-Symlink failed!"
 	fi
 
+	echo "5"
 	osascript >/dev/null <<-EOT
 		tell application "Finder"
 			tell disk "$volumeName"
@@ -236,11 +241,12 @@ if [ "x$input" == "xy" -o "x$input" == "xY" ]; then
 	[ $? -eq 0 ] || errExit "ERROR: Update attributes failed!"
 
 
+	echo "6"
 	chmod -Rf +r,go-w "$mountPoint" || errExit "ERROR: chmod failed!"
 	rm -r "$mountPoint/.Trashes" "$mountPoint/.fseventsd"
 
 
-
+	echo "7"
 	echo "Converting DMG..."
 	hdiutil detach -quiet "$mountPoint"
 	hdiutil convert "$tempDMG" -quiet -format UDZO -imagekey zlib-level=9 -o "$dmgPath" ||
