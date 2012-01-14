@@ -65,11 +65,14 @@ downloadUrl=${downloadUrl:-"${downloadUrlPrefix}${dmgName}"}
 
 auto="0";
 forcetag="-f"
+buildbot="n"
 for var in "$@"; do
 	if [ "$var" == "auto" ]; then
 		auto="1"; input="y"
 	elif [ "$var" == "no-force-tag" ]; then
 		forcetag=""
+	elif [ "$var" == "buildbot" ]; then
+		buildbot="y"
 	fi
 done
 
@@ -100,7 +103,7 @@ done
 if [ "$auto" != "1" ]; then
 	read -p "Create github tag for version '$version' [y/n]? " input
 fi
-if [ "x$input" == "xy" -o "x$input" == "xY" ]; then
+if [ "x$input" == "xy" -o "x$input" == "xY" ] && [ "$buildbot" == "n" ]; then
 	git pull && git commit -m "Missing commits for version $version" .
 	git push
 	git tag $forcetag -u 76D78F0500D026C4 -m "Version $version" "$version" || errExit "ERROR: Can not create github tag!" # Prevent unwanted overriding of an existing tag.
@@ -267,7 +270,7 @@ if [ "$auto" != "1" ]; then
   read -p "Create a detached signature [y/n]? " input
 fi
 
-if [ "x$input" == "xy" -o "x$input" == "xY" ]; then
+if [ "x$input" == "xy" -o "x$input" == "xY" ] && [ "$buildbot" == "n"  ] ; then
 	echo "Removing old signature..."
 	rm -f "$dmgPath.sig"
 
@@ -281,7 +284,7 @@ fi
 
 
 #-------------------------------------------------------------------------
-if [ "$sshKeyname" != "" ]; then
+if [ "$sshKeyname" != "" ] && [ "$buildbot" == "n" ]; then
 	if [ "$auto" != "1" ]; then
 		read -p "Create Sparkle signature [y/n]? " input
 	fi
