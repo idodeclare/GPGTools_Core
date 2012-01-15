@@ -31,4 +31,4 @@ dmgPath=${dmgPath:-"build/$dmgName"}
 
 
 echo "Copying '$dmgPath' to '$1'..."
-cp "$dmgPath" "$1"
+cp "$dmgPath" "$1/$name-trunk.dmg"
