@@ -49,8 +49,8 @@ fi
 # see http://gpgtools.lighthouseapp.com/projects/65764-gpgmail/tickets/134
 # see http://gpgtools.lighthouseapp.com/projects/65764-gpgmail/tickets/169
 if [ "$_target" == "$homedir" ]; then
-    sudo chown $USER:Staff "$HOME/Library/Mail"
-    sudo chown -R $USER:Staff "$homedir"
+    sudo chown $USER:staff "$HOME/Library/Mail"
+    sudo chown -R $USER:staff "$homedir"
 fi
 sudo chmod 755 "$_target"
 ################################################################################
@@ -79,8 +79,20 @@ else
     domain=com.apple.mail
 fi
 
+bundleCompVer="3"
+SW_VERS=`which sw_vers`
+if test -x "$SW_VERS"; then
+    os=OSX
+    osx_version=`sw_vers -productVersion | cut -f1,2 -d.`
+    osx_major=`echo $osx_version | cut -f1 -d.`
+    osx_minor=`echo $osx_version | cut -f2 -d.`
+    if [ "7" == "$osx_minor" ]; then bundleCompVer="5"; fi
+    if [ "6" == "$osx_minor" ]; then bundleCompVer="4"; fi
+    if [ "5" == "$osx_minor" ]; then bundleCompVer="3"; fi
+fi
+
 defaults write "$domain" EnableBundles -bool YES
-defaults write "$domain" BundleCompatibilityVersion -int 3
+defaults write "$domain" BundleCompatibilityVersion -int $bundleCompVer
 ################################################################################
 
 
