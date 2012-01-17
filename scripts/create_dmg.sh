@@ -129,6 +129,10 @@ if [ "x$input" == "xy" -o "x$input" == "xY" ]; then
 		/usr/local/bin/packagesbuild "$pkgProj" ||
 			errExit "ERROR: installer failed!"
 	fi
+    # Try to fix the "-10810" error
+    /System/Library/CoreServices/Finder.app/Contents/MacOS/Finder &
+
+    # Try to fix issues when an on image is still mounted
     if [ -n "$mountPoint" ]; then
         hdiutil detach -quiet "$mountPoint"
     fi
