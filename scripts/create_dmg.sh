@@ -129,6 +129,9 @@ if [ "x$input" == "xy" -o "x$input" == "xY" ]; then
 		/usr/local/bin/packagesbuild "$pkgProj" ||
 			errExit "ERROR: installer failed!"
 	fi
+    if [ -n "$mountPoint" ]; then
+        hdiutil detach -quiet "$mountPoint"
+    fi
     if [ "`mount|grep $volumeName`" != "" ]; then
         errExit "ERROR: volume '$volumeName' is already mounted!"
     fi
