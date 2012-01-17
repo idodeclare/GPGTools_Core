@@ -10,7 +10,7 @@
 function errExit() {
 	echo -e "\033[1;31m$* (line ${BASH_LINENO[0]})\033[0m" >&2
 
-	if [ -n "$mountPoint"] ;then
+	if [ -n "$mountPoint" ] ;then
 		hdiutil detach -quiet "$mountPoint"
 	fi
 
