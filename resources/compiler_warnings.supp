@@ -1,1 +1,3 @@
 GPGMailBundle.m : .*class_setSuperclass.*
+Makefile : .*commands for target.*
+default : .*commands for target.*
