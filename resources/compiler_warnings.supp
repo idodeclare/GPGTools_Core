@@ -1,3 +1,6 @@
 GPGMailBundle.m : .*class_setSuperclass.*
 Makefile : .*commands for target.*
 default : .*commands for target.*
+pinentry.c : .*(discards qualifiers in nested pointer types | if statement has empty body).*
+assuan-handler.c : .*is never read.*
+secmem.c : .* The right operand to.*
