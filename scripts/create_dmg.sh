@@ -10,7 +10,7 @@
 function errExit() {
 	echo -e "\033[1;31m$* (line ${BASH_LINENO[0]})\033[0m" >&2
 
-	if [ -n "$mountPoint"] ;then
+	if [ -n "$mountPoint" ] ;then
 		hdiutil detach -quiet "$mountPoint"
 	fi
 
@@ -129,6 +129,13 @@ if [ "x$input" == "xy" -o "x$input" == "xY" ]; then
 		/usr/local/bin/packagesbuild "$pkgProj" ||
 			errExit "ERROR: installer failed!"
 	fi
+    # Try to fix the "-10810" error
+    finder_pid="`ps ux | grep MacOS/Finder | grep -v grep | awk '{print $2}'`"
+
+    # Try to fix issues when an on image is still mounted
+    if [ -n "$mountPoint" ]; then
+        hdiutil detach -quiet "$mountPoint"
+    fi
     if [ "`mount|grep $volumeName`" != "" ]; then
         errExit "ERROR: volume '$volumeName' is already mounted!"
     fi
@@ -187,6 +194,7 @@ if [ "x$input" == "xy" -o "x$input" == "xY" ]; then
 	SetFile -a C "$mountPoint"
 
 	echo "2"
+        if [ "$finder_pid" != "" ]; then
 	osascript >/dev/null <<-EOT
 		tell application "Finder"
 			tell disk "$volumeName"
@@ -205,8 +213,10 @@ if [ "x$input" == "xy" -o "x$input" == "xY" ]; then
 		end tell
 	EOT
 	[ $? -eq 0 ] || errExit "ERROR: Set attributes failed!"
+        fi
 
 	echo "3"
+        if [ "$finder_pid" != "" ]; then
 	if [ -n "$rmName" ]; then # Set position of the Uninstaller
 		osascript >/dev/null <<-EOT
 			tell application "Finder"
@@ -217,7 +227,10 @@ if [ "x$input" == "xy" -o "x$input" == "xY" ]; then
 		EOT
 		[ $? -eq 0 ] || errExit "ERROR: Set position of the Uninstaller failed!"
 	fi
+        fi
+
 	echo "4"
+        if [ "$finder_pid" != "" ]; then
 	if [ "0$appsLink" -eq 1 ]; then # Set position of the Symlink to /Applications
 		osascript >/dev/null <<-EOT
 			tell application "Finder"
@@ -228,8 +241,10 @@ if [ "x$input" == "xy" -o "x$input" == "xY" ]; then
 		EOT
 		[ $? -eq 0 ] || errExit "ERROR: Set position of Applications-Symlink failed!"
 	fi
+        fi
 
 	echo "5"
+        if [ "$finder_pid" != "" ]; then
 	osascript >/dev/null <<-EOT
 		tell application "Finder"
 			tell disk "$volumeName"
@@ -239,6 +254,7 @@ if [ "x$input" == "xy" -o "x$input" == "xY" ]; then
 		end tell
 	EOT
 	[ $? -eq 0 ] || errExit "ERROR: Update attributes failed!"
+        fi
 
 
 	echo "6"
