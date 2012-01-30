@@ -62,19 +62,23 @@ function updateGPGMail {
     if [ "1" == "$isInstalled" ]; then
         echo "[$_bundleId] is installed";
     else
-        foundDisabled=`find "$_bundleRootPath ("* -type d -name "$_bundleName"|head -n1`
+        foundDisabled=`find "$_bundleRootPath ("* -type d -name "$_bundleName" 2>/dev/null|head -n1`
         if [ "" != "$foundDisabled" ]; then
             mkdir -p "$_bundleRootPath";
             mv "$foundDisabled" "$_bundleRootPath";
+           echo "[$_bundleId] was reinstalled";
         else
             echo "[$_bundleId] not found";
         fi
-            echo "[$_bundleId] was reinstalled";
-        fi
+    fi
     uuid1=`defaults read "$_plistMail" "PluginCompatibilityUUID"`
     uuid2=`defaults read "$_plistFramework" "PluginCompatibilityUUID"`
     if [ "" == "$uuid1" ] || [ "" == "$uuid2" ] ; then
         echo "[$_bundleId] Warning: could not patch GPGMail. No UUIDs found.";
+        return;
+    fi
+    if [ ! -e "$_plistBundle" ]; then
+        echo "[$_bundleId] Warning: could not patch GPGMail. No bundle found.";
         return;
     fi
     isPatched1=`grep $uuid1 "$_bundlePath/Contents/Info.plist" 2>/dev/null`
@@ -91,12 +95,39 @@ function updateGPGMail {
 
 function fixGPGMail {
     echo "[gpgtools] Fixing Mail...";
+	
+	domain="com.apple.mail"
+	bundleCompVer="3"
+	SW_VERS=`which sw_vers`
+	if test -x "$SW_VERS"; then
+    	os=OSX
+	    osx_version=`sw_vers -productVersion | cut -f1,2 -d.`
+	    osx_major=`echo $osx_version | cut -f1 -d.`
+	    osx_minor=`echo $osx_version | cut -f2 -d.`
+	    if [ "7" == "$osx_minor" ]; then bundleCompVer="5"; fi
+	    if [ "6" == "$osx_minor" ]; then bundleCompVer="4"; fi
+	    if [ "5" == "$osx_minor" ]; then bundleCompVer="3"; fi
+	fi
+
+	echo " * Writing '$bundleCompVer' to '$domain'..."
+	defaults write "$domain" EnableBundles -bool YES
+	defaults write "$domain" BundleCompatibilityVersion -int $bundleCompVer
+
+    if [ `whoami` == root ] ; then
+	    #defaults acts funky when asked to write to the root domain but seems to work with a full path
+		domain=/Library/Preferences/com.apple.mail
+	fi
+
+	echo " * Writing '$bundleCompVer' to '$domain' (just to be sure)..."
+	defaults write "$domain" EnableBundles -bool YES
+	defaults write "$domain" BundleCompatibilityVersion -int $bundleCompVer
+
     gpgm_dir="$HOME/Library/Mail/";
+	echo " * Fixing permissions in '$gpgm_dir'..."
     [ -e "$gpgm_dir" ] && sudo chown $USER "$gpgm_dir";
-    [ -e "$gpgm_dir/Bundles" ] || sudo mkdir -p "$gpgm_dir/Bundles";
+    [ -e "$gpgm_dir/Bundles" ] || sudo mkdir -p "$gpgm_dir/Bundles";
     [ -e "$gpgm_dir/Bundles" ] && sudo chown -R $USER "$gpgm_dir/Bundles";
-    sudo defaults write /Library/Preferences/com.apple.mail EnableBundles -bool YES
-    sudo defaults write /Library/Preferences/com.apple.mail BundleCompatibilityVersion -int 3
+
     updateGPGMail
 }
 
@@ -125,30 +156,32 @@ function fixMacGPG2 {
     [ -e "$HOME/Library/LaunchAgents/org.gpgtools.macgpg2.gpg-agent.plist" ] && sudo chown $USER "$HOME/Library/LaunchAgents/org.gpgtools.macgpg2.gpg-agent.plist";
     [ -e "$HOME/Library/LaunchAgents/org.gpgtools.macgpg2.gpg-agent.plist" ] && sudo chmod 644 "$HOME/Library/LaunchAgents/org.gpgtools.macgpg2.gpg-agent.plist";
     sudo mkdir -p "/usr/local/bin";
-    sudo rm -f "/usr/local/bin/gpg2";
-    sudo ln -s /usr/local/MacGPG2/bin/gpg2 "/usr/local/bin/gpg2";
-    sudo rm -f "/usr/local/bin/gpg-agent";
-    sudo ln -s /usr/local/MacGPG2/bin/gpg-agent "/usr/local/bin/gpg-agent";
-    [ ! -e "/usr/local/bin/gpg" ] && sudo ln -s /usr/local/MacGPG2/bin/gpg2 "/usr/local/bin/gpg";
+    if [ -e "/usr/local/MacGPG2/bin/gpg2" ]; then
+        sudo rm -f "/usr/local/bin/gpg2";
+        sudo ln -s /usr/local/MacGPG2/bin/gpg2 "/usr/local/bin/gpg2";
+        sudo rm -f "/usr/local/bin/gpg-agent";
+        sudo ln -s /usr/local/MacGPG2/bin/gpg-agent "/usr/local/bin/gpg-agent";
+        [ ! -e "/usr/local/bin/gpg" ] && sudo ln -s /usr/local/MacGPG2/bin/gpg2 "/usr/local/bin/gpg";
+    fi
 
     # Create a new gpg.conf if none is existing from the skeleton file
-    if ( ! test -e $HOME/.gnupg/gpg.conf ) then
-    	echo "Create!"
+    if [ -e "/usr/local/MacGPG2/share/gnupg/gpg-conf.skel" ] && ( ! test -e $HOME/.gnupg/gpg.conf ) then
     	mkdir -p $HOME/.gnupg
     	cp /usr/local/MacGPG2/share/gnupg/gpg-conf.skel $HOME/.gnupg/gpg.conf
+    	echo "[MacGPG2] Created gpg.conf"
     fi
     # Create a new gpg.conf if the existing is corrupt
-    if ( ! /usr/local/MacGPG2/bin/gpg2 --gpgconf-test ) then
+    if [ -e "/usr/local/MacGPG2/bin/gpg2" ] && ( ! /usr/local/MacGPG2/bin/gpg2 --gpgconf-test ) then
         echo "Fixing gpg.conf"
         mv $HOME/.gnupg/gpg.conf $HOME/.gnupg/gpg.conf.moved-by-gpgtools-installer
         cp /usr/local/MacGPG2/share/gnupg/gpg-conf.skel $HOME/.gnupg/gpg.conf
     fi
     # Add our comment if it doesn't exit
-    if [ "" == "`grep 'comment GPGTools' $HOME/.gnupg/gpg.conf`" ]; then
+    if [ -e "$HOME/.gnupg/gpg.conf" ] && [ "" == "`grep 'comment GPGTools' $HOME/.gnupg/gpg.conf`" ]; then
         echo "comment GPGTools - http://gpgtools.org" >> $HOME/.gnupg/gpg.conf;
     fi
     # Add a keyserver if none exits
-    if [ "" == "`grep '^[ 	]*keyserver ' $HOME/.gnupg/gpg.conf`" ]; then
+    if [ -e "$HOME/.gnupg/gpg.conf" ] && [ "" == "`grep '^[ 	]*keyserver ' $HOME/.gnupg/gpg.conf`" ]; then
         echo "keyserver x-hkp://pool.sks-keyservers.net" >> $HOME/.gnupg/gpg.conf;
     fi
 
