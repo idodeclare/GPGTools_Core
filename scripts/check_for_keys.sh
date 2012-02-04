@@ -28,6 +28,8 @@ if [ "$keys" == "" ]; then
   su - $USER -c "open /Applications/GPG\ Keychain\ Access.app --args --gen-key"
   #Again for 10.5
   su - $USER -c "open /Applications/GPG\ Keychain\ Access.app"
+  echo "Open First Steps page..."
+  open http://support.gpgtools.org/kb/how-to/first-steps-where-do-i-start-where-do-i-begin
 else
   echo "[Keys] Sec-Key found"
 fi
