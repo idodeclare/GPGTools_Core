@@ -45,8 +45,10 @@ function updateGPGMail {
         _target="$netdir";
     elif ( test -e "$sysdir/$bundle" ) then
         _target="$sysdir";
+    elif ( test -e "$homedir/$bundle" ) then
+         _target="$homedir";
     else
-        _target="$homedir";
+        exit
     fi
     ############################################################################
 
@@ -97,35 +99,25 @@ function fixGPGMail {
     echo "[gpgtools] Fixing Mail...";
 	
 	domain="com.apple.mail"
-	bundleCompVer="3"
-	SW_VERS=`which sw_vers`
-	if test -x "$SW_VERS"; then
-    	os=OSX
-	    osx_version=`sw_vers -productVersion | cut -f1,2 -d.`
-	    osx_major=`echo $osx_version | cut -f1 -d.`
-	    osx_minor=`echo $osx_version | cut -f2 -d.`
-	    if [ "7" == "$osx_minor" ]; then bundleCompVer="5"; fi
-	    if [ "6" == "$osx_minor" ]; then bundleCompVer="4"; fi
-	    if [ "5" == "$osx_minor" ]; then bundleCompVer="3"; fi
+    if [ `whoami` == root ] ; then
+	    #defaults acts funky when asked to write to the root domain but seems to work with a full path
+		domain=/Library/Preferences/com.apple.mail
 	fi
+	
+	case "$(sw_vers -productVersion | cut -d . -f 2)" in
+	    7) bundleCompVer=5 ;;
+	    6) bundleCompVer=4 ;;
+	    *) bundleCompVer=3 ;;
+    esac
 
 	echo " * Writing '$bundleCompVer' to '$domain'..."
 	defaults write "$domain" EnableBundles -bool YES
 	defaults write "$domain" BundleCompatibilityVersion -int $bundleCompVer
 
-    if [ `whoami` == root ] ; then
-	    #defaults acts funky when asked to write to the root domain but seems to work with a full path
-		domain=/Library/Preferences/com.apple.mail
-	fi
-
-	echo " * Writing '$bundleCompVer' to '$domain' (just to be sure)..."
-	defaults write "$domain" EnableBundles -bool YES
-	defaults write "$domain" BundleCompatibilityVersion -int $bundleCompVer
 
     gpgm_dir="$HOME/Library/Mail/";
 	echo " * Fixing permissions in '$gpgm_dir'..."
     [ -e "$gpgm_dir" ] && sudo chown $USER "$gpgm_dir";
-    [ -e "$gpgm_dir/Bundles" ] || sudo mkdir -p "$gpgm_dir/Bundles";
     [ -e "$gpgm_dir/Bundles" ] && sudo chown -R $USER "$gpgm_dir/Bundles";
 
     updateGPGMail
