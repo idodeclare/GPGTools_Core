@@ -186,7 +186,7 @@ if [ "x$input" == "xy" -o "x$input" == "xY" ]; then
 	chmod -R +w $dmgTempDir
 
 	echo "Creating DMG..."
-	hdiutil create -scrub -quiet -fs HFS+ -fsargs "-c c=64,a=16,e=16" -format UDRW -srcfolder "$dmgTempDir" -volname "$volumeName" "$tempDMG" ||
+	hdiutil create -scrub -fs HFS+ -fsargs "-c c=64,a=16,e=16" -format UDRW -srcfolder "$dmgTempDir" -volname "$volumeName" "$tempDMG" ||
 		errExit "ERROR: Create DMG failed!"
 
 	mountInfo=$(hdiutil attach -readwrite -noverify "$tempDMG") ||
@@ -273,7 +273,7 @@ if [ "x$input" == "xy" -o "x$input" == "xY" ]; then
 	echo "7"
 	echo "Converting DMG..."
 	hdiutil detach -quiet "$mountPoint"
-	hdiutil convert "$tempDMG" -quiet -format UDZO -imagekey zlib-level=9 -o "$dmgPath" ||
+	hdiutil convert "$tempDMG" -format UDZO -imagekey zlib-level=9 -o "$dmgPath" ||
 		errExit "ERROR: Convert DMG failed!!"
 
 
