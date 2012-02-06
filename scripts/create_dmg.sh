@@ -39,7 +39,8 @@ textSize=13
 
 unset name version appName appPath bundleName pkgProj rmName appsLink \
 	dmgName dmgPath imgBackground html bundlePath rmPath releaseDir \
-	volumeName downloadUrl downloadUrlPrefix sshKeyname localizeDir mountPoint
+	volumeName downloadUrl downloadUrlPrefix sshKeyname localizeDir mountPoint \
+	preDMGBuild postDMGBuild
 
 
 
@@ -144,6 +145,12 @@ if [ "x$input" == "xy" -o "x$input" == "xY" ]; then
 	rm -f "$dmgPath"
 
 
+	# Run preDMGBuild script.
+	if [ -n "$preDMGBuild" ]; then
+		echo "Run preDMGBuild..."
+		"$preDMGBuild"
+	fi
+
 	echo "Creating temp directory..."
 	mkdir "$dmgTempDir"
 
@@ -172,10 +179,11 @@ if [ "x$input" == "xy" -o "x$input" == "xY" ]; then
 	fi
 	if [ -n "$rmPath" ]; then
         "$setIcon" "$imgTrash" "$dmgTempDir/$rmName"
-    fi
+	fi
 
-        # Fix for Packages 1.1
-        chmod -R +w $dmgTempDir
+
+	# Fix for Packages 1.1
+	chmod -R +w $dmgTempDir
 
 	echo "Creating DMG..."
 	hdiutil create -scrub -quiet -fs HFS+ -fsargs "-c c=64,a=16,e=16" -format UDRW -srcfolder "$dmgTempDir" -volname "$volumeName" "$tempDMG" ||
@@ -267,6 +275,14 @@ if [ "x$input" == "xy" -o "x$input" == "xY" ]; then
 	hdiutil detach -quiet "$mountPoint"
 	hdiutil convert "$tempDMG" -quiet -format UDZO -imagekey zlib-level=9 -o "$dmgPath" ||
 		errExit "ERROR: Convert DMG failed!!"
+
+
+	# Run postDMGBuild script.
+	if [ -n "$postDMGBuild" ]; then
+		echo "Run postDMGBuild..."
+		"$postDMGBuild"
+	fi
+
 
 fi
 #-------------------------------------------------------------------------
