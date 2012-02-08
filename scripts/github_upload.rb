@@ -124,7 +124,7 @@ puts "Post to S3..."
 url = URI.parse "http://github.s3.amazonaws.com/"
 http = Net::HTTP.new url.host, url.port
 res = http.post_multipart("/", {
-  :key => "#{data["prefix"].first}#{basename}",
+  :key => "#{data["prefix"].first}/#{basename}",
   :Filename => basename,
   :policy => data["policy"].first,
   :AWSAccessKeyId => data["accesskeyid"].first,
