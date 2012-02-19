@@ -141,15 +141,14 @@ if [ "x$input" == "xy" -o "x$input" == "xY" ]; then
         errExit "ERROR: volume '$volumeName' is already mounted!"
     fi
 
-	echo "Removing old files..."
-	rm -f "$dmgPath"
-
-
 	# Run preDMGBuild script.
 	if [ -n "$preDMGBuild" ]; then
 		echo "Run preDMGBuild..."
 		"$preDMGBuild"
 	fi
+
+	echo "Removing old files..."
+	rm -f "$dmgPath"
 
 	echo "Creating temp directory..."
 	mkdir "$dmgTempDir"
