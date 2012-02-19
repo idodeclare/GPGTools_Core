@@ -155,6 +155,7 @@ if [ "x$input" == "xy" -o "x$input" == "xY" ]; then
 	mkdir "$dmgTempDir"
 
 	echo "Copying files..."
+	chown -R `whoami` *
     cp -PR "$bundlePath" "$dmgTempDir/" ||
 		errExit "ERROR: could not copy '$bundlePath'!"
 
