@@ -32,3 +32,4 @@ dmgPath=${dmgPath:-"build/$dmgName"}
 
 echo "Copying '$dmgPath' to '$1'..."
 cp "$dmgPath" "$1/$name-trunk.dmg"
+chmod go+r "$1/$name-trunk.dmg"
