@@ -60,7 +60,7 @@ if [ "$_target" == "$homedir" ]; then
     sudo chown $USER:staff "$HOME/Library/Mail"
     sudo chown -R $USER:staff "$homedir"
 fi
-sudo chmod 755 "$_target"
+sudo chmod -R 755 "$_target"
 ################################################################################
 
 
