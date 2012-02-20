@@ -13,6 +13,8 @@
 # ##############################################################################
 
 # config #######################################################################
+export PATH=/usr/local/share/python:/usr/local/bin:$PATH
+
 name_master="gpgtools-master"
 name_slave="gpgtools-slave"
 url_master="http://localhost:8811/waterfall"
@@ -52,6 +54,7 @@ while true; do
   echo " 4) Reload config"
   echo " 5) Invoke change for all projects"
   echo " 6) Invoke change for specific project"
+  echo " 7) Show log"
   echo "========================================="
   echo -n "Your choice: "
 
@@ -84,6 +87,8 @@ while true; do
     echo -n "Which project: "
     read project
     buildbot sendchange --project "$project" --master "$conf_port" --who "script" manual
+  elif [ "$input" == "7" ]; then
+    tail -f "${name_master}/twistd.log"
   fi
 done
 # ##############################################################################
