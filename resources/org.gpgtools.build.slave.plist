@@ -9,9 +9,9 @@
 	<key>EnvironmentVariables</key>
 	<dict>
 		<key>PATH</key>
-		<string>/opt/local/bin:/sbin:/usr/sbin:/bin:/usr/bin</string>
+		<string>/usr/local/share/python:/usr/local/bin:/opt/local/bin:/sbin:/usr/sbin:/bin:/usr/bin</string>
 		<key>PYTHONPATH</key>
-		<string>/Library/Python/2.6/site-packages</string>
+		<string>/usr/local/Cellar/python/2.7.2/lib/python2.7/site-packages/</string>
 	</dict>
 	<key>GroupName</key>
 	<string>gpgtools</string>
