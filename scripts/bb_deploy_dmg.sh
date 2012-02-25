@@ -23,6 +23,7 @@ appName=${appName:-"$name.app"}
 appPath=${appPath:-"$releaseDir/$appName"}
 bundleName=${bundleName:-"$appName"}
 bundlePath=${bundlePath:-"$releaseDir/$bundleName"}
+bbName="${name}${bbSpecial}-trunk.dmg"
 if [ -z "$version" ]; then
         version=$(/usr/libexec/PlistBuddy -c "print CFBundleShortVersionString" "$appPath/Contents/Info.plist")
 fi
@@ -31,7 +32,7 @@ dmgPath=${dmgPath:-"build/$dmgName"}
 
 
 echo "Copying '$dmgPath' to '$1'..."
-cp "$dmgPath" "$1/$name-trunk.dmg"
+cp "$dmgPath" "$1/$bbName"
 
 echo "Fixing permissions..."
-chmod go+r "$1/$name-trunk.dmg"
+chmod go+r "$1/$bbName"
