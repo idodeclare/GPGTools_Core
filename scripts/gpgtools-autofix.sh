@@ -109,6 +109,10 @@ function fixGPGMail {
 	defaults write "$domain" EnableBundles -bool YES
 	defaults write "$domain" BundleCompatibilityVersion -int $bundleCompVer
 	
+	echo " * Writing '$bundleCompVer' to '$domain' as '$USER'..."
+	su - $USER -c "defaults write '$domain' EnableBundles -bool YES"
+	su - $USER -c  "defaults write '$domain' BundleCompatibilityVersion -int $bundleCompVer"
+	
     if [ `whoami` == root ] ; then
 	    #defaults acts funky when asked to write to the root domain but seems to work with a full path
 		domain=/Library/Preferences/com.apple.mail
