@@ -99,21 +99,24 @@ function fixGPGMail {
     echo "[gpgtools] Fixing Mail...";
 	
 	domain="com.apple.mail"
-    if [ `whoami` == root ] ; then
-	    #defaults acts funky when asked to write to the root domain but seems to work with a full path
-		domain=/Library/Preferences/com.apple.mail
-	fi
-	
 	case "$(sw_vers -productVersion | cut -d . -f 2)" in
 	    7) bundleCompVer=5 ;;
 	    6) bundleCompVer=4 ;;
 	    *) bundleCompVer=3 ;;
     esac
+	
+	echo " * Writing '$bundleCompVer' to '$domain'..."
+	defaults write "$domain" EnableBundles -bool YES
+	defaults write "$domain" BundleCompatibilityVersion -int $bundleCompVer
+	
+    if [ `whoami` == root ] ; then
+	    #defaults acts funky when asked to write to the root domain but seems to work with a full path
+		domain=/Library/Preferences/com.apple.mail
+	fi	
 
 	echo " * Writing '$bundleCompVer' to '$domain'..."
 	defaults write "$domain" EnableBundles -bool YES
 	defaults write "$domain" BundleCompatibilityVersion -int $bundleCompVer
-
 
     gpgm_dir="$HOME/Library/Mail/";
 	echo " * Fixing permissions in '$gpgm_dir'..."
