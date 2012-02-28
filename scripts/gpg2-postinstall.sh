@@ -22,24 +22,24 @@ killall gpg-agent
   [ ! -e /usr/local/bin/gpg ] && ln -s /usr/local/MacGPG2/bin/gpg2 /usr/local/bin/gpg
 
 # Create a new gpg.conf if none is existing from the skeleton file
-    if ( ! test -e $HOME/.gnupg/gpg.conf ) then
+    if ( ! test -e "$HOME/.gnupg/gpg.conf" ) then
     	echo "Create!"
-    	mkdir -p $HOME/.gnupg
-    	cp /usr/local/MacGPG2/share/gnupg/gpg-conf.skel $HOME/.gnupg/gpg.conf
+    	mkdir -p "$HOME/.gnupg"
+    	cp /usr/local/MacGPG2/share/gnupg/gpg-conf.skel "$HOME/.gnupg/gpg.conf"
     fi
 # Create a new gpg.conf if the existing is corrupt
     if ( ! /usr/local/MacGPG2/bin/gpg2 --gpgconf-test ) then
         echo "Fixing gpg.conf"
-        mv $HOME/.gnupg/gpg.conf $HOME/.gnupg/gpg.conf.moved-by-gpgtools-installer
-        cp /usr/local/MacGPG2/share/gnupg/gpg-conf.skel $HOME/.gnupg/gpg.conf
+        mv "$HOME/.gnupg/gpg.conf" "$HOME/.gnupg/gpg.conf.moved-by-gpgtools-installer"
+        cp /usr/local/MacGPG2/share/gnupg/gpg-conf.skel "$HOME/.gnupg/gpg.conf"
     fi
 # Add our comment if it doesn't exists
-    if [ "" == "`grep 'comment GPGTools' $HOME/.gnupg/gpg.conf`" ]; then
-        echo "comment GPGTools - http://gpgtools.org" >> $HOME/.gnupg/gpg.conf;
+    if [ "" == "`grep 'comment GPGTools' '$HOME/.gnupg/gpg.conf'`" ]; then
+        echo "comment GPGTools - http://gpgtools.org" >> "$HOME/.gnupg/gpg.conf"
     fi
 # Add a keyserver if none exists
-    if [ "" == "`grep '^[ 	]*keyserver ' $HOME/.gnupg/gpg.conf`" ]; then
-        echo "keyserver x-hkp://pool.sks-keyservers.net" >> $HOME/.gnupg/gpg.conf;
+    if [ "" == "`grep '^[ 	]*keyserver ' '$HOME/.gnupg/gpg.conf'`" ]; then
+        echo "keyserver x-hkp://pool.sks-keyservers.net" >> "$HOME/.gnupg/gpg.conf"
     fi
 
 # Remove any gpg-agent pinentry program options
@@ -47,9 +47,9 @@ killall gpg-agent
 [ -e "$HOME/.gnupg/gpg-agent.conf" ] && sed -i '' 's/^[ 	]*\(no-use-standard-socket\)/#\1/g' "$HOME/.gnupg/gpg-agent.conf"
 
 # Fix permissions (just to be sure)
-  chown -R $USER:staff $HOME/.gnupg
-  chown -R $USER:staff $HOME/Library/Services/GPGServices.service
-  chown -R $USER:staff $HOME/Library/PreferencePanes/GPGPreferences.prefPane
+  chown -R $USER:staff "$HOME/.gnupg"
+  chown -R $USER:staff "$HOME/Library/Services/GPGServices.service"
+  chown -R $USER:staff "$HOME/Library/PreferencePanes/GPGPreferences.prefPane"
   sudo chown root:wheel /Library/LaunchAgents/org.gpgtools.macgpg2.gpg-agent.plist
 
 

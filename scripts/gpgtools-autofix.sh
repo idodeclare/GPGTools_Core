@@ -143,10 +143,10 @@ function fixMacGPG2 {
     _file="/Library/LaunchAgents/org.gpgtools.macgpg2.gpg-agent.plist";
     [ -e "$_file" ] && sudo defaults write "$_file" "$_key" "$_value";
 
-    [ -e "$HOME/.gnupg" ] || mkdir $HOME/.gnupg;
-    [ -e "$HOME/.gnupg" ] && chown -R $USER $HOME/.gnupg
-    [ -e "$HOME/.gnupg" ] && chmod -R -N $HOME/.gnupg 2> /dev/null;
-    [ -e "$HOME/.gnupg" ] && chmod -R u+rwX,go= $HOME/.gnupg
+    [ -e "$HOME/.gnupg" ] || mkdir "$HOME/.gnupg"
+    [ -e "$HOME/.gnupg" ] && chown -R $USER "$HOME/.gnupg"
+    [ -e "$HOME/.gnupg" ] && chmod -R -N "$HOME/.gnupg" 2> /dev/null;
+    [ -e "$HOME/.gnupg" ] && chmod -R u+rwX,go= "$HOME/.gnupg"
 
     [ -h "$HOME/.gnupg/S.gpg-agent" ] && sudo rm -f "$HOME/.gnupg/S.gpg-agent"
     [ -h "$HOME/.gnupg/S.gpg-agent.ssh" ] && sudo rm -f "$HOME/.gnupg/S.gpg-agent.ssh"
@@ -164,24 +164,24 @@ function fixMacGPG2 {
     fi
 
     # Create a new gpg.conf if none is existing from the skeleton file
-    if [ -e "/usr/local/MacGPG2/share/gnupg/gpg-conf.skel" ] && ( ! test -e $HOME/.gnupg/gpg.conf ) then
-    	mkdir -p $HOME/.gnupg
-    	cp /usr/local/MacGPG2/share/gnupg/gpg-conf.skel $HOME/.gnupg/gpg.conf
+    if [ -e "/usr/local/MacGPG2/share/gnupg/gpg-conf.skel" ] && ( ! test -e "$HOME/.gnupg/gpg.conf" ) then
+    	mkdir -p "$HOME/.gnupg"
+    	cp /usr/local/MacGPG2/share/gnupg/gpg-conf.skel "$HOME/.gnupg/gpg.conf"
     	echo "[MacGPG2] Created gpg.conf"
     fi
     # Create a new gpg.conf if the existing is corrupt
     if [ -e "/usr/local/MacGPG2/bin/gpg2" ] && ( ! /usr/local/MacGPG2/bin/gpg2 --gpgconf-test ) then
         echo "Fixing gpg.conf"
-        mv $HOME/.gnupg/gpg.conf $HOME/.gnupg/gpg.conf.moved-by-gpgtools-installer
-        cp /usr/local/MacGPG2/share/gnupg/gpg-conf.skel $HOME/.gnupg/gpg.conf
+        mv "$HOME/.gnupg/gpg.conf" "$HOME/.gnupg/gpg.conf.moved-by-gpgtools-installer"
+        cp /usr/local/MacGPG2/share/gnupg/gpg-conf.skel "$HOME/.gnupg/gpg.conf"
     fi
     # Add our comment if it doesn't exit
-    if [ -e "$HOME/.gnupg/gpg.conf" ] && [ "" == "`grep 'comment GPGTools' $HOME/.gnupg/gpg.conf`" ]; then
-        echo "comment GPGTools - http://gpgtools.org" >> $HOME/.gnupg/gpg.conf;
+    if [ -e "$HOME/.gnupg/gpg.conf" ] && [ "" == "`grep 'comment GPGTools' '$HOME/.gnupg/gpg.conf'`" ]; then
+        echo "comment GPGTools - http://gpgtools.org" >> "$HOME/.gnupg/gpg.conf";
     fi
     # Add a keyserver if none exits
-    if [ -e "$HOME/.gnupg/gpg.conf" ] && [ "" == "`grep '^[ 	]*keyserver ' $HOME/.gnupg/gpg.conf`" ]; then
-        echo "keyserver x-hkp://pool.sks-keyservers.net" >> $HOME/.gnupg/gpg.conf;
+    if [ -e "$HOME/.gnupg/gpg.conf" ] && [ "" == "`grep '^[ 	]*keyserver ' '$HOME/.gnupg/gpg.conf'`" ]; then
+        echo "keyserver x-hkp://pool.sks-keyservers.net" >> "$HOME/.gnupg/gpg.conf";
     fi
 
     # Remove any gpg-agent pinentry program options
@@ -196,10 +196,10 @@ function fixMacGPG2 {
     # Now remove the gpg-agent helper AppleScript from login items:
     osascript -e 'tell application "System Events" to delete login item "start-gpg-agent"' 2> /dev/null
 
-    # ~/.gnupg on NFS volumes
+    # "$HOME/.gnupg" on NFS volumes
     # http://gpgtools.lighthouseapp.com/projects/66001-macgpg2/tickets/55
     if [ -e /private/tmp/testSockets.py ]; then
-      /private/tmp/testSockets.py $HOME/.gnupg/ || echo "no-use-standard-socket" >> $HOME/.gnupg/gpg-agent.conf
+      /private/tmp/testSockets.py "$HOME/.gnupg/" || echo "no-use-standard-socket" >> "$HOME/.gnupg/gpg-agent.conf"
     fi
 }
 

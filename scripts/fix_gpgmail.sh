@@ -8,10 +8,10 @@
 # @source   http://www.mail-archive.com/gpgmail-users@lists.sourceforge.net/msg00178.html
 #
 # To install it:
-#   * cp org.gpgmail.loginscript.plist ~/Library/LaunchAgents/
+#   * cp org.gpgmail.loginscript.plist "$HOME/Library/LaunchAgents/"
 #   * cp org.gpgmail.loginscript.sh /Applications/.org.gpgmail.loginscript.sh
 # To test it:
-#   * launchctl load ~/Library/LaunchAgents/org.gpgmail.loginscript.plist
+#   * launchctl load "$HOME/Library/LaunchAgents/org.gpgmail.loginscript.plist"
 #   * bash /Applications/.org.gpgmail.loginscript.sh
 #
 # @changelog    2010-08-02 (v0.1)   initial release

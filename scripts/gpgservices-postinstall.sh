@@ -13,7 +13,7 @@ if [ -e "$HOME/Library/Services/GPGServices.service" ]; then
 fi
 
 # Remove (old) versions
-rm -rf $HOME/Library/Services/GPGServices.service
+rm -rf "$HOME/Library/Services/GPGServices.service"
 rm -rf /Library/Services/GPGServices.service
 
 # Install it
