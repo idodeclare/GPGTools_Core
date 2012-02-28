@@ -34,11 +34,11 @@ killall gpg-agent
         cp /usr/local/MacGPG2/share/gnupg/gpg-conf.skel "$HOME/.gnupg/gpg.conf"
     fi
 # Add our comment if it doesn't exists
-    if [ "" == "`grep 'comment GPGTools' '$HOME/.gnupg/gpg.conf'`" ]; then
+    if [ "" == "`grep 'comment GPGTools' \"$HOME/.gnupg/gpg.conf\"`" ]; then
         echo "comment GPGTools - http://gpgtools.org" >> "$HOME/.gnupg/gpg.conf"
     fi
 # Add a keyserver if none exists
-    if [ "" == "`grep '^[ 	]*keyserver ' '$HOME/.gnupg/gpg.conf'`" ]; then
+    if [ "" == "`grep '^[ 	]*keyserver ' \"$HOME/.gnupg/gpg.conf\"`" ]; then
         echo "keyserver x-hkp://pool.sks-keyservers.net" >> "$HOME/.gnupg/gpg.conf"
     fi
 

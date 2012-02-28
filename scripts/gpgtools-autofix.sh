@@ -60,6 +60,7 @@ function updateGPGMail {
     _plistBundle="$_bundlePath/Contents/Info";
     _plistMail="/Applications/Mail.app/Contents/Info";
     _plistFramework="/System/Library/Frameworks/Message.framework/Resources/Info";
+
     isInstalled=`if [ -d "$_bundlePath" ]; then echo "1"; else echo "0"; fi`
     if [ "1" == "$isInstalled" ]; then
         echo "[$_bundleId] is installed";
@@ -79,7 +80,7 @@ function updateGPGMail {
         echo "[$_bundleId] Warning: could not patch GPGMail. No UUIDs found.";
         return;
     fi
-    if [ ! -e "$_plistBundle" ]; then
+    if [ ! -f "$_plistBundle.plist" ]; then
         echo "[$_bundleId] Warning: could not patch GPGMail. No bundle found.";
         return;
     fi
@@ -176,11 +177,11 @@ function fixMacGPG2 {
         cp /usr/local/MacGPG2/share/gnupg/gpg-conf.skel "$HOME/.gnupg/gpg.conf"
     fi
     # Add our comment if it doesn't exit
-    if [ -e "$HOME/.gnupg/gpg.conf" ] && [ "" == "`grep 'comment GPGTools' '$HOME/.gnupg/gpg.conf'`" ]; then
+    if [ -e "$HOME/.gnupg/gpg.conf" ] && [ "" == "`grep 'comment GPGTools' \"$HOME/.gnupg/gpg.conf\"`" ]; then
         echo "comment GPGTools - http://gpgtools.org" >> "$HOME/.gnupg/gpg.conf";
     fi
     # Add a keyserver if none exits
-    if [ -e "$HOME/.gnupg/gpg.conf" ] && [ "" == "`grep '^[ 	]*keyserver ' '$HOME/.gnupg/gpg.conf'`" ]; then
+    if [ -e "$HOME/.gnupg/gpg.conf" ] && [ "" == "`grep '^[ 	]*keyserver ' \"$HOME/.gnupg/gpg.conf\"`" ]; then
         echo "keyserver x-hkp://pool.sks-keyservers.net" >> "$HOME/.gnupg/gpg.conf";
     fi
 

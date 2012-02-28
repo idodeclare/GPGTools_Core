@@ -10,7 +10,7 @@ if ( test -e "$tbFull/Mail" ) then
 fi
 
 ## this doesn't work if there is more than one xxx.default directory
-#thunderbirddir="$HOME/Library/Thunderbird/Profiles/$(ls '$HOME/Library/Thunderbird/Profiles' | grep default)/Mail"
+#thunderbirddir="$HOME/Library/Thunderbird/Profiles/$(ls \"$HOME/Library/Thunderbird/Profiles\" | grep default)/Mail"
 #thunderbirdextensiondir=$thunderbirddir/../extensions
 #if ( test -e $thunderbirddir ) then
 #    mkdir -p $thunderbirdextensiondir

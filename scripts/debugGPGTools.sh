@@ -26,19 +26,19 @@ echo "*** Applications...";
 echo "========================================================================="
 [ ! -d /Applications/GPG\ Keychain\ Access.app ]; echo "  * GKA: $?";
 [ ! -d /Library/Services/GPGServices.service ]; echo "  * GPGServices in /: $?";
-[ ! -d "$HOME/Library/Services/GPGServices.service" ]; echo "  * GPGServices in '$HOME': $?";
+[ ! -d "$HOME/Library/Services/GPGServices.service" ]; echo "  * GPGServices in \"$HOME\": $?";
 [ ! -d /usr/local/MacGPG1 ]; echo "  * MacGPG1: $?";
 [ ! -d /usr/local/MacGPG2 ]; echo "  * MacGPG2: $?";
 [ ! -d /Library/Mail/Bundles/GPGMail.mailbundle ]; echo "  * GPGMail in /: $?";
-[ ! -d "$HOME/Library/Mail/Bundles/GPGMail.mailbundle" ]; echo "  * GPGMail in '$HOME': $?";
+[ ! -d "$HOME/Library/Mail/Bundles/GPGMail.mailbundle" ]; echo "  * GPGMail in \"$HOME\": $?";
 [ ! -d /Library/PreferencePanes/GPGPreferences.prefPane ]; echo "  * GPGPref in /: $?";
-[ ! -d "$HOME/Library/PreferencePanes/GPGPreferences.prefPane" ]; echo "  * GPGPref in '$HOME': $?";
+[ ! -d "$HOME/Library/PreferencePanes/GPGPreferences.prefPane" ]; echo "  * GPGPref in \"$HOME\": $?";
 echo "========================================================================="
 
 echo "** MacGPG agent...";
 echo "========================================================================="
 [ ! -f /Library/LaunchAgents/org.gpgtools.macgpg2.gpg-agent.plist ]; echo "  * MacGPGAgent in /: $?";
-[ ! -f "$HOME/Library/LaunchAgents/org.gpgtools.macgpg2.gpg-agent.plist" ]; echo "  * MacGPGAgent in '$HOME': $?";
+[ ! -f "$HOME/Library/LaunchAgents/org.gpgtools.macgpg2.gpg-agent.plist" ]; echo "  * MacGPGAgent in \"$HOME\": $?";
 [ ! -S "$HOME/.gnupg/S.gpg-agent" ]; echo "  * MacGPGAgent has a socket: $?";
 [ "`launchctl list|grep gpg-agent`" == "" ]; echo "  * MacGPGAgent in launchd: $?";
 [ "`ps waux|grep gpg-agent|grep -v grep`" == "" ]; echo "  * MacGPGAgent running: $?";
@@ -66,7 +66,7 @@ echo -n " * HGS: "; ls -lade "$HOME/.gnupg/S.gpg-agent"
 echo "========================================================================="
 
 echo "*** Setup...";
-YOURKEY="`grep ^default-key '$HOME/.gnupg/gpg.conf'|awk '{print $2}'`"
+YOURKEY="`grep ^default-key \"$HOME/.gnupg/gpg.conf\"|awk '{print $2}'`"
 echo "  * Default key: $YOURKEY";
 
 
@@ -104,7 +104,7 @@ echo "*** Showing installed bundles...";
 echo "  * /L/M/B:"
 ls -lad /Library/Mail/Bundles*
 ls -l /Library/Mail/Bundles*
-echo "  * '$HOME/L/M/B':"
+echo "  * \"$HOME/L/M/B\":"
 ls -lad "$HOME"/Library/Mail/Bundles*
 ls -l "$HOME"/Library/Mail/Bundles*
 
