@@ -77,12 +77,12 @@ osascript -e 'tell application "System Events" to delete login item "start-gpg-a
 for username in `dscl . -list /Users`
 do
   # Get UID
-  uniqueID=`dscl . -read /Users/$username UniqueID | awk '{ print $2 }'`
+  uniqueID=`dscl . -read "/Users/$username" UniqueID | awk '{ print $2 }'`
 
   # Only process regular accounts
   if [ $uniqueID -ge 500 ]; then
-    homedir=`dscl . -read /Users/$username NFSHomeDirectory | awk '{ print $2 }'`
-    primarygroup=`dscl . -read /Users/$username PrimaryGroupID | awk '{ print $2 }'`
+    homedir=`dscl . -read "/Users/$username" NFSHomeDirectory | awk '{ print $2 }'`
+    primarygroup=`dscl . -read "/Users/$username" PrimaryGroupID | awk '{ print $2 }'`
 
     if [ -f "$homedir/.MacOSX/environment.plist" ]
       then
@@ -102,7 +102,7 @@ do
       [ -h "$homedir/.gnupg/S.gpg-agent.ssh" ] && rm -f "$homedir/.gnupg/S.gpg-agent.ssh"
     else
       mkdir "$homedir/.gnupg"
-      chown $uniqueID:$primarygroup "$homedir/.gnupg"
+      chown "$uniqueID:$primarygroup" "$homedir/.gnupg"
       chmod og= "$homedir/.gnupg"
     fi
 
@@ -110,7 +110,7 @@ do
       if [ -e "$MacGPG2/share/gnupg/gpg-conf.skel" ]; then
         # Skip first three lines
         tail -n +4 "$MacGPG2/share/gnupg/gpg-conf.skel" > "$homedir/.gnupg/gpg.conf"
-        chown $uniqueID:$primarygroup "$homedir/.gnupg/gpg.conf"
+        chown "$uniqueID:$primarygroup" "$homedir/.gnupg/gpg.conf"
         chmod og= "$homedir/.gnupg/gpg.conf"
       fi
     fi
