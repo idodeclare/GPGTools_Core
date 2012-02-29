@@ -57,8 +57,8 @@ fi
 # see http://gpgtools.lighthouseapp.com/projects/65764-gpgmail/tickets/134
 # see http://gpgtools.lighthouseapp.com/projects/65764-gpgmail/tickets/169
 if [ "$_target" == "$homedir" ]; then
-    sudo chown $USER:staff "$HOME/Library/Mail"
-    sudo chown -R $USER:staff "$homedir"
+    sudo chown "$USER:staff" "$HOME/Library/Mail"
+    sudo chown -R "$USER:staff" "$homedir"
 fi
 sudo chmod -R 755 "$_target"
 ################################################################################

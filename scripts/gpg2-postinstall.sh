@@ -5,7 +5,7 @@
 killall gpg-agent
 
 # Issue #155 (GPGMail tracker)
-  chown -R $USER "$HOME/.gnupg"
+  chown -R "$USER" "$HOME/.gnupg"
   chmod u+rwx "$HOME/.gnupg"
   chmod -R u+rw "$HOME/.gnupg"
 
@@ -47,9 +47,9 @@ killall gpg-agent
 [ -e "$HOME/.gnupg/gpg-agent.conf" ] && sed -i '' 's/^[ 	]*\(no-use-standard-socket\)/#\1/g' "$HOME/.gnupg/gpg-agent.conf"
 
 # Fix permissions (just to be sure)
-  chown -R $USER:staff "$HOME/.gnupg"
-  chown -R $USER:staff "$HOME/Library/Services/GPGServices.service"
-  chown -R $USER:staff "$HOME/Library/PreferencePanes/GPGPreferences.prefPane"
+  chown -R "$USER:staff" "$HOME/.gnupg"
+  chown -R "$USER:staff" "$HOME/Library/Services/GPGServices.service"
+  chown -R "$USER:staff" "$HOME/Library/PreferencePanes/GPGPreferences.prefPane"
   sudo chown root:wheel /Library/LaunchAgents/org.gpgtools.macgpg2.gpg-agent.plist
 
 

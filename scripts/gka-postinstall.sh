@@ -45,5 +45,5 @@ rm -d "$tempdir"
 ################################################################################
 
 echo "Changing permissions..."
-chown -Rh $USER "$_target/$appname"
+chown -Rh "$USER" "$_target/$appname"
 exit 0

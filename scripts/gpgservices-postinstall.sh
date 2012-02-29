@@ -9,7 +9,7 @@ killall -9 GPGServices
 _target="/Library/Services/"
 if [ -e "$HOME/Library/Services/GPGServices.service" ]; then
     _target="$HOME/Library/Services/"
-    chown -R $USER "$_target"
+    chown -R "$USER" "$_target"
 fi
 
 # Remove (old) versions
@@ -22,7 +22,7 @@ mv /private/tmp/GPGServices.service "$_target"
 
 # Cleanup
 if [ -e "$HOME/Library/Services/GPGServices.service" ]; then
-    chown -R $USER "$_target"
+    chown -R "$USER" "$_target"
 else
     chown -R root:admin "$_target"
     chmod -R 755 "$_target"
