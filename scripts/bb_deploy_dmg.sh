@@ -30,7 +30,7 @@ dmgName=${dmgName:-"$name-$version.dmg"}
 dmgPath=${dmgPath:-"build/$dmgName"}
 
 if [ "$name" == "GPGMail" ] ;then
-	buildNumber="-$(defaults read "$appPath/Contents/Info" CFBundleVersion)" || unset buildNumber
+	buildNumber="-$(/usr/libexec/PlistBuddy -c "print CFBundleVersion" "$appPath/Contents/Info.plist")" || unset buildNumber
 fi
 bbName="${name}${bbSpecial}${buildNumber}-trunk.dmg"
 
