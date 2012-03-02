@@ -1,6 +1,6 @@
 #!/bin/sh
 tempdir=/private/tmp/Enigmail_Installation
-thunderbirdextensiondir=$HOME/Library/Thunderbird/Profiles/$(ls $HOME/Library/Thunderbird/Profiles | grep default)/extensions
+thunderbirdextensiondir="$HOME/Library/Thunderbird/Profiles/$(ls \"$HOME/Library/Thunderbird/Profiles\" | grep default)/extensions"
 enigmailid="{847b3a00-7ab1-11d4-8f02-006008948af5}";
 enigmaildir="$thunderbirdextensiondir/$enigmailid/";
 

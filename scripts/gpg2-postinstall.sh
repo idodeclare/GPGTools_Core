@@ -5,7 +5,7 @@
 killall gpg-agent
 
 # Issue #155 (GPGMail tracker)
-  chown -R $USER "$HOME/.gnupg"
+  chown -R "$USER" "$HOME/.gnupg"
   chmod u+rwx "$HOME/.gnupg"
   chmod -R u+rw "$HOME/.gnupg"
 
@@ -22,24 +22,24 @@ killall gpg-agent
   [ ! -e /usr/local/bin/gpg ] && ln -s /usr/local/MacGPG2/bin/gpg2 /usr/local/bin/gpg
 
 # Create a new gpg.conf if none is existing from the skeleton file
-    if ( ! test -e $HOME/.gnupg/gpg.conf ) then
+    if ( ! test -e "$HOME/.gnupg/gpg.conf" ) then
     	echo "Create!"
-    	mkdir -p $HOME/.gnupg
-    	cp /usr/local/MacGPG2/share/gnupg/gpg-conf.skel $HOME/.gnupg/gpg.conf
+    	mkdir -p "$HOME/.gnupg"
+    	cp /usr/local/MacGPG2/share/gnupg/gpg-conf.skel "$HOME/.gnupg/gpg.conf"
     fi
 # Create a new gpg.conf if the existing is corrupt
     if ( ! /usr/local/MacGPG2/bin/gpg2 --gpgconf-test ) then
         echo "Fixing gpg.conf"
-        mv $HOME/.gnupg/gpg.conf $HOME/.gnupg/gpg.conf.moved-by-gpgtools-installer
-        cp /usr/local/MacGPG2/share/gnupg/gpg-conf.skel $HOME/.gnupg/gpg.conf
+        mv "$HOME/.gnupg/gpg.conf" "$HOME/.gnupg/gpg.conf.moved-by-gpgtools-installer"
+        cp /usr/local/MacGPG2/share/gnupg/gpg-conf.skel "$HOME/.gnupg/gpg.conf"
     fi
 # Add our comment if it doesn't exists
-    if [ "" == "`grep 'comment GPGTools' $HOME/.gnupg/gpg.conf`" ]; then
-        echo "comment GPGTools - http://gpgtools.org" >> $HOME/.gnupg/gpg.conf;
+    if [ "" == "`grep 'comment GPGTools' \"$HOME/.gnupg/gpg.conf\"`" ]; then
+        echo "comment GPGTools - http://gpgtools.org" >> "$HOME/.gnupg/gpg.conf"
     fi
 # Add a keyserver if none exists
-    if [ "" == "`grep '^[ 	]*keyserver ' $HOME/.gnupg/gpg.conf`" ]; then
-        echo "keyserver x-hkp://pool.sks-keyservers.net" >> $HOME/.gnupg/gpg.conf;
+    if [ "" == "`grep '^[ 	]*keyserver ' \"$HOME/.gnupg/gpg.conf\"`" ]; then
+        echo "keyserver x-hkp://pool.sks-keyservers.net" >> "$HOME/.gnupg/gpg.conf"
     fi
 
 # Remove any gpg-agent pinentry program options
@@ -47,9 +47,9 @@ killall gpg-agent
 [ -e "$HOME/.gnupg/gpg-agent.conf" ] && sed -i '' 's/^[ 	]*\(no-use-standard-socket\)/#\1/g' "$HOME/.gnupg/gpg-agent.conf"
 
 # Fix permissions (just to be sure)
-  chown -R $USER:staff $HOME/.gnupg
-  chown -R $USER:staff $HOME/Library/Services/GPGServices.service
-  chown -R $USER:staff $HOME/Library/PreferencePanes/GPGPreferences.prefPane
+  chown -R "$USER:staff" "$HOME/.gnupg"
+  chown -R "$USER:staff" "$HOME/Library/Services/GPGServices.service"
+  chown -R "$USER:staff" "$HOME/Library/PreferencePanes/GPGPreferences.prefPane"
   sudo chown root:wheel /Library/LaunchAgents/org.gpgtools.macgpg2.gpg-agent.plist
 
 
@@ -77,12 +77,12 @@ osascript -e 'tell application "System Events" to delete login item "start-gpg-a
 for username in `dscl . -list /Users`
 do
   # Get UID
-  uniqueID=`dscl . -read /Users/$username UniqueID | awk '{ print $2 }'`
+  uniqueID=`dscl . -read "/Users/$username" UniqueID | awk '{ print $2 }'`
 
   # Only process regular accounts
   if [ $uniqueID -ge 500 ]; then
-    homedir=`dscl . -read /Users/$username NFSHomeDirectory | awk '{ print $2 }'`
-    primarygroup=`dscl . -read /Users/$username PrimaryGroupID | awk '{ print $2 }'`
+    homedir=`dscl . -read "/Users/$username" NFSHomeDirectory | awk '{ print $2 }'`
+    primarygroup=`dscl . -read "/Users/$username" PrimaryGroupID | awk '{ print $2 }'`
 
     if [ -f "$homedir/.MacOSX/environment.plist" ]
       then
@@ -102,7 +102,7 @@ do
       [ -h "$homedir/.gnupg/S.gpg-agent.ssh" ] && rm -f "$homedir/.gnupg/S.gpg-agent.ssh"
     else
       mkdir "$homedir/.gnupg"
-      chown $uniqueID:$primarygroup "$homedir/.gnupg"
+      chown "$uniqueID:$primarygroup" "$homedir/.gnupg"
       chmod og= "$homedir/.gnupg"
     fi
 
@@ -110,7 +110,7 @@ do
       if [ -e "$MacGPG2/share/gnupg/gpg-conf.skel" ]; then
         # Skip first three lines
         tail -n +4 "$MacGPG2/share/gnupg/gpg-conf.skel" > "$homedir/.gnupg/gpg.conf"
-        chown $uniqueID:$primarygroup "$homedir/.gnupg/gpg.conf"
+        chown "$uniqueID:$primarygroup" "$homedir/.gnupg/gpg.conf"
         chmod og= "$homedir/.gnupg/gpg.conf"
       fi
     fi

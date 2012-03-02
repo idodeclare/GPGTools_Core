@@ -42,21 +42,21 @@ _bundleId="gpg";
 # Create a new gpg.conf if none is existing from the skeleton file
 ################################################################################
   echo "[$_bundleId] Checking gpg.conf...";
-    if ( ! test -e $HOME/.gnupg/gpg.conf ) then
+    if ( ! test -e "$HOME/.gnupg/gpg.conf" ) then
 		echo "[$_bundleId] Not found!";
-    	mkdir -p $HOME/.gnupg
-    	cp /usr/local/MacGPG2/share/gnupg/gpg-conf.skel $HOME/.gnupg/gpg.conf
+    	mkdir -p "$HOME/.gnupg"
+    	cp /usr/local/MacGPG2/share/gnupg/gpg-conf.skel "$HOME/.gnupg/gpg.conf"
     fi
     if ( ! /usr/local/MacGPG2/bin/gpg2 --gpgconf-test ) then
 		echo "[$_bundleId] Was invalid!";
-        mv $HOME/.gnupg/gpg.conf $HOME/.gnupg/gpg.conf.moved-by-gpgtools-installer
-        cp /usr/local/MacGPG2/share/gnupg/gpg-conf.skel $HOME/.gnupg/gpg.conf
+        mv "$HOME/.gnupg/gpg.conf" "$HOME/.gnupg/gpg.conf.moved-by-gpgtools-installer"
+        cp /usr/local/MacGPG2/share/gnupg/gpg-conf.skel "$HOME/.gnupg/gpg.conf"
     fi
-    if [ "" == "`grep 'comment GPGTools' $HOME/.gnupg/gpg.conf`" ]; then
-        echo "comment GPGTools - http://gpgtools.org" >> $HOME/.gnupg/gpg.conf;
+    if [ "" == "`grep 'comment GPGTools' \"$HOME/.gnupg/gpg.conf\"`" ]; then
+        echo "comment GPGTools - http://gpgtools.org" >> "$HOME/.gnupg/gpg.conf"
     fi
-    if [ "" == "`grep '^[ 	]*keyserver ' $HOME/.gnupg/gpg.conf`" ]; then
-        echo "keyserver pool.sks-keyservers.net" >> $HOME/.gnupg/gpg.conf;
+    if [ "" == "`grep '^[ 	]*keyserver ' \"$HOME/.gnupg/gpg.conf\"`" ]; then
+        echo "keyserver pool.sks-keyservers.net" >> "$HOME/.gnupg/gpg.conf"
     fi
 
     # Remove any gpg-agent pinentry program options

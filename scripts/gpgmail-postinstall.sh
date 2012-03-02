@@ -46,7 +46,7 @@ rm -rf "$homedir/$bundle"
 mkdir -p "$_target"
 cp -R "$sourcedir/$bundle" "$_target"
 
-if ! diff -r $sourcedir/$bundle $_target/$bundle >/dev/null; then
+if ! diff -r "$sourcedir/$bundle" "$_target/$bundle" >/dev/null; then
     echo "Installation failed. GPGMail bundle was not installed or updated at $_target"
     exit 1
 fi
@@ -57,8 +57,8 @@ fi
 # see http://gpgtools.lighthouseapp.com/projects/65764-gpgmail/tickets/134
 # see http://gpgtools.lighthouseapp.com/projects/65764-gpgmail/tickets/169
 if [ "$_target" == "$homedir" ]; then
-    sudo chown $USER:staff "$HOME/Library/Mail"
-    sudo chown -R $USER:staff "$homedir"
+    sudo chown "$USER:staff" "$HOME/Library/Mail"
+    sudo chown -R "$USER:staff" "$homedir"
 fi
 sudo chmod -R 755 "$_target"
 ################################################################################

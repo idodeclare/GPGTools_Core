@@ -10,19 +10,19 @@
 function fixEnigmail {
     echo "[gpgtools] Fixing Enigmail...";
     enigmail_profiles="$HOME/Library/Thunderbird/Profiles"
-    [ -e "$enigmail_profiles" ] && sudo chown -R $USER "$enigmail_profiles";
+    [ -e "$enigmail_profiles" ] && sudo chown -R "$USER" "$enigmail_profiles";
 }
 
 function fixGPGToolsPreferences {
     echo "[gpgtools] Fixing Preferences...";
     gpgp_dir="$HOME/Library/PreferencePanes"
-    [ -e "$gpgp_dir" ] && sudo chown -R $USER "$gpgp_dir";
+    [ -e "$gpgp_dir" ] && sudo chown -R "$USER" "$gpgp_dir";
 }
 
 function fixGPGServices {
     echo "[gpgtools] Fixing Services...";
     gpgs_dir="$HOME/Library/Services/GPGServices.service";
-    [ -e "$gpgs_dir" ] && sudo chown -R $USER "$gpgs_dir"
+    [ -e "$gpgs_dir" ] && sudo chown -R "$USER" "$gpgs_dir"
     [ -e "/private/tmp/ServicesRestart" ] && sudo /private/tmp/ServicesRestart
     sudo rm -f /private/tmp/ServicesRestart
 }
@@ -60,6 +60,7 @@ function updateGPGMail {
     _plistBundle="$_bundlePath/Contents/Info";
     _plistMail="/Applications/Mail.app/Contents/Info";
     _plistFramework="/System/Library/Frameworks/Message.framework/Resources/Info";
+
     isInstalled=`if [ -d "$_bundlePath" ]; then echo "1"; else echo "0"; fi`
     if [ "1" == "$isInstalled" ]; then
         echo "[$_bundleId] is installed";
@@ -79,7 +80,7 @@ function updateGPGMail {
         echo "[$_bundleId] Warning: could not patch GPGMail. No UUIDs found.";
         return;
     fi
-    if [ ! -e "$_plistBundle" ]; then
+    if [ ! -f "$_plistBundle.plist" ]; then
         echo "[$_bundleId] Warning: could not patch GPGMail. No bundle found.";
         return;
     fi
@@ -110,8 +111,8 @@ function fixGPGMail {
 	defaults write "$domain" BundleCompatibilityVersion -int $bundleCompVer
 	
 	echo " * Writing '$bundleCompVer' to '$domain' as '$USER'..."
-	su - $USER -c "defaults write '$domain' EnableBundles -bool YES"
-	su - $USER -c  "defaults write '$domain' BundleCompatibilityVersion -int $bundleCompVer"
+	su - "$USER" -c "defaults write '$domain' EnableBundles -bool YES"
+	su - "$USER" -c  "defaults write '$domain' BundleCompatibilityVersion -int $bundleCompVer"
 	
     if [ `whoami` == root ] ; then
 	    #defaults acts funky when asked to write to the root domain but seems to work with a full path
@@ -124,8 +125,8 @@ function fixGPGMail {
 
     gpgm_dir="$HOME/Library/Mail/";
 	echo " * Fixing permissions in '$gpgm_dir'..."
-    [ -e "$gpgm_dir" ] && sudo chown $USER "$gpgm_dir";
-    [ -e "$gpgm_dir/Bundles" ] && sudo chown -R $USER "$gpgm_dir/Bundles";
+    [ -e "$gpgm_dir" ] && sudo chown "$USER" "$gpgm_dir";
+    [ -e "$gpgm_dir/Bundles" ] && sudo chown -R "$USER" "$gpgm_dir/Bundles";
 
     updateGPGMail
 }
@@ -143,16 +144,16 @@ function fixMacGPG2 {
     _file="/Library/LaunchAgents/org.gpgtools.macgpg2.gpg-agent.plist";
     [ -e "$_file" ] && sudo defaults write "$_file" "$_key" "$_value";
 
-    [ -e "$HOME/.gnupg" ] || mkdir $HOME/.gnupg;
-    [ -e "$HOME/.gnupg" ] && chown -R $USER $HOME/.gnupg
-    [ -e "$HOME/.gnupg" ] && chmod -R -N $HOME/.gnupg 2> /dev/null;
-    [ -e "$HOME/.gnupg" ] && chmod -R u+rwX,go= $HOME/.gnupg
+    [ -e "$HOME/.gnupg" ] || mkdir "$HOME/.gnupg"
+    [ -e "$HOME/.gnupg" ] && chown -R "$USER" "$HOME/.gnupg"
+    [ -e "$HOME/.gnupg" ] && chmod -R -N "$HOME/.gnupg" 2> /dev/null;
+    [ -e "$HOME/.gnupg" ] && chmod -R u+rwX,go= "$HOME/.gnupg"
 
     [ -h "$HOME/.gnupg/S.gpg-agent" ] && sudo rm -f "$HOME/.gnupg/S.gpg-agent"
     [ -h "$HOME/.gnupg/S.gpg-agent.ssh" ] && sudo rm -f "$HOME/.gnupg/S.gpg-agent.ssh"
     [ -e "/Library/LaunchAgents/org.gpgtools.macgpg2.gpg-agent.plist" ] && sudo chown root:wheel "/Library/LaunchAgents/org.gpgtools.macgpg2.gpg-agent.plist";
     [ -e "/Library/LaunchAgents/org.gpgtools.macgpg2.gpg-agent.plist" ] && sudo chmod 644 "/Library/LaunchAgents/org.gpgtools.macgpg2.gpg-agent.plist";
-    [ -e "$HOME/Library/LaunchAgents/org.gpgtools.macgpg2.gpg-agent.plist" ] && sudo chown $USER "$HOME/Library/LaunchAgents/org.gpgtools.macgpg2.gpg-agent.plist";
+    [ -e "$HOME/Library/LaunchAgents/org.gpgtools.macgpg2.gpg-agent.plist" ] && sudo chown "$USER" "$HOME/Library/LaunchAgents/org.gpgtools.macgpg2.gpg-agent.plist";
     [ -e "$HOME/Library/LaunchAgents/org.gpgtools.macgpg2.gpg-agent.plist" ] && sudo chmod 644 "$HOME/Library/LaunchAgents/org.gpgtools.macgpg2.gpg-agent.plist";
     sudo mkdir -p "/usr/local/bin";
     if [ -e "/usr/local/MacGPG2/bin/gpg2" ]; then
@@ -164,24 +165,24 @@ function fixMacGPG2 {
     fi
 
     # Create a new gpg.conf if none is existing from the skeleton file
-    if [ -e "/usr/local/MacGPG2/share/gnupg/gpg-conf.skel" ] && ( ! test -e $HOME/.gnupg/gpg.conf ) then
-    	mkdir -p $HOME/.gnupg
-    	cp /usr/local/MacGPG2/share/gnupg/gpg-conf.skel $HOME/.gnupg/gpg.conf
+    if [ -e "/usr/local/MacGPG2/share/gnupg/gpg-conf.skel" ] && ( ! test -e "$HOME/.gnupg/gpg.conf" ) then
+    	mkdir -p "$HOME/.gnupg"
+    	cp /usr/local/MacGPG2/share/gnupg/gpg-conf.skel "$HOME/.gnupg/gpg.conf"
     	echo "[MacGPG2] Created gpg.conf"
     fi
     # Create a new gpg.conf if the existing is corrupt
     if [ -e "/usr/local/MacGPG2/bin/gpg2" ] && ( ! /usr/local/MacGPG2/bin/gpg2 --gpgconf-test ) then
         echo "Fixing gpg.conf"
-        mv $HOME/.gnupg/gpg.conf $HOME/.gnupg/gpg.conf.moved-by-gpgtools-installer
-        cp /usr/local/MacGPG2/share/gnupg/gpg-conf.skel $HOME/.gnupg/gpg.conf
+        mv "$HOME/.gnupg/gpg.conf" "$HOME/.gnupg/gpg.conf.moved-by-gpgtools-installer"
+        cp /usr/local/MacGPG2/share/gnupg/gpg-conf.skel "$HOME/.gnupg/gpg.conf"
     fi
     # Add our comment if it doesn't exit
-    if [ -e "$HOME/.gnupg/gpg.conf" ] && [ "" == "`grep 'comment GPGTools' $HOME/.gnupg/gpg.conf`" ]; then
-        echo "comment GPGTools - http://gpgtools.org" >> $HOME/.gnupg/gpg.conf;
+    if [ -e "$HOME/.gnupg/gpg.conf" ] && [ "" == "`grep 'comment GPGTools' \"$HOME/.gnupg/gpg.conf\"`" ]; then
+        echo "comment GPGTools - http://gpgtools.org" >> "$HOME/.gnupg/gpg.conf";
     fi
     # Add a keyserver if none exits
-    if [ -e "$HOME/.gnupg/gpg.conf" ] && [ "" == "`grep '^[ 	]*keyserver ' $HOME/.gnupg/gpg.conf`" ]; then
-        echo "keyserver x-hkp://pool.sks-keyservers.net" >> $HOME/.gnupg/gpg.conf;
+    if [ -e "$HOME/.gnupg/gpg.conf" ] && [ "" == "`grep '^[ 	]*keyserver ' \"$HOME/.gnupg/gpg.conf\"`" ]; then
+        echo "keyserver x-hkp://pool.sks-keyservers.net" >> "$HOME/.gnupg/gpg.conf";
     fi
 
     # Remove any gpg-agent pinentry program options
@@ -196,10 +197,10 @@ function fixMacGPG2 {
     # Now remove the gpg-agent helper AppleScript from login items:
     osascript -e 'tell application "System Events" to delete login item "start-gpg-agent"' 2> /dev/null
 
-    # ~/.gnupg on NFS volumes
+    # "$HOME/.gnupg" on NFS volumes
     # http://gpgtools.lighthouseapp.com/projects/66001-macgpg2/tickets/55
     if [ -e /private/tmp/testSockets.py ]; then
-      /private/tmp/testSockets.py $HOME/.gnupg/ || echo "no-use-standard-socket" >> $HOME/.gnupg/gpg-agent.conf
+      /private/tmp/testSockets.py "$HOME/.gnupg/" || echo "no-use-standard-socket" >> "$HOME/.gnupg/gpg-agent.conf"
     fi
 }
 
