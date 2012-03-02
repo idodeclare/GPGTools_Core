@@ -1,8 +1,8 @@
 #!/bin/bash
 unset name version appName appPath bundleName pkgProj rmName appsLink \
         dmgName dmgPath imgBackground html bundlePath rmPath releaseDir \
-        volumeName downloadUrl downloadUrlPrefix sshKeyname localizeDir mountPoint
-
+        volumeName downloadUrl downloadUrlPrefix sshKeyname localizeDir \
+        mountPoint buildNumber
 
 
 if [ ! -e Makefile.config ]; then
@@ -23,13 +23,19 @@ appName=${appName:-"$name.app"}
 appPath=${appPath:-"$releaseDir/$appName"}
 bundleName=${bundleName:-"$appName"}
 bundlePath=${bundlePath:-"$releaseDir/$bundleName"}
-bbName="${name}${bbSpecial}-trunk.dmg"
 if [ -z "$version" ]; then
         version=$(/usr/libexec/PlistBuddy -c "print CFBundleShortVersionString" "$appPath/Contents/Info.plist")
 fi
 dmgName=${dmgName:-"$name-$version.dmg"}
 dmgPath=${dmgPath:-"build/$dmgName"}
 
+if [ "$name" == "GPGMail" ] ;then
+	buildNumber="-$(defaults read "$appPath/Contents/Info" CFBundleVersion)" || unset buildNumber
+fi
+bbName="${name}${bbSpecial}${buildNumber}-trunk.dmg"
+
+echo "Remove old disk images..."
+rm -f "$1/${name}${bbSpecial}"*"-trunk.dmg"
 
 echo "Copying '$dmgPath' to '$1'..."
 cp "$dmgPath" "$1/$bbName"
