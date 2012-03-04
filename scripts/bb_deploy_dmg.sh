@@ -30,14 +30,14 @@ dmgName=${dmgName:-"$name-$version.dmg"}
 dmgPath=${dmgPath:-"build/$dmgName"}
 
 if [ "$name" == "GPGMail" ] ;then
-	buildNumber="-$(/usr/libexec/PlistBuddy -c "print CFBundleVersion" "$appPath/Contents/Info.plist")" || unset buildNumber
+	buildNumber="-$(/usr/libexec/PlistBuddy -c "print BuildNumber" "$appPath/Contents/Info.plist")" || unset buildNumber
 fi
 bbName="${name}${bbSpecial}${buildNumber}-trunk.dmg"
 
 echo "Remove old disk images..."
 rm -f "$1/${name}${bbSpecial}"*"-trunk.dmg"
 
-echo "Copying '$dmgPath' to '$1'..."
+echo "Copying '$dmgPath' to '$1/$bbName'..."
 cp "$dmgPath" "$1/$bbName"
 
 echo "Fixing permissions..."
