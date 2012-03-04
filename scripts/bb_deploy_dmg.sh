@@ -32,13 +32,18 @@ dmgPath=${dmgPath:-"build/$dmgName"}
 if [ "$name" == "GPGMail" ] ;then
 	buildNumber="-$(/usr/libexec/PlistBuddy -c "print BuildNumber" "$appPath/Contents/Info.plist")" || unset buildNumber
 fi
-bbName="${name}${bbSpecial}${buildNumber}-trunk.dmg"
+baseName="${name}${bbSpecial}"
+bbName="${baseName}-trunk${buildNumber}.dmg"
+linkName="${baseName}-latest.dmg"
 
 echo "Remove old disk images..."
-rm -f "$1/${name}${bbSpecial}"*"-trunk.dmg"
+rm -f "$1/${baseName}"*".dmg"
 
 echo "Copying '$dmgPath' to '$1/$bbName'..."
 cp "$dmgPath" "$1/$bbName"
 
+echo "Create link '$linkName'..."
+ln -s "$bbName" "$1/$linkName"
+
 echo "Fixing permissions..."
-chmod go+r "$1/$bbName"
+chmod +r "$1/$bbName" "$1/$linkName"
