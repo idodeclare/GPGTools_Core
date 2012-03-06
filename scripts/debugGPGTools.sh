@@ -19,11 +19,19 @@ echo ""
 echo "=============================================="
 echo "If you're asked for a user ID just press enter"
 echo "=============================================="
-:> $0.log
-exec 3>&1 4>&2 >$0.log 2>&1
+
 
 
 GNUPG_DIR="${GNUPGHOME:-$HOME/.gnupg}"
+if [ "${0:0:1}" == "/" ] ;then
+	LOGFILE="$0.log"
+else
+	LOGFILE="$PWD/$0.log"
+fi
+:> "$LOGFILE"
+exec 3>&1 4>&2 >"$LOGFILE" 2>&1
+
+
 
 
 echo -e "\n*** Applications...\n========================================================================="
@@ -68,7 +76,7 @@ ls -lade /Library/Services/ \
 	"$GNUPG_DIR/S.gpg-agent"
 echo "========================================================================="
 
-echo -e "\n*** List '.gnupg'...\n========================================================================="
+echo -e "\n*** List '$GNUPG_DIR'...\n========================================================================="
 ls -lae "$GNUPG_DIR"
 echo "========================================================================="
 
@@ -97,24 +105,32 @@ cat "$GNUPG_DIR/gpg-agent.conf"
 echo "========================================================================="
 
 
+echo -e "\n*** General system configuration...\n========================================================================="
+set
+echo
+mount
+echo "========================================================================="
+
+
 echo -e "\n*** Testing encryption (1/2)...\n========================================================================="
-if [ ! ""  == "$YOURKEY" ]; then
+if [ -n "$YOURKEY" ]; then
   echo "  * GPG1:"
-  echo "test"|gpg -aer "$YOURKEY"|gpg
+  gpg -aer "$YOURKEY" <<<"test" | gpg 
   echo "  * GPG2:"
-  echo "test"|gpg2 -aer "$YOURKEY"|gpg2
+  gpg2 -aer "$YOURKEY" <<<"test" | gpg2
 fi
 echo "========================================================================="
 
 
 echo -e "\n*** Testing encryption (2/2)...\n========================================================================="
 echo "  * GPG1:"
-echo "test"|gpg -ae --default-recipient-self|gpg
+gpg -ae --default-recipient-self <<<"test" | gpg
+
 echo "  * GPG2:"
-echo "test"|gpg2 -ae --default-recipient-self|gpg2
-echo "test"|gpg2 --default-recipient-self -ae
-echo "test"|gpg2 -as
-echo "test"|gpg2 --default-recipient-self -aes
+gpg2 -ae --default-recipient-self <<<"test" | gpg2
+gpg2 -ae --default-recipient-self <<<"test"
+gpg2 -as <<<"test"
+gpg2 -aes --default-recipient-self <<<"test"
 echo "========================================================================="
 
 
@@ -135,29 +151,32 @@ echo "  * Bundles compatibility: "
 defaults read com.apple.mail BundleCompatibilityVersion
 echo "========================================================================="
 
-echo "*** More about the configuration...";
-mount
-set
+
+
+
 
 echo -e "\n*** Some debugging information from Mail...\n========================================================================="
+osascript <<<'tell application "Mail" to quit'
 defaults write org.gpgtools.gpgmail GPGMailDebug -int 1
 /Applications/Mail.app/Contents/MacOS/Mail &
-pid=$!
-sleep 5
-kill "$pid"
+sleep 3
 defaults write org.gpgtools.gpgmail GPGMailDebug -int 0
-exec 1>&3 2>&4
 echo "========================================================================="
 
 
-echo "Thank you. Please send the file $PWD/$0.log to private@gpgtools.org"
+exec 1>&3 2>&4
 
-echo "tell application \"Mail\"
+echo -e "Thank you.\nPlease send the file \"$LOGFILE\" to private@gpgtools.org\n\n"
+
+
+osascript >/dev/null <<-EOT
+tell application "Mail"
     activate
-    set MyEmail to make new outgoing message with properties {visible:true, subject:\"Debugging GPGTools\", content:\"DISCLAIMER: $disclaimer\n\n\n\"}
+    set MyEmail to make new outgoing message with properties {visible:true, subject:"Debugging GPGTools", content:"DISCLAIMER: $disclaimer\n\n\n"}
     tell MyEmail
-        make new to recipient at end of to recipients with properties {address:\"private@gpgtools.org\"}
-        make new attachment with properties {file name:((\"$PWD/$0.log\" as POSIX file) as alias)}
+        make new to recipient at end of to recipients with properties {address:"private@gpgtools.org"}
+        make new attachment with properties {file name:(("$LOGFILE" as POSIX file) as alias)}
     end tell
 end tell
-" | osascript
+EOT
+
