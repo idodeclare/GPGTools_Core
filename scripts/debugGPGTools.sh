@@ -135,6 +135,9 @@ echo "  * Bundles compatibility: "
 defaults read com.apple.mail BundleCompatibilityVersion
 echo "========================================================================="
 
+echo "*** More about the configuration...";
+mount
+set
 
 echo -e "\n*** Some debugging information from Mail...\n========================================================================="
 defaults write org.gpgtools.gpgmail GPGMailDebug -int 1
@@ -147,13 +150,13 @@ exec 1>&3 2>&4
 echo "========================================================================="
 
 
-echo "Thank you. Please send the file $PWD/$0.log to gpgtools-devel@lists.gpgtools.org"
+echo "Thank you. Please send the file $PWD/$0.log to private@gpgtools.org"
 
 echo "tell application \"Mail\"
     activate
     set MyEmail to make new outgoing message with properties {visible:true, subject:\"Debugging GPGTools\", content:\"DISCLAIMER: $disclaimer\n\n\n\"}
     tell MyEmail
-        make new to recipient at end of to recipients with properties {address:\"gpgtools-org@lists.gpgtools.org\"}
+        make new to recipient at end of to recipients with properties {address:\"private@gpgtools.org\"}
         make new attachment with properties {file name:((\"$PWD/$0.log\" as POSIX file) as alias)}
     end tell
 end tell
