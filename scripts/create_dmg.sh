@@ -141,9 +141,9 @@ if [ "x$input" == "xy" -o "x$input" == "xY" ]; then
     if [ -n "$mountPoint" ]; then
         hdiutil detach -quiet "$mountPoint"
     fi
-    if [ "`mount|grep $volumeName`" != "" ]; then
+    mount | grep "$volumeName" >/dev/null &&
         errExit "ERROR: volume '$volumeName' is already mounted!"
-    fi
+
 
 	# Run preDMGBuild script.
 	if [ -n "$preDMGBuild" ]; then
