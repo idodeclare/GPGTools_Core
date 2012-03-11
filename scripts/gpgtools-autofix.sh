@@ -144,7 +144,7 @@ function fixMacGPG2 {
     _file="/Library/LaunchAgents/org.gpgtools.macgpg2.gpg-agent.plist";
     [ -e "$_file" ] && sudo defaults write "$_file" "$_key" "$_value";
 
-    [ -e "$HOME/.gnupg" ] || mkdir "$HOME/.gnupg"
+    [ -e "$HOME/.gnupg" ] || mkdir -m 0700 "$HOME/.gnupg"
     [ -e "$HOME/.gnupg" ] && chown -R "$USER" "$HOME/.gnupg"
     [ -e "$HOME/.gnupg" ] && chmod -R -N "$HOME/.gnupg" 2> /dev/null;
     [ -e "$HOME/.gnupg" ] && chmod -R u+rwX,go= "$HOME/.gnupg"
@@ -166,7 +166,7 @@ function fixMacGPG2 {
 
     # Create a new gpg.conf if none is existing from the skeleton file
     if [ -e "/usr/local/MacGPG2/share/gnupg/gpg-conf.skel" ] && ( ! test -e "$HOME/.gnupg/gpg.conf" ) then
-    	mkdir -p "$HOME/.gnupg"
+    	mkdir -m 0700 "$HOME/.gnupg"
     	cp /usr/local/MacGPG2/share/gnupg/gpg-conf.skel "$HOME/.gnupg/gpg.conf"
     	echo "[MacGPG2] Created gpg.conf"
     fi

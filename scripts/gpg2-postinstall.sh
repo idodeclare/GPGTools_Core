@@ -24,7 +24,7 @@ killall gpg-agent
 # Create a new gpg.conf if none is existing from the skeleton file
     if ( ! test -e "$HOME/.gnupg/gpg.conf" ) then
     	echo "Create!"
-    	mkdir -p "$HOME/.gnupg"
+    	mkdir -m 0700 "$HOME/.gnupg"
     	cp /usr/local/MacGPG2/share/gnupg/gpg-conf.skel "$HOME/.gnupg/gpg.conf"
     fi
 # Create a new gpg.conf if the existing is corrupt
@@ -101,7 +101,7 @@ do
       [ -h "$homedir/.gnupg/S.gpg-agent" ] && rm -f "$homedir/.gnupg/S.gpg-agent"
       [ -h "$homedir/.gnupg/S.gpg-agent.ssh" ] && rm -f "$homedir/.gnupg/S.gpg-agent.ssh"
     else
-      mkdir "$homedir/.gnupg"
+      mkdir -m 0700 "$homedir/.gnupg"
       chown "$uniqueID:$primarygroup" "$homedir/.gnupg"
       chmod og= "$homedir/.gnupg"
     fi
