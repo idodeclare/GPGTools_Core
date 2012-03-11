@@ -2,7 +2,7 @@
 # Copyright (c) Benjamin Donnachie 2011 and the GPGTools Project Team
 # Released under GPL V3
 
-killall gpg-agent
+killall gpg-agent 2> /dev/null
 
 # Issue #155 (GPGMail tracker)
   [ -e "$HOME/.gnupg" ] || mkdir -m 0700 "$HOME/.gnupg"
@@ -122,7 +122,7 @@ done
 
 # Kill any running copies of gpg-agent:
 
-killall gpg-agent
+killall gpg-agent 2> /dev/null
 
 # No longer rely upon start-gpg-agent, now started on demand by gpg2 as needed.
 

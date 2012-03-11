@@ -1,9 +1,9 @@
 #!/bin/sh
 
 # Old version must not run in the background
-killall GPGServices
+killall GPGServices 2> /dev/null
 sleep 1
-killall -9 GPGServices
+killall -9 GPGServices 2> /dev/null
 
 # Where to install it
 _target="/Library/Services/"
