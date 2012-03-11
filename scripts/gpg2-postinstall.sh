@@ -5,10 +5,11 @@
 killall gpg-agent
 
 # Issue #155 (GPGMail tracker)
-  mkdir -m 0700 -p "$HOME/.gnupg"
-  chown -R "$USER" "$HOME/.gnupg"
-  chmod u+rwx "$HOME/.gnupg"
-  chmod -R u+rw "$HOME/.gnupg"
+  [ -e "$HOME/.gnupg" ] || mkdir -m 0700 "$HOME/.gnupg"
+  [ -e "$HOME/.gnupg" ] && chown -R "$USER" "$HOME/.gnupg"
+  [ -e "$HOME/.gnupg" ] && chmod -R -N "$HOME/.gnupg" 2> /dev/null;
+  [ -e "$HOME/.gnupg" ] && chmod -R u+rwX,go= "$HOME/.gnupg"
+
 
 # Clean up (also clean up bad GPGTools behaviour)
   osascript scripts/remove-gpg-agent-login-item.scpt
@@ -101,9 +102,10 @@ do
       [ -h "$homedir/.gnupg/S.gpg-agent" ] && rm -f "$homedir/.gnupg/S.gpg-agent"
       [ -h "$homedir/.gnupg/S.gpg-agent.ssh" ] && rm -f "$homedir/.gnupg/S.gpg-agent.ssh"
     else
-      mkdir -m 0700 "$homedir/.gnupg"
-      chown "$uniqueID:$primarygroup" "$homedir/.gnupg"
-      chmod og= "$homedir/.gnupg"
+      [ -e "$homedir/.gnupg" ] || mkdir -m 0700 "$homedir/.gnupg"
+      [ -e "$homedir/.gnupg" ] && chown -R "$uniqueID:$primarygroup" "$homedir/.gnupg"
+      [ -e "$homedir/.gnupg" ] && chmod -R -N "$homedir/.gnupg" 2> /dev/null;
+      [ -e "$homedir/.gnupg" ] && chmod -R u+rwX,go= "$homedir/.gnupg"
     fi
 
     if [ ! -e "$homedir/.gnupg/gpg.conf" ]; then

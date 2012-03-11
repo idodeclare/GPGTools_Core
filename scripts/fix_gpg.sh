@@ -46,6 +46,9 @@ _bundleId="gpg";
 		echo "[$_bundleId] Not found!";
     	mkdir -m 0700 -p "$HOME/.gnupg"
     	cp /usr/local/MacGPG2/share/gnupg/gpg-conf.skel "$HOME/.gnupg/gpg.conf"
+        [ -e "$HOME/.gnupg" ] && chown -R "$USER" "$HOME/.gnupg"
+        [ -e "$HOME/.gnupg" ] && chmod -R -N "$HOME/.gnupg" 2> /dev/null;
+        [ -e "$HOME/.gnupg" ] && chmod -R u+rwX,go= "$HOME/.gnupg"
     fi
     if ( ! /usr/local/MacGPG2/bin/gpg2 --gpgconf-test ) then
 		echo "[$_bundleId] Was invalid!";
