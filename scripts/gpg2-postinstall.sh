@@ -5,6 +5,7 @@
 killall gpg-agent
 
 # Issue #155 (GPGMail tracker)
+  mkdir -m 0700 -p "$HOME/.gnupg"
   chown -R "$USER" "$HOME/.gnupg"
   chmod u+rwx "$HOME/.gnupg"
   chmod -R u+rw "$HOME/.gnupg"
@@ -24,7 +25,6 @@ killall gpg-agent
 # Create a new gpg.conf if none is existing from the skeleton file
     if ( ! test -e "$HOME/.gnupg/gpg.conf" ) then
     	echo "Create!"
-    	mkdir -m 0700 "$HOME/.gnupg"
     	cp /usr/local/MacGPG2/share/gnupg/gpg-conf.skel "$HOME/.gnupg/gpg.conf"
     fi
 # Create a new gpg.conf if the existing is corrupt

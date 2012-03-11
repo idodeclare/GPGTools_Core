@@ -44,7 +44,7 @@ _bundleId="gpg";
   echo "[$_bundleId] Checking gpg.conf...";
     if ( ! test -e "$HOME/.gnupg/gpg.conf" ) then
 		echo "[$_bundleId] Not found!";
-    	mkdir -m 0700 "$HOME/.gnupg"
+    	mkdir -m 0700 -p "$HOME/.gnupg"
     	cp /usr/local/MacGPG2/share/gnupg/gpg-conf.skel "$HOME/.gnupg/gpg.conf"
     fi
     if ( ! /usr/local/MacGPG2/bin/gpg2 --gpgconf-test ) then

@@ -166,7 +166,7 @@ function fixMacGPG2 {
 
     # Create a new gpg.conf if none is existing from the skeleton file
     if [ -e "/usr/local/MacGPG2/share/gnupg/gpg-conf.skel" ] && ( ! test -e "$HOME/.gnupg/gpg.conf" ) then
-    	mkdir -m 0700 "$HOME/.gnupg"
+    	# ~/.gnupg is ensured above
     	cp /usr/local/MacGPG2/share/gnupg/gpg-conf.skel "$HOME/.gnupg/gpg.conf"
     	echo "[MacGPG2] Created gpg.conf"
     fi
