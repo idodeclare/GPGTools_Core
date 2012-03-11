@@ -48,7 +48,7 @@ function updateGPGMail {
     elif ( test -e "$homedir/$bundle" ) then
          _target="$homedir";
     else
-        exit
+        return 0
     fi
     ############################################################################
 
