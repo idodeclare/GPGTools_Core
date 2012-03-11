@@ -4,15 +4,20 @@
 
 killall gpg-agent 2> /dev/null
 
-# Issue #155 (GPGMail tracker)
+function fixPermissions {
   [ -e "$HOME/.gnupg" ] || mkdir -m 0700 "$HOME/.gnupg"
   [ -e "$HOME/.gnupg" ] && chown -R "$USER" "$HOME/.gnupg"
   [ -e "$HOME/.gnupg" ] && chmod -R -N "$HOME/.gnupg" 2> /dev/null;
   [ -e "$HOME/.gnupg" ] && chmod -R u+rwX,go= "$HOME/.gnupg"
+  [ -e  /Library/LaunchAgents/org.gpgtools.macgpg2.gpg-agent.plist ] && sudo chown root:wheel /Library/LaunchAgents/org.gpgtools.macgpg2.gpg-agent.plist
+  chown -R "$USER:staff" "$HOME/Library/Services/GPG*.service" 2> /dev/null
+  chown -R "$USER:staff" "$HOME/Library/PreferencePanes/GPG*.prefPane" 2> /dev/null
+}
 
+fixPermissions
 
 # Clean up (also clean up bad GPGTools behaviour)
-  osascript scripts/remove-gpg-agent-login-item.scpt
+  osascript scripts/remove-gpg-agent-login-item.scpt 2> /dev/null
   rm -rf /Applications/start-gpg-agent.app
   [ -h "$HOME/.gnupg/S.gpg-agent" ] && rm -f "$HOME/.gnupg/S.gpg-agent"
   [ -h "$HOME/.gnupg/S.gpg-agent.ssh" ] && rm -f "$HOME/.gnupg/S.gpg-agent.ssh"
@@ -27,12 +32,14 @@ killall gpg-agent 2> /dev/null
     if ( ! test -e "$HOME/.gnupg/gpg.conf" ) then
     	echo "Create!"
     	cp /usr/local/MacGPG2/share/gnupg/gpg-conf.skel "$HOME/.gnupg/gpg.conf"
+    	fixPermissions
     fi
 # Create a new gpg.conf if the existing is corrupt
     if ( ! /usr/local/MacGPG2/bin/gpg2 --gpgconf-test ) then
         echo "Fixing gpg.conf"
         mv "$HOME/.gnupg/gpg.conf" "$HOME/.gnupg/gpg.conf.moved-by-gpgtools-installer"
         cp /usr/local/MacGPG2/share/gnupg/gpg-conf.skel "$HOME/.gnupg/gpg.conf"
+        fixPermissions
     fi
 # Add our comment if it doesn't exists
     if [ "" == "`grep 'comment GPGTools' \"$HOME/.gnupg/gpg.conf\"`" ]; then
@@ -48,11 +55,7 @@ killall gpg-agent 2> /dev/null
 [ -e "$HOME/.gnupg/gpg-agent.conf" ] && sed -i '' 's/^[ 	]*\(no-use-standard-socket\)/#\1/g' "$HOME/.gnupg/gpg-agent.conf"
 
 # Fix permissions (just to be sure)
-  chown -R "$USER:staff" "$HOME/.gnupg"
-  chown -R "$USER:staff" "$HOME/Library/Services/GPGServices.service"
-  chown -R "$USER:staff" "$HOME/Library/PreferencePanes/GPGPreferences.prefPane"
-  sudo chown root:wheel /Library/LaunchAgents/org.gpgtools.macgpg2.gpg-agent.plist
-
+fixPermissions
 
 # The post install MacGPG2 script
 
@@ -68,7 +71,7 @@ defaults read com.apple.loginwindow LoginHook 2>&1  | grep --quiet "$OldMacGPG2/
 defaults read com.apple.loginwindow LogoutHook 2>&1 | grep --quiet "$OldMacGPG2/sbin/gpg-logout.sh" && defaults delete com.apple.loginwindow LogoutHook
 
 # Now remove the gpg-agent helper AppleScript from login items:
-osascript -e 'tell application "System Events" to delete login item "start-gpg-agent"' > /dev/null
+osascript -e 'tell application "System Events" to delete login item "start-gpg-agent"' 2> /dev/null
 
 # Iterate through each regular user account.
 #  Remove any mention of gpg from environment.plist as per previous behaviour
