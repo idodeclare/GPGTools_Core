@@ -46,7 +46,8 @@ rm -rf "$homedir/$bundle"
 mkdir -p "$_target"
 cp -R "$sourcedir/$bundle" "$_target"
 
-if ! diff -r "$sourcedir/$bundle" "$_target/$bundle" >/dev/null; then
+#if ! diff -r "$sourcedir/$bundle" "$_target/$bundle" >/dev/null; then
+if ! [ -f "$_target/$bundle/Contents/Info.plist" ]; then
     echo "Installation failed. GPGMail bundle was not installed or updated at $_target"
     exit 1
 fi
