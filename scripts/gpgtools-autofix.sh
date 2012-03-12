@@ -131,10 +131,18 @@ function fixGPGMail {
     updateGPGMail
 }
 
+function fixMacGPG2permissions {
+    [ -e "$HOME/.gnupg" ] || mkdir -m 0700 "$HOME/.gnupg"
+    [ -e "$HOME/.gnupg" ] && chown -R "$USER" "$HOME/.gnupg"
+    [ -e "$HOME/.gnupg" ] && chmod -R -N "$HOME/.gnupg" 2> /dev/null;
+    [ -e "$HOME/.gnupg" ] && chmod -R u+rwX,go= "$HOME/.gnupg"
+}
+
 function fixMacGPG2 {
     echo "[gpgtools] Fixing GPG...";
     killall gpg-agent 2> /dev/null
-
+    fixMacGPG2permissions
+    
     # Lion: pinentry Mac "Save in Keychain" doesn't work
     # http://gpgtools.lighthouseapp.com/projects/65764/tickets/292
     _key="LimitLoadToSessionType"
@@ -143,11 +151,6 @@ function fixMacGPG2 {
     [ -e "$_file" ] && defaults write "$_file" "$_key" "$_value";
     _file="/Library/LaunchAgents/org.gpgtools.macgpg2.gpg-agent.plist";
     [ -e "$_file" ] && sudo defaults write "$_file" "$_key" "$_value";
-
-    [ -e "$HOME/.gnupg" ] || mkdir -m 0700 "$HOME/.gnupg"
-    [ -e "$HOME/.gnupg" ] && chown -R "$USER" "$HOME/.gnupg"
-    [ -e "$HOME/.gnupg" ] && chmod -R -N "$HOME/.gnupg" 2> /dev/null;
-    [ -e "$HOME/.gnupg" ] && chmod -R u+rwX,go= "$HOME/.gnupg"
 
     [ -h "$HOME/.gnupg/S.gpg-agent" ] && sudo rm -f "$HOME/.gnupg/S.gpg-agent"
     [ -h "$HOME/.gnupg/S.gpg-agent.ssh" ] && sudo rm -f "$HOME/.gnupg/S.gpg-agent.ssh"
@@ -168,6 +171,7 @@ function fixMacGPG2 {
     if [ -e "/usr/local/MacGPG2/share/gnupg/gpg-conf.skel" ] && ( ! test -e "$HOME/.gnupg/gpg.conf" ) then
     	# ~/.gnupg is ensured above
     	cp /usr/local/MacGPG2/share/gnupg/gpg-conf.skel "$HOME/.gnupg/gpg.conf"
+    	fixMacGPG2permissions
     	echo "[MacGPG2] Created gpg.conf"
     fi
     # Create a new gpg.conf if the existing is corrupt
@@ -175,6 +179,7 @@ function fixMacGPG2 {
         echo "Fixing gpg.conf"
         mv "$HOME/.gnupg/gpg.conf" "$HOME/.gnupg/gpg.conf.moved-by-gpgtools-installer"
         cp /usr/local/MacGPG2/share/gnupg/gpg-conf.skel "$HOME/.gnupg/gpg.conf"
+        fixMacGPG2permissions
     fi
     # Add our comment if it doesn't exit
     if [ -e "$HOME/.gnupg/gpg.conf" ] && [ "" == "`grep 'comment GPGTools' \"$HOME/.gnupg/gpg.conf\"`" ]; then
