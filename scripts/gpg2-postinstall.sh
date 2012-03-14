@@ -85,7 +85,11 @@ do
 
   # Only process regular accounts
   if [ $uniqueID -ge 500 ]; then
-    homedir=`dscl . -read "/Users/$username" NFSHomeDirectory | awk '{ print $2 }'`
+    # dscl value can be on line one or line two depending on whether it
+    # contains a space. On line one, it is field 2 after ": "; on line
+    # two, it is field 2 after a single space.
+    homedir=`dscl . -read "/Users/$username" NFSHomeDirectory \
+      | /usr/bin/perl -nle '($k, $v) = split / /, $_, 2; END { print $v; }'`
     primarygroup=`dscl . -read "/Users/$username" PrimaryGroupID | awk '{ print $2 }'`
 
     if [ -f "$homedir/.MacOSX/environment.plist" ]
@@ -120,6 +124,7 @@ do
       fi
     fi
 
+    killall -u "$username" gpg-agent
   fi
 done
 
