@@ -1,0 +1,23 @@
+Text Cell
+Small System Font Text
+Table View Cell
+Box
+-
+ 
+msgText
+progressText
+10. Oktober 2010 10:10
+06. September 2010 12:24
+expirationDate
+validityDescription
+emailAndID
+gpgKey.name
+gpgKey.email
+gpgKey.comment
+gpgKey.keyID
+gpgKey.creationDate
+gpgKey.expirationDate
+gpgKey.algorithm
+gpgKey.ownerTrust
+signature.creationDate
+signature.expirationDate
