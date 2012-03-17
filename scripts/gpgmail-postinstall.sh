@@ -10,15 +10,23 @@ bundle="GPGMail.mailbundle"
 
 
 # check source #################################################################
-sourcedir="${PACKAGE_PATH%/*/*}/Resources"
+sourcedir="/private/tmp/GPGMail_Installation"
+echo "[gpgmail] Searching in ${sourcedir}..."
 if [ ! -e "$sourcedir/$bundle" ]; then
-    echo "Installation failed. GPGMail was not found at $sourcedir/$bundle"
-    exit 1
+    echo " * GPGMail was not found at $sourcedir/$bundle"
+    sourcedir="${PACKAGE_PATH%/*/*}/Resources"
+    echo "[gpgmail] Searching in ${sourcedir}..."
+    if [ ! -e "$sourcedir/$bundle" ]; then
+        echo " * GPGMail was not found at $sourcedir/$bundle"
+        echo "Installation failed. GPGMail was not found at $sourcedir/$bundle"
+        exit 1
+    fi
 fi
 ################################################################################
 
 
 # Quit Apple Mail ##############################################################
+echo "[gpgmail] Quitting Mail..."
 osascript -e "quit app \"Mail\""
 ################################################################################
 
@@ -31,11 +39,12 @@ elif [[ -d "$homedir/$bundle" ]]; then
 else
     _target="$sysdir"
 fi
+echo "[gpgmail] Target is ${_target}..."
 ################################################################################
 
 
 # Cleanup ######################################################################
-# remove old versions of the bundle
+echo "[gpgmail] Removing old versions of the bundle..."
 rm -rf "$netdir/$bundle"
 rm -rf "$sysdir/$bundle"
 rm -rf "$homedir/$bundle"
@@ -57,6 +66,7 @@ fi
 # Permissions ##################################################################
 # see http://gpgtools.lighthouseapp.com/projects/65764-gpgmail/tickets/134
 # see http://gpgtools.lighthouseapp.com/projects/65764-gpgmail/tickets/169
+echo "[gpgmail] Fixing permissions..."
 if [ "$_target" == "$homedir" ]; then
     sudo chown "$USER:staff" "$HOME/Library/Mail"
     sudo chown -R "$USER:staff" "$homedir"
@@ -66,6 +76,7 @@ sudo chmod -R 755 "$_target"
 
 
 # enable bundles in Mail #######################################################
+echo "[gpgmail] Enabling bundle..."
 ######
 # Mail must NOT be running by the time this script executes
 ######
@@ -83,10 +94,10 @@ defaults write "/Library/Preferences/com.apple.mail" BundleCompatibilityVersion 
 
 
 # Add the PluginCompatibilityUUIDs #############################################
+echo "[gpgmail] Adding PluginCompatibilityUUIDs..."
 _plistBundle="$_target/$bundle/Contents/Info"
 _plistMail="/Applications/Mail.app/Contents/Info"
 _plistFramework="/System/Library/Frameworks/Message.framework/Resources/Info"
-
 
 uuid1=$(defaults read "$_plistMail" "PluginCompatibilityUUID")
 uuid2=$(defaults read "$_plistFramework" "PluginCompatibilityUUID")
@@ -103,5 +114,3 @@ if ! grep -q $uuid1 "${_plistBundle}.plist" || ! grep -q $uuid2 "${_plistBundle}
     echo "GPGMail successfully patched."
 fi
 ################################################################################
-
-
