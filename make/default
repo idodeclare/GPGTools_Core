@@ -22,3 +22,7 @@ style:
 
 dmg: update compile
 	@./Dependencies/GPGTools_Core/scripts/create_dmg.sh
+
+show-missing-deps:
+	@git submodule foreach 'git log --no-decorate $sha1..master'
+
