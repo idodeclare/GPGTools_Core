@@ -12,7 +12,7 @@ fi
 
 if [ ! -d "$1" ]; then
   echo "Usage: $0 <directory>"
-  exit 2
+  exit 1
 fi
 
 echo "Reading config..."
@@ -35,6 +35,11 @@ fi
 baseName="${name}${bbSpecial}"
 bbName="${baseName}-trunk${buildNumber}.dmg"
 linkName="${baseName}-latest.dmg"
+
+if [ ! -e "$dmgPath" ] ;then
+	echo "\"$dmgPath\" couldn't be found!"
+	exit 2	
+fi
 
 echo "Remove old disk images..."
 rm -f "$1/${baseName}"*".dmg"
