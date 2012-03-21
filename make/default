@@ -24,5 +24,5 @@ dmg: update compile
 	@./Dependencies/GPGTools_Core/scripts/create_dmg.sh
 
 show-missing-deps:
-	@git submodule foreach 'git log --oneline $$sha1...master; echo; echo "https://github.com/GPGTools/"`basename $$name`"/compare/$$sha1...master"; echo'
+	@git submodule foreach 'git log --pretty=format:"missing: %h %s (see https://github.com/GPGTools/"`basename $$name`"/commit/%h)" $$sha1...master; echo; echo "https://github.com/GPGTools/"`basename $$name`"/compare/$$sha1...master"; echo'
 
