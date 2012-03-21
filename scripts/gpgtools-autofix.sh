@@ -158,13 +158,14 @@ function fixMacGPG2 {
     [ -e "/Library/LaunchAgents/org.gpgtools.macgpg2.gpg-agent.plist" ] && sudo chmod 644 "/Library/LaunchAgents/org.gpgtools.macgpg2.gpg-agent.plist";
     [ -e "$HOME/Library/LaunchAgents/org.gpgtools.macgpg2.gpg-agent.plist" ] && sudo chown "$USER" "$HOME/Library/LaunchAgents/org.gpgtools.macgpg2.gpg-agent.plist";
     [ -e "$HOME/Library/LaunchAgents/org.gpgtools.macgpg2.gpg-agent.plist" ] && sudo chmod 644 "$HOME/Library/LaunchAgents/org.gpgtools.macgpg2.gpg-agent.plist";
-    sudo mkdir -p "/usr/local/bin";
+    sudo mkdir -p "/usr/local/bin"
+    sudo chmod +rX "/usr" "/usr/local" "/usr/local/bin" "/usr/local/MacGPG2" "/usr/local/MacGPG1" 2>/dev/null
     if [ -e "/usr/local/MacGPG2/bin/gpg2" ]; then
         sudo rm -f "/usr/local/bin/gpg2";
-        sudo ln -s /usr/local/MacGPG2/bin/gpg2 "/usr/local/bin/gpg2";
+        sudo ln -s "/usr/local/MacGPG2/bin/gpg2" "/usr/local/bin/gpg2";
         sudo rm -f "/usr/local/bin/gpg-agent";
-        sudo ln -s /usr/local/MacGPG2/bin/gpg-agent "/usr/local/bin/gpg-agent";
-        [ ! -e "/usr/local/bin/gpg" ] && sudo ln -s /usr/local/MacGPG2/bin/gpg2 "/usr/local/bin/gpg";
+        sudo ln -s "/usr/local/MacGPG2/bin/gpg-agent" "/usr/local/bin/gpg-agent";
+        [ ! -e "/usr/local/bin/gpg" ] && sudo ln -s "/usr/local/MacGPG2/bin/gpg2" "/usr/local/bin/gpg";
     fi
 
     # Create a new gpg.conf if none is existing from the skeleton file
