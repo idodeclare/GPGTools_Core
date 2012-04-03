@@ -329,12 +329,11 @@ class Diskimage(CommandLine):
     def created(self):
         return self._created
     
-    @create_and_mount_if_necessary
     def convert(self, name=None, format="UBDZ", replace=False):
         orig_file = self.path()
         
         if replace:
-            orig_file = "%s.convert" % (self.path())
+            orig_file = "%s.convert" % (orig_file)
             new_file = self.path()
             shutil.move(new_file, orig_file)
         else:
