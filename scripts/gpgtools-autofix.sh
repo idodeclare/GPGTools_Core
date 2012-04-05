@@ -7,6 +7,8 @@
 # @todo		Invoke this script from other scripts
 ########################################
 
+USER=$(id -un)
+
 function fixEnigmail {
     echo "[gpgtools] Fixing Enigmail...";
     enigmail_profiles="$HOME/Library/Thunderbird/Profiles"

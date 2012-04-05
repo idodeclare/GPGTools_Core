@@ -1,5 +1,7 @@
 #!/bin/bash
 
+USER=$(id -un)
+
 echo "[gtk] Setting up environment..."
 _path="/private/tmp/GPGTools_Key";
 _file="0x76D78F0500D026C4.asc";

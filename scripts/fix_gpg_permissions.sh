@@ -1,3 +1,4 @@
+USER=$(id -un)
 chown -R "$USER:staff" "$HOME/.gnupg"
 chown -R "$USER:staff" "$HOME/Library/Services/GPGServices.service"
 chown -R "$USER:staff" "$HOME/Library/PreferencePanes/GPGPreferences.prefPane"

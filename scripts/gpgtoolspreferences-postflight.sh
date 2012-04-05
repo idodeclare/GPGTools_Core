@@ -1,5 +1,7 @@
 #!/bin/sh
 
+USER=$(id -un)
+
 prefname="GPGPreferences.prefPane"
 
 mkdir -p "$HOME/Library/PreferencePanes/"

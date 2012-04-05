@@ -1,6 +1,7 @@
 #!/bin/bash
 
 # config #######################################################################
+USER=$(id -un)
 tempdir="/private/tmp/GKA_Installation";
 appname="GPG Keychain Access.app";
 targetdefault="/Applications/";
@@ -27,7 +28,7 @@ if [ ! -e "$tempdir/$appname" ]; then
 fi
 
 echo "Removing old versions of the app..."
-if [ `dirname "$_target/$appname"` != "/" ]; then rm -rf "$_target/$appname"; fi
+if [ "`dirname "$_target/$appname"`" != "/" ]; then rm -rf "$_target/$appname"; fi
 ################################################################################
 
 

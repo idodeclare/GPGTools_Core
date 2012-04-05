@@ -2,6 +2,7 @@
 
 
 # config #######################################################################
+USER=$(id -un)
 sysdir="/Library/Mail/Bundles/"
 netdir="/Network/Library/Mail/Bundles/"
 homedir="$HOME/Library/Mail/Bundles/"
