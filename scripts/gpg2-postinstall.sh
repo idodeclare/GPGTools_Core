@@ -87,7 +87,11 @@ do
 
   # Only process regular accounts
   if [ $uniqueID -ge 500 ]; then
-    homedir=`dscl . -read "/Users/$username" NFSHomeDirectory | awk '{ print $2 }'`
+    # dscl value can be on line one or line two depending on whether it
+    # contains a space. On line one, it is field 2 after ": "; on line
+    # two, it is field 2 after a single space.
+    homedir=`dscl . -read "/Users/$username" NFSHomeDirectory \
+      | /usr/bin/perl -nle '($k, $v) = split / /, $_, 2; END { print $v; }'`
     primarygroup=`dscl . -read "/Users/$username" PrimaryGroupID | awk '{ print $2 }'`
 
     if [ -f "$homedir/.MacOSX/environment.plist" ]
@@ -102,16 +106,15 @@ do
       fi
     fi
 
-    if [ -d "$homedir/.gnupg" ]; then
-      # Also clean up bad GPGTools behaviour:
-      [ -h "$homedir/.gnupg/S.gpg-agent" ] && rm -f "$homedir/.gnupg/S.gpg-agent"
-      [ -h "$homedir/.gnupg/S.gpg-agent.ssh" ] && rm -f "$homedir/.gnupg/S.gpg-agent.ssh"
-    else
-      [ -e "$homedir/.gnupg" ] || mkdir -m 0700 "$homedir/.gnupg"
+    if [ ! -d "$homedir/.gnupg" ]; then
+       mkdir -m 0700 "$homedir/.gnupg"
+    fi
       [ -e "$homedir/.gnupg" ] && chown -R "$uniqueID:$primarygroup" "$homedir/.gnupg"
       [ -e "$homedir/.gnupg" ] && chmod -R -N "$homedir/.gnupg" 2> /dev/null;
       [ -e "$homedir/.gnupg" ] && chmod -R u+rwX,go= "$homedir/.gnupg"
-    fi
+      # Also clean up bad GPGTools behaviour:
+      [ -h "$homedir/.gnupg/S.gpg-agent" ] && rm -f "$homedir/.gnupg/S.gpg-agent"
+      [ -h "$homedir/.gnupg/S.gpg-agent.ssh" ] && rm -f "$homedir/.gnupg/S.gpg-agent.ssh"
 
     if [ ! -e "$homedir/.gnupg/gpg.conf" ]; then
       if [ -e "$MacGPG2/share/gnupg/gpg-conf.skel" ]; then
@@ -122,6 +125,7 @@ do
       fi
     fi
 
+    killall -u "$username" gpg-agent
   fi
 done
 

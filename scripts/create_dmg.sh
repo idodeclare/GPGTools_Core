@@ -137,13 +137,16 @@ if [ "x$input" == "xy" -o "x$input" == "xY" ]; then
     # Try to fix the "-10810" error
     finder_pid="`ps ux | grep MacOS/Finder | grep -v grep | awk '{print $2}'`"
 
-    # Try to fix issues when an on image is still mounted
-    if [ -n "$mountPoint" ]; then
-        hdiutil detach -quiet "$mountPoint"
-    fi
-    mount | grep "$volumeName" >/dev/null &&
-        errExit "ERROR: volume '$volumeName' is already mounted!"
 
+    # Try to fix issues when an on image is still mounted
+	if mountInfo="$(mount | grep -F "$volumeName")" ;then
+		echo "Unmount old DMG..."
+		hdiutil detach "${mountInfo%% *}"
+
+		mount | grep -qF "$volumeName" &&
+			errExit "ERROR: volume '$volumeName' is already mounted!"
+	fi
+	
 
 	# Run preDMGBuild script.
 	if [ -n "$preDMGBuild" ]; then
