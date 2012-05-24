@@ -1,7 +1,10 @@
 #!/bin/bash
 
 # config #######################################################################
-USER=$(id -un)
+if test "$USER" == ""
+then
+  USER=$(id -un)
+fi
 tempdir="/private/tmp/GKA_Installation";
 appname="GPG Keychain Access.app";
 targetdefault="/Applications/";

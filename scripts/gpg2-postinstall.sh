@@ -2,7 +2,10 @@
 # Copyright (c) Benjamin Donnachie 2011 and the GPGTools Project Team
 # Released under GPL V3
 
-USER=$(id -un)
+if test "$USER" == ""
+then
+  USER=$(id -un)
+fi
 
 killall gpg-agent 2> /dev/null
 

@@ -1,6 +1,9 @@
 #!/bin/sh
 
-USER=$(id -un)
+if test "$USER" == ""
+then
+  USER=$(id -un)
+fi
 
 prefname="GPGPreferences.prefPane"
 

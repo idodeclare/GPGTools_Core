@@ -1,6 +1,9 @@
 #!/bin/bash
 
-USER=$(id -un)
+if test "$USER" == ""
+then
+  USER=$(id -un)
+fi
 
 echo "[gtk] Setting up environment..."
 _path="/private/tmp/GPGTools_Key";

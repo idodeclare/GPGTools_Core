@@ -1,6 +1,9 @@
 #!/bin/sh
 
-USER=$(id -un)
+if test "$USER" == ""
+then
+  USER=$(id -un)
+fi
 
 # Old version must not run in the background
 killall GPGServices 2> /dev/null
