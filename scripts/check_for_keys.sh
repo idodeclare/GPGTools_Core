@@ -9,7 +9,10 @@ echo "[GCK] Setup environment..."
 #[ -r "$HOME/.profile" ] && . "$HOME/.profile"
 
 PATH=$PATH:/usr/local/MacGPG2/bin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin:/opt/local/bin
-USER=$(id -un)
+if test "$USER" == ""
+then
+  USER=$(id -un)
+fi
 
 echo "Test for gpg..."
 if [ "`which gpg`" == "" ]; then

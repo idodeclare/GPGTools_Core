@@ -1,4 +1,7 @@
-USER=$(id -un)
+if test "$USER" == ""
+then
+  USER=$(id -un)
+fi
 chown -R "$USER:staff" "$HOME/.gnupg"
 chown -R "$USER:staff" "$HOME/Library/Services/GPGServices.service"
 chown -R "$USER:staff" "$HOME/Library/PreferencePanes/GPGPreferences.prefPane"

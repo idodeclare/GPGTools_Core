@@ -2,7 +2,10 @@
 
 
 # config #######################################################################
-USER=$(id -un)
+if test "$USER" == ""
+then
+  USER=$(id -un)
+fi
 sysdir="/Library/Mail/Bundles/"
 netdir="/Network/Library/Mail/Bundles/"
 homedir="$HOME/Library/Mail/Bundles/"

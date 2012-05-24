@@ -7,7 +7,10 @@
 # @todo		Invoke this script from other scripts
 ########################################
 
-USER=$(id -un)
+if test "$USER" == ""
+then
+  USER=$(id -un)
+fi
 
 function fixEnigmail {
     echo "[gpgtools] Fixing Enigmail...";
