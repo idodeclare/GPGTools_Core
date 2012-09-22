@@ -79,6 +79,10 @@ function updateGPGMail {
             echo "[$_bundleId] not found";
         fi
     fi
+    
+    echo "[$_bundleId] Setting the correct permissions in '$_bundlePath'..."
+    [ -e "$_bundlePath" ] && chmod -R u+rwX,go=rX "$_bundlePath";
+
     uuid1=`defaults read "$_plistMail" "PluginCompatibilityUUID"`
     uuid2=`defaults read "$_plistFramework" "PluginCompatibilityUUID"`
     if [ "" == "$uuid1" ] || [ "" == "$uuid2" ] ; then
@@ -133,6 +137,10 @@ function fixGPGMail {
     [ -e "$gpgm_dir" ] && sudo chown "$USER" "$gpgm_dir";
     [ -e "$gpgm_dir/Bundles" ] && sudo chown -R "$USER" "$gpgm_dir/Bundles";
 
+    gpgm_dir="/Library/Mail/";
+	echo " * Fixing permissions in '$gpgm_dir'..."
+    [ -e "$gpgm_dir" ] && sudo chmod -R u+rwX,go=rX "$gpgm_dir";
+    
     updateGPGMail
 }
 
