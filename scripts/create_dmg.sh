@@ -45,7 +45,7 @@ unset name version appName appPath bundleName pkgProj rmName appsLink \
 
 
 [ -e Makefile.config ] ||
-	errExit "Wrong directory..."
+	errExit "Can't find Makefile.config - wrong directory or can't create DMG from this project..."
 
 source "Makefile.config"
 
