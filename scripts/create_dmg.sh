@@ -131,12 +131,13 @@ if [ "x$input" == "xy" -o "x$input" == "xY" ]; then
 			errExit "ERROR: installer failed!"
 	fi
 
+    [ "${bundlePath}" == "" ] || errExit "ERROR: bundle not found at '${bundlePath}'!"
+
     # Try to fix permissions
     chmod -Rf +w "${tempPath}" "${dmgPath}" "${appPath}" "${bundlePath}" "${rmPath}"
 
     # Try to fix the "-10810" error
     finder_pid="`ps ux | grep MacOS/Finder | grep -v grep | awk '{print $2}'`"
-
 
     # Try to fix issues when an on image is still mounted
 	if mountInfo="$(mount | grep -F "$volumeName")" ;then
