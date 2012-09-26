@@ -346,3 +346,5 @@ rm -rf "$tempPath" 2>/dev/null
 
 #popd > /dev/null
 
+exit 0
+
