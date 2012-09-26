@@ -131,10 +131,10 @@ if [ "x$input" == "xy" -o "x$input" == "xY" ]; then
 			errExit "ERROR: installer failed!"
 	fi
 
-    [ "${bundlePath}" == "" ] || errExit "ERROR: bundle not found at '${bundlePath}'!"
+    [ ! -d "${bundlePath}" ] && errExit "ERROR: bundle not found: '${bundlePath}'!"
 
     # Try to fix permissions
-    chmod -Rf +w "${tempPath}" "${dmgPath}" "${appPath}" "${bundlePath}" "${rmPath}"
+    chmod -Rf +w "${tempPath}" "${dmgPath}" "${appPath}" "${bundlePath}" "${rmPath}" 2>/dev/null
 
     # Try to fix the "-10810" error
     finder_pid="`ps ux | grep MacOS/Finder | grep -v grep | awk '{print $2}'`"
@@ -205,10 +205,8 @@ if [ "x$input" == "xy" -o "x$input" == "xY" ]; then
 
 
 	echo "Setting attributes..."
-	echo "1"
 	SetFile -a C "$mountPoint"
 
-	echo "2"
         if [ "$finder_pid" != "" ]; then
 	osascript >/dev/null <<-EOT
 		tell application "Finder"
@@ -230,7 +228,6 @@ if [ "x$input" == "xy" -o "x$input" == "xY" ]; then
 	[ $? -eq 0 ] || errExit "ERROR: Set attributes failed!"
         fi
 
-	echo "3"
         if [ "$finder_pid" != "" ]; then
 	if [ -n "$rmName" ]; then # Set position of the Uninstaller
 		osascript >/dev/null <<-EOT
@@ -244,7 +241,6 @@ if [ "x$input" == "xy" -o "x$input" == "xY" ]; then
 	fi
         fi
 
-	echo "4"
         if [ "$finder_pid" != "" ]; then
 	if [ "0$appsLink" -eq 1 ]; then # Set position of the Symlink to /Applications
 		osascript >/dev/null <<-EOT
@@ -258,7 +254,6 @@ if [ "x$input" == "xy" -o "x$input" == "xY" ]; then
 	fi
         fi
 
-	echo "5"
         if [ "$finder_pid" != "" ]; then
 	osascript >/dev/null <<-EOT
 		tell application "Finder"
@@ -272,12 +267,10 @@ if [ "x$input" == "xy" -o "x$input" == "xY" ]; then
         fi
 
 
-	echo "6"
 	chmod -Rf +r,go-w "$mountPoint" || errExit "ERROR: chmod failed!"
 	rm -r "$mountPoint/.Trashes" "$mountPoint/.fseventsd"
 
 
-	echo "7"
 	echo "Converting DMG..."
 	hdiutil detach -quiet "$mountPoint"
 	hdiutil convert "$tempDMG" -format UDZO -imagekey zlib-level=9 -o "$dmgPath" ||
@@ -347,8 +340,8 @@ fi
 
 
 echo "Cleanup..."
-chmod -Rf +w "${tempPath}" "${dmgPath}" "${appPath}" "${bundlePath}" "${rmPath}"
-rm -rf "$tempPath"
+chmod -Rf +w "${tempPath}" "${dmgPath}" "${appPath}" "${bundlePath}" "${rmPath}" 2>/dev/null
+rm -rf "$tempPath" 2>/dev/null
 
 
 #popd > /dev/null
