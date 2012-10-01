@@ -129,9 +129,11 @@ if [ "x$input" == "xy" -o "x$input" == "xY" ]; then
 		[ "$pkgProj_core" != "" ] && /usr/local/bin/packagesbuild "$pkgProj_core"
 		/usr/local/bin/packagesbuild "$pkgProj" ||
 			errExit "ERROR: installer failed!"
+
+		xattr -xw com.apple.FinderInfo '0000000000000000001000000000000000000000000000000000000000000000' "$bundlePath"
 	fi
 
-    [ ! -d "${bundlePath}" ] && errExit "ERROR: bundle not found: '${bundlePath}'!"
+    [ ! -e "${bundlePath}" ] && errExit "ERROR: bundle not found: '${bundlePath}'!"
 
     # Try to fix permissions
     chmod -Rf +w "${tempPath}" "${dmgPath}" "${appPath}" "${bundlePath}" "${rmPath}" 2>/dev/null
