@@ -151,6 +151,92 @@ function fixMacGPG2permissions {
     [ -e "$HOME/.gnupg" ] && chmod -R u+rwX,go= "$HOME/.gnupg"
 }
 
+function hasPinentryEntryInConfig {
+	current_pinentry=$(grep -o 'pinentry-program.*' "$HOME/.gnupg/gpg-agent.conf" | sed 's/pinentry-program\([^/]*\)\(.*\)/\2/g' | sed 's/"//g')
+	if [ $? -ne 0 ]; then
+		echo "no"
+	else
+		echo "yes"
+	fi
+}
+
+function hasWorkingPinentry {
+	# Some versions of the fix_gpg and gpgtools-autofix included a bug which caused
+	# the pinentry-program config variable to be commented.
+	# The following line fixes this problem.
+	[ -e "$HOME/.gnupg/gpg-agent.conf" ] && sed -i '' 's/^#pinentry-program/pinentry-program/g' "$HOME/.gnupg/gpg-agent.conf"
+	
+	current_pinentry=$(grep -o 'pinentry-program.*' "$HOME/.gnupg/gpg-agent.conf" | sed 's/pinentry-program\([^/]*\)\(.*\)/\2/g' | sed 's/"//g')
+	if [ $? -ne 0 ]; then
+		echo "no"
+		return 1
+	fi
+	# Test if pinentry is a file, executable, redable, and manages to print a version.
+	if [ ! -f "$current_pinentry" ] || [ ! -r "$current_pinentry" ] || [ ! -x "$current_pinentry" ]; then
+		echo "no"
+		return 1
+	fi
+	"$current_pinentry" --version 2>/dev/null 1>&2
+	# Check if the version test succeeded.
+	if [ $? -ne 0 ]; then
+		echo "no"
+		return 1
+	fi
+	
+	echo "yes"
+}
+
+function findWorkingPinentry {
+	# Pinentry binary
+	PINENTRY_BINARY_PATH="pinentry-mac.app/Contents/MacOS/pinentry-mac"
+	# Pinentry in MacGPG2
+	PINENTRY_PATHS[0]="/usr/local/MacGPG2/libexec"
+	# Pinentry in GPGServices
+	PINENTRY_PATHS[1]="/Library/Services/GPGServices.service/Contents/Frameworks/Libmacgpg.framework/Resources"
+	# Pinentry in GPGMail /Library/
+	PINENTRY_PATHS[2]="/Library/Mail/Bundles/GPGMail.mailbundle/Contents/Frameworks/Libmacgpg.framework/Resources"
+	# Pinentry in GPGMail $HOME/Library/
+	PINENTRY_PATHS[3]="$HOME/Library/Mail/Bundles/GPGMail.mailbundle/Contents/Frameworks/Libmacgpg.framework/Resources"
+	# Pinentry in GPG Keychain Access
+	PINENTRY_PATHS[4]="/Applications/GPG Keychain Access.app/Contents/Frameworks/Libmacgpg.framework/Resources"
+	
+	for pinentry_path in "${PINENTRY_PATHS[@]}"; do
+		full_pinentry_path="${pinentry_path}/${PINENTRY_BINARY_PATH}"
+		if [ -f "$full_pinentry_path" ] && [ -x "$full_pinentry_path" ] && [ -r "$full_pinentry_path" ]; then
+			# Try to run it and check the result
+			"$full_pinentry_path" --version  2>/dev/null 1>&2
+			if [ $? -eq 0 ]; then
+				echo "$full_pinentry_path"
+				return 1
+			fi
+		fi
+	done
+	
+	echo "no"
+}
+
+function replacePinentryInConfig {
+	# Let's find a working pinentry
+	working_pinentry=$(findWorkingPinentry)
+	echo "Found working pinentry at: $working_pinentry"
+	if [ "$working_pinentry" == "no" ]; then
+		# FUCK WHAT NOW?!
+		echo "No working pinentry found. Abort?"
+		return 1
+	fi
+	# Replace the current pinentry program with a new one in the config file.
+	# Has to escape / with \/ for sed to work
+	escaped_pinentry=$(echo $working_pinentry | sed 's/\//\\\//g')
+	if [ "$(hasPinentryEntryInConfig)" == "yes" ]; then
+		echo "Replacing existing pinentry"
+		[ -e "$HOME/.gnupg/gpg-agent.conf" ] && sed -i '' "s/^[ 	]*\(pinentry-program\).*$/pinentry-program \"$escaped_pinentry\"/g" "$HOME/.gnupg/gpg-agent.conf"
+	else
+		echo "Add new pinentry"
+		[ -e "$HOME/.gnupg/gpg-agent.conf" ] && echo -e "pinentry-program \"$working_pinentry\"" >> "$HOME/.gnupg/gpg-agent.conf"
+	fi
+}
+
+
 function fixMacGPG2 {
     echo "[gpgtools] Fixing GPG...";
     killall gpg-agent 2> /dev/null
@@ -208,7 +294,15 @@ function fixMacGPG2 {
     touch "$HOME/.gnupg/gpg-agent.conf"
     [ -e "$HOME/.gnupg/gpg-agent.conf" ] && sed -i '' 's/^[ 	]*\(pinentry-program\)/#\1/g' "$HOME/.gnupg/gpg-agent.conf"
     [ -e "$HOME/.gnupg/gpg-agent.conf" ] && sed -i '' 's/^[ 	]*\(no-use-standard-socket\)/#\1/g' "$HOME/.gnupg/gpg-agent.conf"
-
+	
+	# It was removed, now let's add a working pinentry again so we can be sure
+	# that pinentry ALWAYS runs!
+	if [ "$(hasWorkingPinentry)" != "yes" ]; then
+		replacePinentryInConfig
+	fi
+	
+	killall gpg-agent 2> /dev/null
+	
     # Ascertain whether using obsolete login/out scripts and remove
     defaults read com.apple.loginwindow LoginHook 2>&1  | grep --quiet "$OldMacGPG2/sbin/gpg-login.sh"  && defaults delete com.apple.loginwindow LoginHook
     defaults read com.apple.loginwindow LogoutHook 2>&1 | grep --quiet "$OldMacGPG2/sbin/gpg-logout.sh" && defaults delete com.apple.loginwindow LogoutHook
