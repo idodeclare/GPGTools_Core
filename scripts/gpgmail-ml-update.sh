@@ -6,6 +6,7 @@ dscl . -list /Users UniqueID | while read username uid ;do
 	if [ $uid -ge 500 ]; then
 		userHome=$(eval echo ~$username)
 		oldLocation="$userHome/Library/Preferences"
+		mailContainersLocation="$userHome/Library/Containers/com.apple.mail"
 		newLocation="$userHome/Library/Containers/com.apple.mail/Data/Library/Preferences"
 		
 		if [[ -e "$oldLocation/org.gpgtools.gpgmail.plist" || -e "$oldLocation/org.gpgtools.common.plist" ]] ;then
@@ -25,8 +26,19 @@ dscl . -list /Users UniqueID | while read username uid ;do
 					defaults write "$newLocation/org.gpgtools.gpgmail" PublicKeyUserMap "$dict"
 				fi
 			fi
+			# Add values from /Library/Preferences/com.apple.mail.plist
+			defaults write "$newLocation/com.apple.mail.plist" "BundleCompatibilityVersion" -int 3
+			defaults write "$newLocation/com.apple.mail.plist" "EnableBundles" -int 1
+		fi
+		
+		if [ -d "$mailContainersLocation" ]; then
+			sudo chown -R "$username":staff "$mailContainersLocation"
+		fi
+		
+		obsoleteMailPlist = "/Library/Preferences/com.apple.mail.plist"
+		
+		if [ -f "$obsoleteMailPlist" ]; then
+			sudo rm -f "$obsoleteMailPlist"
 		fi
 	fi
 done
-
-
