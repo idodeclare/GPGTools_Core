@@ -96,7 +96,6 @@ defaults write "/Library/Preferences/com.apple.mail" BundleCompatibilityVersion 
 ################################################################################
 
 
-
 # Add the PluginCompatibilityUUIDs #############################################
 echo "[gpgmail] Adding PluginCompatibilityUUIDs..."
 _plistBundle="$_target/$bundle/Contents/Info"
@@ -118,3 +117,11 @@ if ! grep -q $uuid1 "${_plistBundle}.plist" || ! grep -q $uuid2 "${_plistBundle}
     echo "GPGMail successfully patched."
 fi
 ################################################################################
+
+
+# Romve installation files #####################################################
+rm -rf "/private/tmp/GPGMail_Installation"
+################################################################################
+
+
+
