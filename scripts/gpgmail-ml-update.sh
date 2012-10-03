@@ -35,8 +35,8 @@ dscl . -list /Users UniqueID | while read username uid ;do
 			sudo chown -R "$username":staff "$mailContainersLocation"
 		fi
 		
-		obsoleteMailPlist = "/Library/Preferences/com.apple.mail.plist"
-		
+		obsoleteMailPlist="/Library/Preferences/com.apple.mail.plist"
+
 		if [ -f "$obsoleteMailPlist" ]; then
 			sudo rm -f "$obsoleteMailPlist"
 		fi

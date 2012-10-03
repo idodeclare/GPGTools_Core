@@ -315,6 +315,12 @@ function fixMacGPG2 {
     if [ -e /private/tmp/testSockets.py ]; then
       /private/tmp/testSockets.py "$HOME/.gnupg/" || echo "no-use-standard-socket" >> "$HOME/.gnupg/gpg-agent.conf"
     fi
+
+	obsoleteMailPlist="/Library/Preferences/com.apple.mail.plist"
+	
+	if [ -f "$obsoleteMailPlist" ]; then
+		sudo rm -f "$obsoleteMailPlist"
+	fi
 }
 
 fixEnigmail
