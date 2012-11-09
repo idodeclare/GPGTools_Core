@@ -23,14 +23,15 @@ module Net
         CGI::escape(str)
     end
 
-    def post_form(path, params)
+    def post_form(path, params, cookie)
       req = Net::HTTP::Post.new(path)
       req.body = params.map {|k,v| "#{urlencode(k.to_s)}=#{urlencode(v.to_s)}" }.join('&')
       req.content_type = 'application/x-www-form-urlencoded'
+      req['Cookie'] = cookie
       self.request req
     end
 
-    def post_multipart(path, params)
+    def post_multipart(path, params, cookie)
       boundary = "#{rand(1000000)}boundryofdoomydoom#{rand(1000000)}"
 
       fp = []
@@ -51,7 +52,7 @@ module Net
       self.post(path, "--#{boundary}\r\n" + (fp + files).join("--#{boundary}\r\n") + "--#{boundary}--", {
         "Content-Type" => "multipart/form-data; boundary=#{boundary}",
         "User-Agent" => "Mozilla/5.0 (Macintosh; U; PPC Mac OS X; en-us) AppleWebKit/523.10.6 (KHTML, like Gecko) Version/3.0.4 Safari/523.10.6"
-      })
+      }, cookie)
     end
 
     def prepare_param(name, value)
@@ -98,6 +99,11 @@ url = URI.parse "https://github.com/"
 http = Net::HTTP.new url.host, url.port
 http.use_ssl = url.scheme == 'https'
 http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+
+# GET request -> so the host can set his cookies
+res = http.get("/#{repo}/downloads", nil)
+cookie = {'Cookie'=>res.to_hash['set-cookie'].collect{|ea|ea[/^.*?;/]}.join}
+
 res = http.post_form("/#{repo}/downloads", {
   :file_size => File.size(filename),
   :content_type => mime_type.simplified,
@@ -105,7 +111,7 @@ res = http.post_form("/#{repo}/downloads", {
   :description => descr,
   :login => user,
   :token => token,
-})
+}, cookie)
 
 die "Repo not found" if res.class == Net::HTTPNotFound
 date = res["Date"]
@@ -132,7 +138,7 @@ res = http.post_multipart("/", {
   :acl => data["acl"].first,
   :file => file,
   :success_action_status => 201
-})
+}, cookie)
 
 printf("Result: %s\n", res.class)
 die "File upload failed" unless res.class == Net::HTTPCreated
