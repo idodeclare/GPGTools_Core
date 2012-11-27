@@ -209,7 +209,7 @@ if [ "x$input" == "xy" -o "x$input" == "xY" ]; then
 	echo "Setting attributes..."
 	SetFile -a C "$mountPoint"
 
-        if [ "$finder_pid" != "" ]; then
+if [ "$finder_pid" != "" ]; then
 	osascript >/dev/null <<-EOT
 		tell application "Finder"
 			tell disk "$volumeName"
@@ -228,9 +228,7 @@ if [ "x$input" == "xy" -o "x$input" == "xY" ]; then
 		end tell
 	EOT
 	[ $? -eq 0 ] || errExit "ERROR: Set attributes failed!"
-        fi
 
-        if [ "$finder_pid" != "" ]; then
 	if [ -n "$rmName" ]; then # Set position of the Uninstaller
 		osascript >/dev/null <<-EOT
 			tell application "Finder"
@@ -241,9 +239,7 @@ if [ "x$input" == "xy" -o "x$input" == "xY" ]; then
 		EOT
 		[ $? -eq 0 ] || errExit "ERROR: Set position of the Uninstaller failed!"
 	fi
-        fi
 
-        if [ "$finder_pid" != "" ]; then
 	if [ "0$appsLink" -eq 1 ]; then # Set position of the Symlink to /Applications
 		osascript >/dev/null <<-EOT
 			tell application "Finder"
@@ -254,9 +250,7 @@ if [ "x$input" == "xy" -o "x$input" == "xY" ]; then
 		EOT
 		[ $? -eq 0 ] || errExit "ERROR: Set position of Applications-Symlink failed!"
 	fi
-        fi
 
-        if [ "$finder_pid" != "" ]; then
 	osascript >/dev/null <<-EOT
 		tell application "Finder"
 			tell disk "$volumeName"
@@ -266,7 +260,11 @@ if [ "x$input" == "xy" -o "x$input" == "xY" ]; then
 		end tell
 	EOT
 	[ $? -eq 0 ] || errExit "ERROR: Update attributes failed!"
-        fi
+else
+    if [ -f "${volumeLayout}" ]; then
+        cp "${volumeLayout}" "$mountPoint/.DS_Store"
+    fi
+fi
 
 
 	chmod -Rf +r,go-w "$mountPoint" || errExit "ERROR: chmod failed!"
