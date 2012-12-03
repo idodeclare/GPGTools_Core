@@ -1,5 +1,7 @@
 #!/bin/bash
 
+#@todo Moved to GKA. Remove this script soon.
+
 # config #######################################################################
 if test "$USER" == ""
 then
