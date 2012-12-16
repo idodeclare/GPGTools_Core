@@ -1,12 +1,12 @@
 #!/bin/bash
 
-disclaimer="A lot of your personal info is contained in this log! Please consider to edit it before sending if you don't wish to send us all that!"
+disclaimer="The log might contain plenty of personal information.\nPlease consider editing that out, if you don't wish to send that info."
 
 echo "=============================================="
 echo "DISCLAIMER"
 echo "=============================================="
 echo ""
-echo "$disclaimer"
+echo -e "$disclaimer"
 echo ""
 echo "Press 'y' to continue..."
 read -rsn 1 n
