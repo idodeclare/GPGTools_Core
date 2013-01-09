@@ -261,8 +261,12 @@ if [ "$finder_pid" != "" ]; then
 	EOT
 	[ $? -eq 0 ] || errExit "ERROR: Update attributes failed!"
 else
+    echo "Dynamically layouting the DMG is not possible. Looking for static information..."
     if [ -f "${volumeLayout}" ]; then
+        echo "Found static information. Using it..."
         cp "${volumeLayout}" "$mountPoint/.DS_Store"
+    else
+        echo "Not found static information."
     fi
 fi
 
