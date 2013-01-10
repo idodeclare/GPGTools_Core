@@ -37,7 +37,7 @@ textSize=13
 
 
 
-[ -e "$pkgPath" ] || errExit "ERROR: pkg not found: '${pkgPath}'!"
+[ -e "$pkgPath" ] || errExit "ERROR: pkg not found: '$pkgPath'!"
 
 
 # Hide pkg file extension...
@@ -163,9 +163,12 @@ if ps -xo command | grep -q [M]acOS/Finder; then # Try to fix the "-10810" error
 	EOT
 	[ $? -eq 0 ] || errExit "ERROR: Update attributes failed!"
 else
-    if [ -f "${volumeLayout}" ]; then
-		echo "Use .DS_Store to set the attributes..."
-        cp "${volumeLayout}" "$mountPoint/.DS_Store"
+    echo "Dynamically layouting the DMG is not possible. Looking for static information...
+    if [ -f "$volumeLayout" ]; then
+        echo "Found static information. Using it..."
+        cp "$volumeLayout" "$mountPoint/.DS_Store"
+    else
+        echo "Not found static information."
     fi
 fi
 
@@ -205,7 +208,7 @@ echoBold " * SHA1: $sha1";
 
 
 echo "Cleanup..."
-chmod -Rf +w "$tempPath" "$dmgPath" "${pkgPath}" "$rmPath" 2>/dev/null
+chmod -Rf +w "$tempPath" "$dmgPath" "$pkgPath" "$rmPath" 2>/dev/null
 rm -rf "$tempPath" 2>/dev/null
 
 
