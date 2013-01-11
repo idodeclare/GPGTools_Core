@@ -6,13 +6,22 @@ ifeq ("$(CODE_SIGN)","1")
 endif
 
 
+CONFIG ?= Release
+VPATH ?= build/Release
+
+
+
 all: compile
 
 test:
 	@xcodebuild -project $(PROJECT).xcodeproj -target $(TEST_TARGET) -configuration $(CONFIG) build 
 
+ifdef PRODUCT
+compile: $(PRODUCT)
+else
 compile:
-	@xcodebuild -project $(PROJECT).xcodeproj -target $(TARGET) -configuration $(CONFIG) build $(XCCONFIG) > /dev/null
+	@xcodebuild -project $(PROJECT).xcodeproj -target $(TARGET) -configuration $(CONFIG) build $(XCCONFIG)
+endif
 
 clean:
 	@xcodebuild -project $(PROJECT).xcodeproj -target $(TARGET) -configuration $(CONFIG) clean > /dev/null

@@ -2,12 +2,13 @@
 # Erstellt eine detached signature für das dmg.
 
 source "${0%/*}/core.sh"
-setStandardVars
 parseConfig
 
 
 #TODO: Test auf Jenkins einbauen ($JENKINS ist nur ein Platzhalter!)
 if [[ -z "$JENKINS" ]] ; then
+	[[ -f "$dmgPath" ]] || errExit "I require file '$dmgPath' but it does not exit.  Aborting."
+	
 	echo "Removing old signature..."
 	rm -f "$dmgPath.sig"
 

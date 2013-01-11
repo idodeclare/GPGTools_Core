@@ -20,26 +20,34 @@ function echoBold() {
 
 
 
-function setStandardVars() {
+function parseConfig() {
 	buildDir="build"
 	pkgBin="packagesbuild"
 	cfFile="Makefile.config"
 	verString="__VERSION__"
 	buildString="__BUILD__"
 	coreDir="${0%/*}/.."
-}
 
-function parseConfig() {
 	[ -e "$cfFile" ] ||
 		errExit "Can't find $cfFile - wrong directory or can't create DMG from this project..."
 
 	source "$cfFile"
 	
+	if [[ -f "build/Release/$appName/Contents/Info.plist" ]] ;then
+		appVersion=$(/usr/libexec/PlistBuddy -c "print CFBundleShortVersionString" "build/Release/$appName/Contents/Info.plist")
+	else
+		appVersion=$version
+	fi
+	
+	
+	
 	pkgPath="$buildDir/$pkgName"
-	dmgName=${dmgName:-"$name-$version.dmg"}
+	dmgName=${dmgName:-"$name-$appVersion.dmg"}
 	dmgPath=${dmgPath:-"build/$dmgName"}
 	volumeName=${volumeName:-"$name"}
 	downloadUrl=${downloadUrl:-"${downloadUrlPrefix}${dmgName}"}
+	
+	
 }
 
 

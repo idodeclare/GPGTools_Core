@@ -7,7 +7,6 @@
 # Erstellt aus dem pkg ein dmg.
 
 source "${0%/*}/core.sh"
-setStandardVars
 parseConfig
 
 function unmount() {
@@ -15,8 +14,6 @@ function unmount() {
 		hdiutil detach -quiet "$mountPoint"
 	fi	
 }
-
-trap unmount EXIT
 
 
 #config ------------------------------------------------------------------
@@ -35,9 +32,12 @@ rmPos="370, 220"
 iconSize=80
 textSize=13
 
+if [[ -e "$dmgPath" ]] ;then
+	echo -e "The image '$dmgPath' already exists.\nUse 'make clean' to force rebuild."
+	exit 0
+fi
 
-
-[ -e "$pkgPath" ] || errExit "ERROR: pkg not found: '$pkgPath'!"
+[[ -e "$pkgPath" ]] || errExit "ERROR: pkg not found: '$pkgPath'!"
 
 
 # Hide pkg file extension...
@@ -63,8 +63,8 @@ if [ -n "$preDmgBuild" ]; then
 	"$preDmgBuild"
 fi
 
-echo "Removing old files..."
-rm -f "$dmgPath"
+#echo "Removing old files..."
+#rm -f "$dmgPath"
 
 echo "Creating temp directory..."
 mkdir "$dmgTempDir"
@@ -108,6 +108,8 @@ echo "Creating DMG..."
 hdiutil create -scrub -fs HFS+ -fsargs "-c c=64,a=16,e=16" -format UDRW -srcfolder "$dmgTempDir" -volname "$volumeName" "$tempDmg" ||
 	errExit "ERROR: Create DMG failed!"
 
+trap unmount EXIT
+
 mountInfo=$(hdiutil attach -readwrite -noverify "$tempDmg") ||
 	errExit "ERROR: Attach DMG failed!"
 
@@ -115,13 +117,10 @@ device=$(echo "$mountInfo" | head -1 | cut -d " " -f 1)
 mountPoint=$(echo "$mountInfo" | tail -1 | sed -En 's/([^	]+[	]+){2}//p')
 
 
-
 echo "Setting attributes..."
 SetFile -a C "$mountPoint"
 
-
-
-if ps -xo command | grep -q [M]acOS/Finder; then # Try to fix the "-10810" error
+if ps -xo command | grep -q "[M]acOS/Finder" ;then # Try to fix the "-10810" error
 	echo "Use Finder to set the attributes..."
 	osascript >/dev/null <<-EOT
 		tell application "Finder"
@@ -163,7 +162,7 @@ if ps -xo command | grep -q [M]acOS/Finder; then # Try to fix the "-10810" error
 	EOT
 	[ $? -eq 0 ] || errExit "ERROR: Update attributes failed!"
 else
-    echo "Dynamically layouting the DMG is not possible. Looking for static information...
+    echo "Dynamically layouting the DMG is not possible. Looking for static information..."
     if [ -f "$volumeLayout" ]; then
         echo "Found static information. Using it..."
         cp "$volumeLayout" "$mountPoint/.DS_Store"
