@@ -27,6 +27,7 @@ function parseConfig() {
 	verString="__VERSION__"
 	buildString="__BUILD__"
 	coreDir="${0%/*}/.."
+	installerSignId="Developer ID Installer: Lukas Pitschl"
 
 	[ -e "$cfFile" ] ||
 		errExit "Can't find $cfFile - wrong directory or can't create DMG from this project..."
@@ -51,8 +52,8 @@ function parseConfig() {
 		PATH="$PATH:/usr/local/bin"
 	fi
 
-	echo "config parsed"
+	#echo "config parsed"
 }
 
-echo "core.sh loaded from '${BASH_SOURCE[1]##*/}'"
+#echo "core.sh loaded from '${BASH_SOURCE[1]##*/}'"
 
