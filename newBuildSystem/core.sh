@@ -46,8 +46,9 @@ function parseConfig() {
 	dmgPath=${dmgPath:-"build/$dmgName"}
 	volumeName=${volumeName:-"$name"}
 	downloadUrl=${downloadUrl:-"${downloadUrlPrefix}${dmgName}"}
-	
-	
+
+	echo "config parsed"
 }
 
+echo "core.sh loaded from '${BASH_SOURCE[1]##*/}'"
 

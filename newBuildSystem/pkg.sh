@@ -4,6 +4,13 @@
 source "${0%/*}/core.sh"
 parseConfig
 
+echo "DEBUG========"
+set
+which packagesbuild
+command -v packagesbuild
+which "$pkgBin"
+command -v "$pkgBin"
+
 command -v "$pkgBin" >/dev/null 2>&1 ||
 	errExit "I require '$pkgBin' but it's not installed.  Aborting."
 
