@@ -27,7 +27,6 @@ function parseConfig() {
 	verString="__VERSION__"
 	buildString="__BUILD__"
 	coreDir="${0%/*}/.."
-	#installerSignId="Developer ID Installer: Lukas Pitschl"
 
 	[ -e "$cfFile" ] ||
 		errExit "Can't find $cfFile - wrong directory or can't create DMG from this project..."

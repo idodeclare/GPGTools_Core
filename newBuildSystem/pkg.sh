@@ -12,11 +12,13 @@ command -v "$pkgBin" >/dev/null 2>&1 ||
 if [[ "${0##*/}" == "pkg-core.sh" ]] ;then
 	# Call as "pkg-core.sh" to build the core pkg.
 	varName_pkgProj_name=pkgProj_corename
+	varName_pkgName=pkgCoreName
 	pkgProj_names=("${pkgProj_corename[@]}")
 	pkgNames=("${pkgCoreName[@]}")
 else
 	# Call with any other name to build the main pkg.
 	varName_pkgProj_name=pkgProj_name
+	varName_pkgName=pkgName
 	pkgProj_names=("${pkgProj_name[@]}")
 	pkgNames=("${pkgName[@]}")
 fi
@@ -29,55 +31,55 @@ fi
 [[ -n "$pkgProj_dir" ]] ||
 	errExit "I require environment variable 'pkgProj_dir' to be set but it's not.  Aborting."
 [[ -d "$pkgProj_dir" ]] ||
-	errExit "I require directory '$pkgProj_dir' but it does not exit.  Aborting."
+	errExit "I require directory '$pkgProj_dir' but it does not exist.  Aborting."
 [[ -d "$buildDir" ]] ||
-	errExit "I require directory '$buildDir' but it does not exit.  Aborting."
+	errExit "I require directory '$buildDir' but it does not exist.  Aborting."
 [[ -n "$appVersion" ]] ||
 	errExit "I require environment variable 'appVersion' to be set but it's not.  Aborting."
 [[ -n "$commitHash" ]] ||
 	errExit "I require environment variable 'commitHash' to be set but it's not.  Aborting."
 
+[[ ${#pkgProj_names[*]} -eq ${#pkgNames[*]} ]] ||
+	errExit "The variables '$varName_pkgProj_name' and '$varName_pkgName' doesn't have the same number of items.  Aborting."
 
-# Auskommentiert in der Hoffnung, dass nicht so viel unnützes, kopiert werden muss.
-#cp -R "$pkgProj_dir/" "$buildDir/"
+
 
 
 i=-1
 while [[ -n "${pkgProj_names[$((++i))]}" ]] ;do
 	pkgProj="$buildDir/${pkgProj_names[$i]}"
 	origPkgProj="$pkgProj_dir/${pkgProj_names[$i]}"
-	pkgPath="${pkgNames[$i]:+build/${pkgNames[$i]}}"
-	
-	if [[ -n "$pkgPath" ]] ;then
-		# pkg nicht neubauen wenn es schon existiert und die Version übereinstimmt.
-		pkgPath="$buildDir/${pkgNames[$i]}"
-		if [[ -f "$pkgPath" ]] ;then
-			pkgVersion=$(xattr -p org.gpgtools.version "$pkgPath" 2>/dev/null)
-			[[ "$pkgVersion" == "$appVersion" ]] && continue
-		fi
-	fi
-
+	pkgPath="build/${pkgNames[$i]}"
 
 	[[ -f "$origPkgProj" ]] ||
-		errExit "I require file '$origPkgProj' but it does not exit.  Aborting."
+		errExit "I require file '$origPkgProj' but it does not exist.  Aborting."
 
+	# pkg nicht neubauen wenn es schon existiert und die Version übereinstimmt.
+	pkgPath="$buildDir/${pkgNames[$i]}"
+	if [[ -f "$pkgPath" ]] ;then
+		pkgVersion=$(xattr -p org.gpgtools.version "$pkgPath" 2>/dev/null)
+		[[ "$pkgVersion" == "$appVersion" ]] && continue
+	fi
+
+	# Version und commit-hash ersetzen.
 	sed "s/$verString/$appVersion/g;s/$buildString/$commitHash/g" "$origPkgProj" > "$pkgProj"
+
+	# Pfad zum keychain setzen wenn nötig.
+	certificateName=$(/usr/libexec/PlistBuddy -c "print PROJECT:PROJECT_SETTINGS:CERTIFICATE:NAME" "$pkgProj")
+	if [[ -n "$certificateName" ]] ;then
+		keychain=$(security find-certificate -c "$certificateName" | sed -En 's/^keychain: "(.*)"/\1/p')
+		[[ -n "$keychain" ]] ||
+			errExit "I require certificate '$certificateName' but it can't be found.  Aborting."
+
+		/usr/libexec/PlistBuddy -c "set PROJECT:PROJECT_SETTINGS:CERTIFICATE:PATH '$keychain'" "$pkgProj"
+	fi
 
 	echo "Building '$pkgProj'..."
 	"$pkgBin" "$pkgProj" ||
 		errExit "Build of '$pkgProj' failed.  Aborting."
 	
-
-	
-	if [[ -n "$pkgPath" ]] ;then
-		#if true ;then # Testen ob wir signieren können. (keine GUI etc.)
-		#
-		#	productsign --sign "$installerSignId" "$pkgPath" "$pkgPath.temp" >/dev/null ||
-		#		errExit "Can't sign '$pkgPath'.  Aborting."
-		#	mv -f "$pkgPath.temp" "$pkgPath"
-		#fi
-		xattr -w org.gpgtools.version "$appVersion" "$pkgPath"
-	fi
+	# Version als extended attribute setzen, damit das Abfragen der Version einfacher fällt.
+	xattr -w org.gpgtools.version "$appVersion" "$pkgPath"
 done
 
 exit 0
