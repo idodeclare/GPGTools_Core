@@ -70,11 +70,12 @@ while [[ -n "${pkgProj_names[$((++i))]}" ]] ;do
 
 	
 	if [[ -n "$pkgPath" ]] ;then
-		if true ;then # Testen ob wir signieren können. (keine GUI etc.)
-			productsign --sign "$installerSignId" "$pkgPath" "$pkgPath.temp" >/dev/null ||
-				errExit "Can't sign '$pkgPath'.  Aborting."
-			mv -f "$pkgPath.temp" "$pkgPath"
-		fi
+		#if true ;then # Testen ob wir signieren können. (keine GUI etc.)
+		#
+		#	productsign --sign "$installerSignId" "$pkgPath" "$pkgPath.temp" >/dev/null ||
+		#		errExit "Can't sign '$pkgPath'.  Aborting."
+		#	mv -f "$pkgPath.temp" "$pkgPath"
+		#fi
 		xattr -w org.gpgtools.version "$appVersion" "$pkgPath"
 	fi
 done
