@@ -64,14 +64,18 @@ while [[ -n "${pkgProj_names[$((++i))]}" ]] ;do
 	# Version und commit-hash ersetzen.
 	sed "s/$verString/$appVersion/g;s/$buildString/$commitHash/g" "$origPkgProj" > "$pkgProj"
 
-	# Pfad zum keychain setzen wenn nötig.
-	certificateName=$(/usr/libexec/PlistBuddy -c "print PROJECT:PROJECT_SETTINGS:CERTIFICATE:NAME" "$pkgProj")
-	if [[ -n "$certificateName" ]] ;then
-		keychain=$(security find-certificate -c "$certificateName" | sed -En 's/^keychain: "(.*)"/\1/p')
-		[[ -n "$keychain" ]] ||
-			errExit "I require certificate '$certificateName' but it can't be found.  Aborting."
+	if [[ "0$PKG_SIGN" == "00" ]] ;then
+		/usr/libexec/PlistBuddy -c "delete PROJECT:PROJECT_SETTINGS:CERTIFICATE" "$pkgProj"
+	else
+		# Pfad zum keychain setzen wenn nötig.
+		certificateName=$(/usr/libexec/PlistBuddy -c "print PROJECT:PROJECT_SETTINGS:CERTIFICATE:NAME" "$pkgProj")
+		if [[ -n "$certificateName" ]] ;then
+			keychain=$(security find-certificate -c "$certificateName" | sed -En 's/^keychain: "(.*)"/\1/p')
+			[[ -n "$keychain" ]] ||
+				errExit "I require certificate '$certificateName' but it can't be found.  Aborting."
 
-		/usr/libexec/PlistBuddy -c "set PROJECT:PROJECT_SETTINGS:CERTIFICATE:PATH '$keychain'" "$pkgProj"
+			/usr/libexec/PlistBuddy -c "set PROJECT:PROJECT_SETTINGS:CERTIFICATE:PATH '$keychain'" "$pkgProj"
+		fi
 	fi
 
 	echo "Building '$pkgProj'..."
