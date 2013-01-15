@@ -27,10 +27,12 @@ tempDmg="$tempPath/temp.dmg"
 dmgTempDir="$tempPath/dmg"
 
 
-pkgPos="160, 220"
-rmPos="370, 220"
-iconSize=80
-textSize=13
+pkgPos=${pkgPos:-"160, 220"}
+rmPos=${rmPos:-"370, 220"}
+iconSize=${iconSize:-"80"}
+textSize=${textSize:-"13"}
+windowBounds=${windowBounds:-"400, 200, 980, 520"}
+
 
 if [[ -e "$dmgPath" ]] ;then
 	echo -e "The image '$dmgPath' already exists.\nUse 'make clean' to force rebuild."
@@ -130,7 +132,7 @@ if ps -xo command | grep -q "[M]acOS/Finder" ;then # Try to fix the "-10810" err
 				set current view of container window to icon view
 				set toolbar visible of container window to false
 				set statusbar visible of container window to false
-				set bounds of container window to {400, 200, 580 + 400, 320 + 200}
+				set bounds of container window to {$windowBounds}
 				set arrangement of viewOptions to not arranged
 				set icon size of viewOptions to $iconSize
 				set text size of viewOptions to $textSize
