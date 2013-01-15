@@ -26,19 +26,20 @@ function parseConfig() {
 	cfFile="Makefile.config"
 	verString="__VERSION__"
 	buildString="__BUILD__"
-	coreDir="${0%/*}/.."
+	coreDir="${BASH_SOURCE[0]%/*}/.."
+	infoPlist=${infoPlist:-"Contents/Info.plist"}
+
 
 	[ -e "$cfFile" ] ||
 		errExit "Can't find $cfFile - wrong directory or can't create DMG from this project..."
 
 	source "$cfFile"
 	
-	if [[ -f "build/Release/$appName/Contents/Info.plist" ]] ;then
-		appVersion=$(/usr/libexec/PlistBuddy -c "print CFBundleShortVersionString" "build/Release/$appName/Contents/Info.plist")
+	if [[ -f "build/Release/$appName/$infoPlist" ]] ;then
+		appVersion=$(/usr/libexec/PlistBuddy -c "print CFBundleVersion" "build/Release/$appName/$infoPlist")
 	else
 		appVersion=$version
 	fi
-	
 	
 	
 	pkgPath="$buildDir/$pkgName"
