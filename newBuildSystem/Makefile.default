@@ -12,7 +12,7 @@ VPATH ?= build/Release
 
 
 all: compile
-
+	set
 test:
 	@xcodebuild -project $(PROJECT).xcodeproj -target $(TEST_TARGET) -configuration $(CONFIG) build 
 
