@@ -5,7 +5,7 @@ if [ ! -d "$1" ]; then
 	exit 1
 fi
 
-source "${BASH_SOURCE[0]%/*}/core.sh"
+source "$(dirname "${BASH_SOURCE[0]}")/core.sh"
 parseConfig
 
 baseName="$name$bbSpecial"

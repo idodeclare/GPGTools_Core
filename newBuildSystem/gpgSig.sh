@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Erstellt eine detached signature für das dmg.
 
-source "${BASH_SOURCE[0]%/*}/core.sh"
+source "$(dirname "${BASH_SOURCE[0]}")/core.sh"
 parseConfig
 
 

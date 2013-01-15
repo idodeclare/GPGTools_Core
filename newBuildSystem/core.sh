@@ -26,7 +26,7 @@ function parseConfig() {
 	cfFile="Makefile.config"
 	verString="__VERSION__"
 	buildString="__BUILD__"
-	coreDir="${BASH_SOURCE[0]%/*}/.."
+	coreDir="$(dirname "${BASH_SOURCE[0]}")/.."
 	infoPlist=${infoPlist:-"Contents/Info.plist"}
 
 

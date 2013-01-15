@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Erstellt ein oder mehrere pkg(s). Wenn als pkg-core.sh aufgerufen, werden die entsprechenden core-pkgs erzeugt.
 
-source "${BASH_SOURCE[0]%/*}/core.sh"
+source "$(dirname "${BASH_SOURCE[0]}")/core.sh"
 parseConfig
 
 command -v "$pkgBin" >/dev/null 2>&1 ||
