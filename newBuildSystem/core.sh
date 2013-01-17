@@ -47,6 +47,7 @@ function parseConfig() {
 	dmgPath=${dmgPath:-"build/$dmgName"}
 	volumeName=${volumeName:-"$name"}
 	downloadUrl=${downloadUrl:-"${downloadUrlPrefix}${dmgName}"}
+	[[ -n "$rmName" ]] && rmPath=${rmPath:-"$pkgProj_dir/$rmName"}
 
 	if [[ ":$PATH:" != *":/usr/local/bin:"* ]]; then
 		PATH="$PATH:/usr/local/bin"
