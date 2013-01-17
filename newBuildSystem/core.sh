@@ -21,13 +21,13 @@ function echoBold() {
 
 
 function parseConfig() {
-	buildDir="build"
-	pkgBin="packagesbuild"
-	cfFile="Makefile.config"
-	verString="__VERSION__"
-	buildString="__BUILD__"
-	coreDir="$(dirname "${BASH_SOURCE[0]}")/.."
-	infoPlist=${infoPlist:-"Contents/Info.plist"}
+	buildDir=build
+	pkgBin=packagesbuild
+	cfFile=Makefile.config
+	verString=__VERSION__
+	buildString=__BUILD__
+	coreDir=$(dirname "${BASH_SOURCE[0]}")/..
+	infoPlist=${infoPlist:-Contents/Info.plist}
 
 
 	[ -e "$cfFile" ] ||
@@ -41,13 +41,16 @@ function parseConfig() {
 		appVersion=$version
 	fi
 	
-	
-	pkgPath="$buildDir/$pkgName"
-	dmgName=${dmgName:-"$name-$appVersion.dmg"}
-	dmgPath=${dmgPath:-"build/$dmgName"}
-	volumeName=${volumeName:-"$name"}
-	downloadUrl=${downloadUrl:-"${downloadUrlPrefix}${dmgName}"}
-	[[ -n "$rmName" ]] && rmPath=${rmPath:-"$pkgProj_dir/$rmName"}
+	pkgProj_dir=${pkgProj_dir:-Installer}
+	pkgProj_corename=${pkgProj_corename:-${name}_Core.pkgproj}
+	pkgCoreName=${pkgCoreName:-${name}_Core.pkg}
+	pkgProj_name=${pkgProj_name:-${name}.pkgproj}
+	pkgName=${pkgName:-${name}.pkg}
+	pkgPath=$buildDir/$pkgName
+	dmgName=${dmgName:-$name-$appVersion.dmg}
+	dmgPath=${dmgPath:-build/$dmgName}
+	volumeName=${volumeName:-$name}
+	[[ -n "$rmName" ]] && rmPath=${rmPath:-$pkgProj_dir/$rmName}
 
 	if [[ ":$PATH:" != *":/usr/local/bin:"* ]]; then
 		PATH="$PATH:/usr/local/bin"

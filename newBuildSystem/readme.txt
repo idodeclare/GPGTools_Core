@@ -14,3 +14,36 @@ sparkle-sig  Berechnet die sparkle signature für das dmg. (smg)
 signed-dmg   Kombination aus gpg-sig und sparkle-sig. (gpg-sig, sparkle-sig)
 
 
+Makefile.config:
+# Einträge die nicht als Required makiert sind, sind optional.
+# Einträge die mit Default makiert sind, werden normalerweise richtig gesetzt.
+
+name="GPGServices"  # Required
+appName="GPGServices.service"  # Required
+
+pkgProj_dir="Installer"  # Default
+pkgProj_corename="GPGServices_Core.pkgproj"  # Array, Default
+pkgCoreName="GPGServices_Core.pkg"  # Array, Default
+pkgProj_name="GPGServices.pkgproj"  # Array, Default
+pkgName="GPGServices.pkg"  # Array, Default
+
+rmName="Uninstall.app"
+
+imgBackground="Installer/background_dmg.png"
+localizeDir="Installer/localized"
+volumeName="GPG Keychain Access.localized"  # Default
+volumeLayout="Installer/DS_Store"
+pkgPos="290, 220"
+
+sshKeyname="Sparkle GPGServices - Private key"
+
+unset REVISION PRERELEASE  # Required
+MAJOR=1  # Required
+MINOR=7  # Required
+#REVISION=1
+#PRERELEASE=b8
+
+source "$(dirname "${BASH_SOURCE[0]}")/Dependencies/GPGTools_Core/newBuildSystem/versioning.sh"  # Required
+
+# Unübliche Einträge: pkgPath, dmgName, dmgPath, infoPlist
+

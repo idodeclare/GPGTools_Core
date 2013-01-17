@@ -27,7 +27,10 @@ clean:
 	@xcodebuild -project $(PROJECT).xcodeproj -target $(TARGET) -configuration $(CONFIG) clean > /dev/null
 	@rm -rf ./build/*
 
-clean-all:: clean
+clean-libmacgpg:
+	$(MAKE) -C Dependencies/Libmacgpg clean-all
+
+clean-all: clean
 
 pkg-core: compile
 	@./Dependencies/GPGTools_Core/newBuildSystem/pkg-core.sh
