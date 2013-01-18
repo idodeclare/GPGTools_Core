@@ -2,7 +2,7 @@ all: dmg
 
 update:
 	@git submodule foreach git pull origin master
-	@git pull
+	@git pull origin master
 
 compile: dmg
 
