@@ -23,6 +23,9 @@ style:
 dmg: update compile
 	@./Dependencies/GPGTools_Core/scripts/create_dmg.sh
 
+dmg-auto: update compile
+	@./Dependencies/GPGTools_Core/scripts/create_dmg.sh auto buildbot
+
 show-missing-deps:
 	@git submodule foreach 'git log --pretty=format:"missing: %h %s (see https://github.com/GPGTools/"`basename $$name`"/commit/%h)" $$sha1...master; echo; echo "https://github.com/GPGTools/"`basename $$name`"/compare/$$sha1...master"; echo'
 
