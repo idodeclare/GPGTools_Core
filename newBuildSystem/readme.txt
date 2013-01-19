@@ -13,8 +13,9 @@ gpg-sig      Erzeugt eine detached signature für das dmg. (dmg)
 sparkle-sig  Berechnet die sparkle signature für das dmg. (smg)
 signed-dmg   Kombination aus gpg-sig und sparkle-sig. (gpg-sig, sparkle-sig)
 
-
+=========================================================================================================
 Makefile.config:
+
 # Einträge die nicht als Required makiert sind, sind optional.
 # Einträge die mit Default makiert sind, werden normalerweise richtig gesetzt.
 
@@ -46,4 +47,18 @@ MINOR=7  # Required
 source "$(dirname "${BASH_SOURCE[0]}")/Dependencies/GPGTools_Core/newBuildSystem/versioning.sh"  # Required
 
 # Unübliche Einträge: pkgPath, dmgName, dmgPath, infoPlist
+
+=========================================================================================================
+*.pkgproj:
+
+Immer ein NAME.pkgproj und mindestens ein NAME_Core.pkgroj, weitere *_Core.pkgroj tragen den Namen der Komponente, z.B. Libmacgpg_core und LibmacgpgXPC_core.
+
+*_Core.pkgroj: raw-package, enhält komplette Komponente, ohne Abhängigkeiten; z.B. GPGMail ohne Libmacgpg.
+NAME.pkgproj: Enthält NAME_Core.pkg und alle weiteren *_Core.pkg. Enhält KEINEN eigene Payload!
+
+In den pkgproj Dateien müssen alle Pfade relativ zu build UND Installer sein! (Beispiel: Original Pfad "Installer/background.png", Pfad in der Datei "../Installer/background.png")
+Alle pkgproj werden auf des Zertifikat "Developer ID Installer: Lukas Pitschl" eingestellt.
+Der Wert von CERTIFICATE/PATH ist immer "login.keychain". make pkg setzt, beim erstellen, den richtigen Pfad ein.
+
+=========================================================================================================
 
