@@ -24,8 +24,13 @@ compile:
 endif
 
 clean:
+	ifneq ("$(wildcard $(PROJECT).xcodeproj)", "")
 	@xcodebuild -project $(PROJECT).xcodeproj -target $(TARGET) -configuration $(CONFIG) clean > /dev/null
+	endif
 	@rm -rf ./build/*
+
+clean-pkg:
+	@rm -rf ./build/*.pkg*
 
 clean-libmacgpg:
 	$(MAKE) -C Dependencies/Libmacgpg clean-all

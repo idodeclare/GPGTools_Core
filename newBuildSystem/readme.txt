@@ -13,6 +13,10 @@ gpg-sig      Erzeugt eine detached signature für das dmg. (dmg)
 sparkle-sig  Berechnet die sparkle signature für das dmg. (smg)
 signed-dmg   Kombination aus gpg-sig und sparkle-sig. (gpg-sig, sparkle-sig)
 
+Umgebungsvariablen:
+CODE_SIGN    Soll der Code signiert werden. (default=0)
+PKG_SIGN     Sollen die pkgs signiert werden. (default=0)
+
 =========================================================================================================
 Makefile.config:
 

@@ -38,7 +38,7 @@ function parseConfig() {
 	if [[ -f "build/Release/$appName/$infoPlist" ]] ;then
 		appVersion=$(/usr/libexec/PlistBuddy -c "print CFBundleVersion" "build/Release/$appName/$infoPlist")
 	else
-		appVersion=$version
+		appVersion=$build_version
 	fi
 	
 	pkgProj_dir=${pkgProj_dir:-Installer}
