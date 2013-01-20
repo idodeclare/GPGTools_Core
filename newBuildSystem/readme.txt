@@ -65,3 +65,14 @@ In den pkgproj Dateien müssen alle Pfade relativ zu build UND Installer sein! (
 
 =========================================================================================================
 
+Jenkins:
+
+security unlock-keychain -p "Passwort" "Pfad zum Keychain"
+CODE_SIGN=1 make compile
+
+PKG_SIGN=0 make dmg
+
+./Dependencies/GPGTools_Core/newBuildSystem/bb_deploy_dmg.sh /GPGTools/public/nightlies.gpgtools.org
+
+
+
