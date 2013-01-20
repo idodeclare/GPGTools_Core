@@ -13,7 +13,8 @@ parseConfig
 	errExit "\"$dmgPath\" couldn't be found!"
 
 echo "Remove old disk images..."
-rm -f "$1/$name"*".dmg"
+shopt -s extglob # Erweiterte Pfadnamen-Muster
+rm -f "$1/$name-"+([0-9])n.dmg
 
 echo "Copying '$dmgPath' to '$1/$dmgName'..."
 cp "$dmgPath" "$1/$dmgName"
