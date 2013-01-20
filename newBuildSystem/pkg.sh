@@ -65,15 +65,14 @@ while [[ -n "${pkgProj_names[$((++i))]}" ]] ;do
 	sed "s/$verString/$appVersion/g;s/$buildString/$commitHash/g" "$origPkgProj" > "$pkgProj"
 
 	xmlPath="PROJECT:PROJECT_SETTINGS:CERTIFICATE"
+	/usr/libexec/PlistBuddy -c "delete $xmlPath" "$pkgProj" 2>/dev/null
 	if [[ "$PKG_SIGN" == "1" ]] ;then
-		certificateName="Developer ID Installer: Lukas Pitschl"
+		certName="Developer ID Installer: Lukas Pitschl"
 		keychain=$(security find-certificate -c "$certificateName" | sed -En 's/^keychain: "(.*)"/\1/p')
 		[[ -n "$keychain" ]] ||
 			errExit "I require certificate '$certificateName' but it can't be found.  Aborting."
 
-		/usr/libexec/PlistBuddy -c "delete $xmlPath" -c "add $xmlPath dict" -c "add $xmlPath:NAME string '$certName'" -c "add $xmlPath:PATH string '$keychain'" "$pkgProj"
-	else
-		/usr/libexec/PlistBuddy -c "delete $xmlPath" "$pkgProj"
+		/usr/libexec/PlistBuddy -c "add $xmlPath dict" -c "add $xmlPath:NAME string '$certName'" -c "add $xmlPath:PATH string '$keychain'" "$pkgProj"
 	fi
 
 	echo "Building '$pkgProj'..."
