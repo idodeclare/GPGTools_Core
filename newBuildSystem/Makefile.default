@@ -23,11 +23,17 @@ compile:
 	@xcodebuild -project $(PROJECT).xcodeproj -target $(TARGET) -configuration $(CONFIG) build $(XCCONFIG)
 endif
 
+ifeq ("$(wildcard $(PROJECT).xcodeproj)", "")
 clean:
-	ifneq ("$(wildcard $(PROJECT).xcodeproj)", "")
-	@xcodebuild -project $(PROJECT).xcodeproj -target $(TARGET) -configuration $(CONFIG) clean > /dev/null
-	endif
 	@rm -rf ./build/*
+else
+clean:
+	@xcodebuild -project $(PROJECT).xcodeproj -target $(TARGET) -configuration $(CONFIG) clean > /dev/null
+	@rm -rf ./build/*
+endif
+
+
+
 
 clean-pkg:
 	@rm -rf ./build/*.pkg*

@@ -6,6 +6,7 @@ pkg-core     Erstellt das _core.pkg, wenn die Version nicht der Version des Prog
 pkg          Gleiches wie pkg-core nur für das normale pkg. (pkg-core)
 dmg          Erstellt ein dmg, wenn es nicht schon vorhanden ist. (pkg)
 clean        Säubert das aktuelle Projekt und führt ein clean mit Xcode aus.
+clean-pkg    Entfernt die pkgs.
 clean-all    Wie clean, säubert zusätzlich alle Dependencies. (clean)
 update       Aktualisiert per git pull das aktuelle Projekt und die Dependencies. (update-me)
 update-me    Wie update, allerdings nur für das aktuelle Projekt.
@@ -61,8 +62,6 @@ Immer ein NAME.pkgproj und mindestens ein NAME_Core.pkgroj, weitere *_Core.pkgro
 NAME.pkgproj: Enthält NAME_Core.pkg und alle weiteren *_Core.pkg. Enhält KEINEN eigene Payload!
 
 In den pkgproj Dateien müssen alle Pfade relativ zu build UND Installer sein! (Beispiel: Original Pfad "Installer/background.png", Pfad in der Datei "../Installer/background.png")
-Alle pkgproj werden auf des Zertifikat "Developer ID Installer: Lukas Pitschl" eingestellt.
-Der Wert von CERTIFICATE/PATH ist immer "login.keychain". make pkg setzt, beim erstellen, den richtigen Pfad ein.
 
 =========================================================================================================
 
