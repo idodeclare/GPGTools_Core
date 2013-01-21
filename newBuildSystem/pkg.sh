@@ -20,8 +20,7 @@ else
 fi
 
 
-
-if [[ -n "$pkgProj_names" || ! -e "$pkgProj_names" ]] ;then
+if [[ -z "$pkgProj_names" || ! -e "$pkgProj_dir/$pkgProj_names" ]] ;then
 	echo "No pkgproj to build.  Exiting"
 	exit 0
 fi
