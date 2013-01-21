@@ -64,42 +64,25 @@ while [[ -n "${pkgProj_names[$((++i))]}" ]] ;do
 	# Version und commit-hash ersetzen.
 	sed "s/$verString/$appVersion/g;s/$buildString/$commitHash/g" "$origPkgProj" > "$pkgProj"
 
+	# Signing informationen in das pkgproj schreiben oder entfernen.
 	xmlPath="PROJECT:PROJECT_SETTINGS:CERTIFICATE"
 	/usr/libexec/PlistBuddy -c "delete $xmlPath" "$pkgProj" 2>/dev/null
-	# Jenkins mags nicht wenn man die pakete via packagesbuild signen will, also
-	# machen wirs doch manuell.
-	# if [[ "$PKG_SIGN" == "1" ]] ;then
-	#      certName="Developer ID Installer: Lukas Pitschl"
-	#      keychain=$(security find-certificate -c "$certName" | sed -En 's/^keychain: "(.*)"/\1/p')
-	#      [[ -n "$keychain" ]] ||
-	#          errExit "I require certificate '$certName' but it can't be found.  Aborting."
-	# 
-	#      /usr/libexec/PlistBuddy -c "add $xmlPath dict" -c "add $xmlPath:NAME string '$certName'" -c "add $xmlPath:PATH string '$keychain'" "$pkgProj"
-	#  fi
-	
+	if [[ "$PKG_SIGN" == "1" ]] ;then
+		certName="Developer ID Installer: Lukas Pitschl"
+		keychain=$(security find-certificate -c "$certName" | sed -En 's/^keychain: "(.*)"/\1/p')
+		[[ -n "$keychain" ]] ||
+			errExit "I require certificate '$certName' but it can't be found.  Aborting."
+
+		/usr/libexec/PlistBuddy -c "add $xmlPath dict" -c "add $xmlPath:NAME string '$certName'" -c "add $xmlPath:PATH string '$keychain'" "$pkgProj"
+
+		# Unlock the keychain before using it if a password is given.
+		[[ -n "$UNLOCK_PWD" ]] &&
+			security unlock-keychain -p "$UNLOCK_PWD" "$keychain"
+	fi
+
 	echo "Building '$pkgProj'..."
 	"$pkgBin" "$pkgProj" ||
 		errExit "Build of '$pkgProj' failed.  Aborting."
-	
-	if [[ "$PKG_SIGN" == "1" ]] ;then
-    	certName="Developer ID Installer: Lukas Pitschl"
-    	keychain=$(security find-certificate -c "$certName" | sed -En 's/^keychain: "(.*)"/\1/p')
-    	[[ -n "$keychain" ]] ||
-    		errExit "I require certificate '$certName' but it can't be found.  Aborting."
-        
-        # Unlock the keychain before using it if a password is given.
-        if [[ "$UNLOCK_PWD" != "" ]]; then
-            security unlock-keychain -p "$UNLOCK_PWD" "$keychain"
-        fi
-        # Sign the package
-        /usr/bin/productsign --sign "$certName" --keychain "$keychain" "$pkgPath" "$pkgPathSigned"
-        # Check if the signing was successful.
-        /usr/sbin/pkgutil --check-signature $pkgPathSigned || errExit "Failed to sign $pkgPath."
-        # Replace original package with the signed package.
-        rm "$pkgPath"
-        mv "$pkgPathSigned" "$pkgPath"
-    fi
-    
 	
 	# Version als extended attribute setzen, damit das Abfragen der Version einfacher fällt.
 	xattr -w org.gpgtools.version "$appVersion" "$pkgPath"
