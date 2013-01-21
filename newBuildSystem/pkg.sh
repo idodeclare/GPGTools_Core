@@ -4,10 +4,6 @@
 source "$(dirname "${BASH_SOURCE[0]}")/core.sh"
 parseConfig
 
-command -v "$pkgBin" >/dev/null 2>&1 ||
-	errExit "I require '$pkgBin' but it's not installed.  Aborting."
-
-
 
 if [[ "${0##*/}" == "pkg-core.sh" ]] ;then
 	# Call as "pkg-core.sh" to build the core pkg.
@@ -25,9 +21,13 @@ fi
 
 
 
+if [[ -n "$pkgProj_names" || ! -e "$pkgProj_names" ]] ;then
+	echo "No pkgproj to build.  Exiting"
+	exit 0
+fi
 
-[[ -n "$pkgProj_names" ]] ||
-	errExit "I require environment variable '$varName_pkgProj_name' to be set but it's not.  Aborting."
+command -v "$pkgBin" >/dev/null 2>&1 ||
+	errExit "I require '$pkgBin' but it's not installed.  Aborting."
 [[ -n "$pkgProj_dir" ]] ||
 	errExit "I require environment variable 'pkgProj_dir' to be set but it's not.  Aborting."
 [[ -d "$pkgProj_dir" ]] ||
@@ -41,7 +41,6 @@ fi
 
 [[ ${#pkgProj_names[*]} -eq ${#pkgNames[*]} ]] ||
 	errExit "The variables '$varName_pkgProj_name' and '$varName_pkgName' doesn't have the same number of items.  Aborting."
-
 
 
 
