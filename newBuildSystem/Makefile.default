@@ -79,3 +79,6 @@ update-libmacgpg:
 
 update: update-me update-core
 
+# Special target for copying the created core package into a specified folder.
+pkg-prepare-for-installer: pkg-core
+	@./Dependencies/GPGTools_Core/newBuildSystem/pkg-prepare-for-installer.sh $(CORE_PKG_DIR) $(PROJECT) $(ALT_NAME)
