@@ -49,8 +49,13 @@ pkg-core: compile
 pkg-libmacgpg:
 	$(MAKE) -C Dependencies/Libmacgpg pkg-core
 
+ifeq ("$(NO_CORE_PKG)", "1") 
+pkg: compile
+	@./Dependencies/GPGTools_Core/newBuildSystem/pkg.sh
+else
 pkg: pkg-core
 	@./Dependencies/GPGTools_Core/newBuildSystem/pkg.sh
+endif
 
 dmg: pkg
 	@./Dependencies/GPGTools_Core/newBuildSystem/dmg.sh
