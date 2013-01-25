@@ -36,9 +36,7 @@ dscl . -list /Users UniqueID | while read username uid ;do
 		fi
 		
 		obsoleteMailPlist="/Library/Preferences/com.apple.mail.plist"
-
-		if [ -f "$obsoleteMailPlist" ]; then
-			sudo rm -f "$obsoleteMailPlist"
-		fi
+		osver="$(echo `sw_vers`|cut -f2 -d.)"
+        [[ "${osver}" -ge "8" ]] && sudo rm -f "$obsoleteMailPlist"
 	fi
 done

@@ -91,8 +91,10 @@ case "$(sw_vers -productVersion | cut -d . -f 2)" in
 	*) bundleCompVer=3 ;;
 esac
 
-defaults write "/Library/Preferences/com.apple.mail" EnableBundles -bool YES
-defaults write "/Library/Preferences/com.apple.mail" BundleCompatibilityVersion -int $bundleCompVer
+mailPlist="/Library/Preferences/com.apple.mail.plist"
+osver="$(echo `sw_vers`|cut -f2 -d.)"
+[[ "${osver}" -lt "8" ]] && defaults write "${mailPlist}" EnableBundles -bool YES
+[[ "${osver}" -lt "8" ]] && defaults write "${mailPlist}" BundleCompatibilityVersion -int $bundleCompVer
 ################################################################################
 
 
