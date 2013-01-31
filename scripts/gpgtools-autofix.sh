@@ -7,37 +7,55 @@
 # @todo		Invoke this script from other scripts
 ########################################
 
-if test "$USER" == ""
-then
-  USER=$(id -un)
-fi
-
-function fixEnigmail {
-    echo "[gpgtools] Fixing Enigmail...";
-    enigmail_profiles="$HOME/Library/Thunderbird/Profiles"
-    [ -e "$enigmail_profiles" ] && sudo chown -R "$USER" "$enigmail_profiles";
+function errExit() {
+	msg="$* (${BASH_SOURCE[1]##*/}: line ${BASH_LINENO[0]})"
+	if [[ -t 1 ]] ;then
+		echo -e "\033[1;31m$msg\033[0m" >&2
+	else
+		echo "$msg" >&2
+	fi
+	exit 1
+}
+function echoBold() {
+	if [[ -t 1 ]] ;then
+		echo -e "\033[1m$*\033[0m"
+	else
+		echo -e "$*"
+	fi
+}
+function myChown() {
+	# chown -R "$USER", if the file exists.
+    [[ -e "$1" ]] && sudo chown -R "$USER" "$1"
+}
+function myChmod() {
+	# chmod, if the file exists.
+	eval [[ -e "\${$#}" ]] && sudo chmod "$@"
 }
 
+
+USER=${USER:-$(id -un)}
+
+
 function fixGPGToolsPreferences {
-    echo "[gpgtools] Fixing Preferences...";
+    echo "[gpgtools] Fixing Preferences..."
     gpgp_dir="$HOME/Library/PreferencePanes"
-    [ -e "$gpgp_dir" ] && sudo chown -R "$USER" "$gpgp_dir";
+	myChown "$gpgp_dir"
 }
 
 function fixGPGServices {
-    echo "[gpgtools] Fixing Services...";
-    gpgs_dir="$HOME/Library/Services/GPGServices.service";
-    [ -e "$gpgs_dir" ] && sudo chown -R "$USER" "$gpgs_dir"
-    [ -e "/private/tmp/ServicesRestart" ] && sudo /private/tmp/ServicesRestart
+    echo "[gpgtools] Fixing Services..."
+    gpgs_dir="$HOME/Library/Services/GPGServices.service"
+    myChown "$gpgs_dir"
+    [[ -e "/private/tmp/ServicesRestart" ]] && sudo /private/tmp/ServicesRestart
     sudo rm -f /private/tmp/ServicesRestart
 }
 
 function updateGPGMail {
     # config ###################################################################
-    sysdir="/Library/Mail/Bundles/"
-    netdir="/Network/Library/Mail/Bundles/"
-    homedir="$HOME/Library/Mail/Bundles/"
-    bundle="GPGMail.mailbundle";
+    sysdir="/Library/Mail/Bundles"
+    netdir="/Network/Library/Mail/Bundles"
+    homedir="$HOME/Library/Mail/Bundles"
+    bundle="GPGMail.mailbundle"
     ############################################################################
 
     # modify the defaults ######################################################
@@ -46,73 +64,72 @@ function updateGPGMail {
     ############################################################################
 
     # determine the bundle is located ##########################################
-    if ( test -e "$netdir/$bundle" ) then
-        _target="$netdir";
-    elif ( test -e "$sysdir/$bundle" ) then
-        _target="$sysdir";
-    elif ( test -e "$homedir/$bundle" ) then
-         _target="$homedir";
+    if [[ -e "$netdir/$bundle" ]] ;then
+        _target="$netdir"
+    elif [[ -e "$sysdir/$bundle" ]] ;then
+        _target="$sysdir"
+    elif [[ -e "$homedir/$bundle" ]] ;then
+         _target="$homedir"
     else
         return 0
     fi
     ############################################################################
 
     ############################################################################
-    _bundleId="gpgmail";
-    _bundleName="$bundle";
-    _bundleRootPath="$_target";
-    _bundlePath="$_bundleRootPath/$_bundleName";
-    _plistBundle="$_bundlePath/Contents/Info";
-    _plistMail="/Applications/Mail.app/Contents/Info";
-    _plistFramework="/System/Library/Frameworks/Message.framework/Resources/Info";
+    _bundleId="gpgmail"
+    _bundleName="$bundle"
+    _bundleRootPath="$_target"
+    _bundlePath="$_bundleRootPath/$_bundleName"
+    _plistBundle="$_bundlePath/Contents/Info"
+    _plistMail="/Applications/Mail.app/Contents/Info"
+    _plistFramework="/System/Library/Frameworks/Message.framework/Resources/Info"
 
-    isInstalled=`if [ -d "$_bundlePath" ]; then echo "1"; else echo "0"; fi`
-    if [ "1" == "$isInstalled" ]; then
-        echo "[$_bundleId] is installed";
+    if [[ -d "$_bundlePath" ]] ;then
+        echo "[$_bundleId] is installed"
     else
-        foundDisabled=`find "$_bundleRootPath ("* -type d -name "$_bundleName" 2>/dev/null|head -n1`
-        if [ "" != "$foundDisabled" ]; then
-            mkdir -p "$_bundleRootPath";
-            mv "$foundDisabled" "$_bundleRootPath";
-           echo "[$_bundleId] was reinstalled";
+        foundDisabled=$(find "$_bundleRootPath ("* -type d -name "$_bundleName" 2>/dev/null|head -n1)
+        if [[ "" != "$foundDisabled" ]] ;then
+            mkdir -p "$_bundleRootPath"
+            mv "$foundDisabled" "$_bundleRootPath"
+           echo "[$_bundleId] was reinstalled"
         else
-            echo "[$_bundleId] not found";
+            echo "[$_bundleId] not found"
         fi
     fi
     
     echo "[$_bundleId] Setting the correct permissions in '$_bundlePath'..."
-    [ -e "$_bundlePath" ] && chmod -R u+rwX,go=rX "$_bundlePath";
+    myChmod -R u+rwX,go=rX "$_bundlePath"
 
-    uuid1=`defaults read "$_plistMail" "PluginCompatibilityUUID"`
-    uuid2=`defaults read "$_plistFramework" "PluginCompatibilityUUID"`
-    if [ "" == "$uuid1" ] || [ "" == "$uuid2" ] ; then
-        echo "[$_bundleId] Warning: could not patch GPGMail. No UUIDs found.";
-        return;
+    uuid1=$(defaults read "$_plistMail" "PluginCompatibilityUUID")
+    uuid2=$(defaults read "$_plistFramework" "PluginCompatibilityUUID")
+    if [[ "" == "$uuid1" ]] || [[ "" == "$uuid2" ]]  ;then
+        echo "[$_bundleId] Warning: could not patch GPGMail. No UUIDs found."
+        return
     fi
-    if [ ! -f "$_plistBundle.plist" ]; then
-        echo "[$_bundleId] Warning: could not patch GPGMail. No bundle found.";
-        return;
+    if [[ ! -f "$_plistBundle.plist" ]] ;then
+        echo "[$_bundleId] Warning: could not patch GPGMail. No bundle found."
+        return
     fi
-    isPatched1=`grep $uuid1 "$_bundlePath/Contents/Info.plist" 2>/dev/null`
-    isPatched2=`grep $uuid2 "$_bundlePath/Contents/Info.plist" 2>/dev/null`
-    if [ "" != "$isPatched1" ] && [ "" != "$isPatched2" ] ; then
-        echo "[$_bundleId] already patched";
+    isPatched1=$(grep $uuid1 "$_bundlePath/Contents/Info.plist" 2>/dev/null)
+    isPatched2=$(grep $uuid2 "$_bundlePath/Contents/Info.plist" 2>/dev/null)
+    if [[ "" != "$isPatched1" ]] && [[ "" != "$isPatched2" ]]  ;then
+        echo "[$_bundleId] already patched"
     else
         defaults write "$_plistBundle" "SupportedPluginCompatibilityUUIDs" -array-add "$uuid1"
         defaults write "$_plistBundle" "SupportedPluginCompatibilityUUIDs" -array-add "$uuid2"
         plutil -convert xml1 "$_plistBundle.plist"
-        echo "[$_bundleId] successfully patched";
+        echo "[$_bundleId] successfully patched"
     fi
 }
 
 function fixGPGMail {
-    echo "[gpgtools] Fixing Mail...";
+    echo "[gpgtools] Fixing Mail..."
 	
 	domain="com.apple.mail"
 	case "$(sw_vers -productVersion | cut -d . -f 2)" in
-	    7) bundleCompVer=5 ;;
-	    6) bundleCompVer=4 ;;
-	    *) bundleCompVer=3 ;;
+	    7) bundleCompVer=5 ;; 
+	    6) bundleCompVer=4 ;; 
+	    *) bundleCompVer=3 ;; 
     esac
 	
 	echo " * Writing '$bundleCompVer' to '$domain'..."
@@ -120,10 +137,11 @@ function fixGPGMail {
 	defaults write "$domain" BundleCompatibilityVersion -int $bundleCompVer
 	
 	echo " * Writing '$bundleCompVer' to '$domain' as '$USER'..."
-	su - "$USER" -c "defaults write '$domain' EnableBundles -bool YES"
-	su - "$USER" -c  "defaults write '$domain' BundleCompatibilityVersion -int $bundleCompVer"
-	
-    if [ `whoami` == root ] ; then
+	sudo -u  "$USER" defaults write "$domain" EnableBundles -bool YES
+	sudo -u  "$USER" defaults write "$domain" BundleCompatibilityVersion -int $bundleCompVer
+
+
+    if [[ "$(whoami)" == root ]]  ;then
 	    #defaults acts funky when asked to write to the root domain but seems to work with a full path
 		domain=/Library/Preferences/com.apple.mail
 	fi	
@@ -132,199 +150,156 @@ function fixGPGMail {
 	defaults write "$domain" EnableBundles -bool YES
 	defaults write "$domain" BundleCompatibilityVersion -int $bundleCompVer
 
-    gpgm_dir="$HOME/Library/Mail/";
-	echo " * Fixing permissions in '$gpgm_dir'..."
-    [ -e "$gpgm_dir" ] && sudo chown "$USER" "$gpgm_dir";
-    [ -e "$gpgm_dir/Bundles" ] && sudo chown -R "$USER" "$gpgm_dir/Bundles";
 
-    gpgm_dir="/Library/Mail/";
+
+    gpgm_dir="$HOME/Library/Mail/"
 	echo " * Fixing permissions in '$gpgm_dir'..."
-    [ -e "$gpgm_dir" ] && sudo chmod -R u+rwX,go=rX "$gpgm_dir";
+    [[ -e "$gpgm_dir" ]] && sudo chown "$USER" "$gpgm_dir"
+    myChown "$gpgm_dir/Bundles"
+
+    gpgm_dir="/Library/Mail/"
+	echo " * Fixing permissions in '$gpgm_dir'..."
+    myChmod -R u+rwX,go=rX "$gpgm_dir"
     
     updateGPGMail
 }
 
-function fixMacGPG2permissions {
-    [ -e "$HOME/.gnupg" ] || mkdir -m 0700 "$HOME/.gnupg"
-    [ -e "$HOME/.gnupg" ] && chown -R "$USER" "$HOME/.gnupg"
-    [ -e "$HOME/.gnupg" ] && chmod -R -N "$HOME/.gnupg" 2> /dev/null;
-    [ -e "$HOME/.gnupg" ] && chmod -R u+rwX,go= "$HOME/.gnupg"
+function fixGnupgHomePermissions {
+    [[ -e "$GNUPGHOME" ]] || mkdir -m 0700 "$GNUPGHOME"
+    myChown "$GNUPGHOME"
+    myChmod -R -N "$GNUPGHOME" 2>/dev/null
+    myChmod -R u+rwX,go= "$GNUPGHOME"
 }
 
-function hasPinentryEntryInConfig {
-	current_pinentry=$(grep -o 'pinentry-program.*' "$HOME/.gnupg/gpg-agent.conf" | sed 's/pinentry-program\([^/]*\)\(.*\)/\2/g' | sed 's/"//g')
-	if [ $? -ne 0 ]; then
-		echo "no"
-	else
-		echo "yes"
-	fi
+
+function isPinentryWorking {
+	# Check if the pinentry, passed to this function, works.
+	sudo -u "$USER" "$1" --version 2>/dev/null 1>&2
+	return $?
 }
 
-function hasWorkingPinentry {
-	# Some versions of the fix_gpg and gpgtools-autofix included a bug which caused
-	# the pinentry-program config variable to be commented.
-	# The following line fixes this problem.
-	[ -e "$HOME/.gnupg/gpg-agent.conf" ] && sed -i '' 's/^#pinentry-program/pinentry-program/g' "$HOME/.gnupg/gpg-agent.conf"
-	
-	current_pinentry=$(grep -o 'pinentry-program.*' "$HOME/.gnupg/gpg-agent.conf" | sed 's/pinentry-program\([^/]*\)\(.*\)/\2/g' | sed 's/"//g')
-	if [ $? -ne 0 ]; then
-		echo "no"
-		return 1
-	fi
-	# Test if pinentry is a file, executable, redable, and manages to print a version.
-	if [ ! -f "$current_pinentry" ] || [ ! -r "$current_pinentry" ] || [ ! -x "$current_pinentry" ]; then
-		echo "no"
-		return 1
-	fi
-	"$current_pinentry" --version 2>/dev/null 1>&2
-	# Check if the version test succeeded.
-	if [ $? -ne 0 ]; then
-		echo "no"
-		return 1
-	fi
-	
-	echo "yes"
-}
 
 function findWorkingPinentry {
 	# Pinentry binary
 	PINENTRY_BINARY_PATH="pinentry-mac.app/Contents/MacOS/pinentry-mac"
+	# Pinentry in Libmacgpg
+	PINENTRY_PATHS[1]="/Library/Frameworks/Libmacgpg.framework/Versions/A/Resources"
 	# Pinentry in MacGPG2
 	PINENTRY_PATHS[0]="/usr/local/MacGPG2/libexec"
-	# Pinentry in GPGServices
-	PINENTRY_PATHS[1]="/Library/Services/GPGServices.service/Contents/Frameworks/Libmacgpg.framework/Resources"
-	# Pinentry in GPGMail /Library/
-	PINENTRY_PATHS[2]="/Library/Mail/Bundles/GPGMail.mailbundle/Contents/Frameworks/Libmacgpg.framework/Resources"
-	# Pinentry in GPGMail $HOME/Library/
-	PINENTRY_PATHS[3]="$HOME/Library/Mail/Bundles/GPGMail.mailbundle/Contents/Frameworks/Libmacgpg.framework/Resources"
-	# Pinentry in GPG Keychain Access
-	PINENTRY_PATHS[4]="/Applications/GPG Keychain Access.app/Contents/Frameworks/Libmacgpg.framework/Resources"
-	
+
 	for pinentry_path in "${PINENTRY_PATHS[@]}"; do
-		full_pinentry_path="${pinentry_path}/${PINENTRY_BINARY_PATH}"
-		if [ -f "$full_pinentry_path" ] && [ -x "$full_pinentry_path" ] && [ -r "$full_pinentry_path" ]; then
-			# Try to run it and check the result
-			"$full_pinentry_path" --version  2>/dev/null 1>&2
-			if [ $? -eq 0 ]; then
-				echo "$full_pinentry_path"
-				return 1
-			fi
+		full_pinentry_path="$pinentry_path/$PINENTRY_BINARY_PATH"
+
+		if isPinentryWorking "$full_pinentry_path" ;then
+			echo "$full_pinentry_path"
+			return 0
 		fi
 	done
 	
-	echo "no"
-}
-
-function replacePinentryInConfig {
-	# Let's find a working pinentry
-	working_pinentry=$(findWorkingPinentry)
-	echo "Found working pinentry at: $working_pinentry"
-	if [ "$working_pinentry" == "no" ]; then
-		# FUCK WHAT NOW?!
-		echo "No working pinentry found. Abort?"
-		return 1
-	fi
-	# Replace the current pinentry program with a new one in the config file.
-	# Has to escape / with \/ for sed to work
-	escaped_pinentry=$(echo $working_pinentry | sed 's/\//\\\//g')
-	if [ "$(hasPinentryEntryInConfig)" == "yes" ]; then
-		echo "Replacing existing pinentry"
-		[ -e "$HOME/.gnupg/gpg-agent.conf" ] && sed -i '' "s/^[ 	]*\(pinentry-program\).*$/pinentry-program \"$escaped_pinentry\"/g" "$HOME/.gnupg/gpg-agent.conf"
-	else
-		echo "Add new pinentry"
-		[ -e "$HOME/.gnupg/gpg-agent.conf" ] && echo -e "pinentry-program \"$working_pinentry\"" >> "$HOME/.gnupg/gpg-agent.conf"
-	fi
+	return 1
 }
 
 
-function fixMacGPG2 {
-    echo "[gpgtools] Fixing GPG...";
-    killall gpg-agent 2> /dev/null
-    fixMacGPG2permissions
-    
-    # Lion: pinentry Mac "Save in Keychain" doesn't work
-    # http://gpgtools.lighthouseapp.com/projects/65764/tickets/292
-    _key="LimitLoadToSessionType"
-    _value="Aqua";
-    _file="$HOME/Library/LaunchAgents/org.gpgtools.macgpg2.gpg-agent.plist";
-    [ -e "$_file" ] && defaults write "$_file" "$_key" "$_value";
-    _file="/Library/LaunchAgents/org.gpgtools.macgpg2.gpg-agent.plist";
-    [ -e "$_file" ] && sudo defaults write "$_file" "$_key" "$_value";
+function fixGPG {
+    echo "[gpgtools] Fixing GPG..."
+    fixGnupgHomePermissions
 
-    [ -h "$HOME/.gnupg/S.gpg-agent" ] && sudo rm -f "$HOME/.gnupg/S.gpg-agent"
-    [ -h "$HOME/.gnupg/S.gpg-agent.ssh" ] && sudo rm -f "$HOME/.gnupg/S.gpg-agent.ssh"
-    [ -e "/Library/LaunchAgents/org.gpgtools.macgpg2.gpg-agent.plist" ] && sudo chown root:wheel "/Library/LaunchAgents/org.gpgtools.macgpg2.gpg-agent.plist";
-    [ -e "/Library/LaunchAgents/org.gpgtools.macgpg2.gpg-agent.plist" ] && sudo chmod 644 "/Library/LaunchAgents/org.gpgtools.macgpg2.gpg-agent.plist";
-    [ -e "$HOME/Library/LaunchAgents/org.gpgtools.macgpg2.gpg-agent.plist" ] && sudo chown "$USER" "$HOME/Library/LaunchAgents/org.gpgtools.macgpg2.gpg-agent.plist";
-    [ -e "$HOME/Library/LaunchAgents/org.gpgtools.macgpg2.gpg-agent.plist" ] && sudo chmod 644 "$HOME/Library/LaunchAgents/org.gpgtools.macgpg2.gpg-agent.plist";
-    sudo mkdir -p "/usr/local/bin"
-    sudo chmod +rX "/usr" "/usr/local" "/usr/local/bin" "/usr/local/MacGPG2" "/usr/local/MacGPG1" 2>/dev/null
-    if [ -e "/usr/local/MacGPG2/bin/gpg2" ]; then
-        sudo rm -f "/usr/local/bin/gpg2";
-        sudo ln -s "/usr/local/MacGPG2/bin/gpg2" "/usr/local/bin/gpg2";
-        sudo rm -f "/usr/local/bin/gpg-agent";
-        sudo ln -s "/usr/local/MacGPG2/bin/gpg-agent" "/usr/local/bin/gpg-agent";
-        [ ! -e "/usr/local/bin/gpg" ] && sudo ln -s "/usr/local/MacGPG2/bin/gpg2" "/usr/local/bin/gpg";
-    fi
+    sudo mkdir -p /usr/local/bin
+    sudo chmod +rX /usr /usr/local /usr/local/bin /usr/local/MacGPG2 /usr/local/MacGPG1 2>/dev/null
 
-    # Create a new gpg.conf if none is existing from the skeleton file
-    if [ -e "/usr/local/MacGPG2/share/gnupg/gpg-conf.skel" ] && ( ! test -e "$HOME/.gnupg/gpg.conf" ) then
-    	# ~/.gnupg is ensured above
-    	cp /usr/local/MacGPG2/share/gnupg/gpg-conf.skel "$HOME/.gnupg/gpg.conf"
-    	fixMacGPG2permissions
-    	echo "[MacGPG2] Created gpg.conf"
-    fi
-    # Create a new gpg.conf if the existing is corrupt
-    if [ -e "/usr/local/MacGPG2/bin/gpg2" ] && ( ! /usr/local/MacGPG2/bin/gpg2 --gpgconf-test ) then
-        echo "Fixing gpg.conf"
-        mv "$HOME/.gnupg/gpg.conf" "$HOME/.gnupg/gpg.conf.moved-by-gpgtools-installer"
-        cp /usr/local/MacGPG2/share/gnupg/gpg-conf.skel "$HOME/.gnupg/gpg.conf"
-        fixMacGPG2permissions
-    fi
-    # Add our comment if it doesn't exit
-    if [ -e "$HOME/.gnupg/gpg.conf" ] && [ "" == "`grep 'comment GPGTools' \"$HOME/.gnupg/gpg.conf\"`" ]; then
-        echo "comment GPGTools - http://gpgtools.org" >> "$HOME/.gnupg/gpg.conf";
-    fi
+	if [[ -e /usr/local/MacGPG2/bin/gpg2 ]] ;then
+		sudo rm -f /usr/local/bin/gpg2 /usr/local/bin/gpg-agent
+		sudo ln -s /usr/local/MacGPG2/bin/gpg2 /usr/local/bin/gpg2
+		sudo ln -s /usr/local/MacGPG2/bin/gpg-agent /usr/local/bin/gpg-agent
+		[[ ! -e /usr/local/bin/gpg ]] && sudo ln -s /usr/local/MacGPG2/bin/gpg2 /usr/local/bin/gpg
+		
+		# Create a new gpg.conf if none is existing from the skeleton file
+		if [[ ! -e "$GNUPGHOME/gpg.conf" ]] ;then
+			cp "/usr/local/MacGPG2/share/gnupg/gpg-conf.skel" "$GNUPGHOME/gpg.conf"
+			echo "[MacGPG2] Created gpg.conf"    
+		elif ! /usr/local/MacGPG2/bin/gpg2 --gpgconf-test ;then
+			echo "Fixing gpg.conf"
+			mv "$GNUPGHOME/gpg.conf" "$GNUPGHOME/gpg.conf.moved-by-gpgtools-installer"
+			cp /usr/local/MacGPG2/share/gnupg/gpg-conf.skel "$GNUPGHOME/gpg.conf"
+			echo "[MacGPG2] Replaced gpg.conf"    
+		fi
+	fi
+
+	fixGnupgHomePermissions
+	
     # Add a keyserver if none exits
-    if [ -e "$HOME/.gnupg/gpg.conf" ] && [ "" == "`grep '^[ 	]*keyserver ' \"$HOME/.gnupg/gpg.conf\"`" ]; then
-        echo "keyserver x-hkp://pool.sks-keyservers.net" >> "$HOME/.gnupg/gpg.conf";
+    if [[ -e "$GNUPGHOME/gpg.conf" ]] && ! grep -q '^[ 	]*keyserver ' "$GNUPGHOME/gpg.conf" ;then
+        echo "keyserver hkp://pool.sks-keyservers.net" >> "$GNUPGHOME/gpg.conf"
+    fi
+}
+
+
+function fixGPGAgent() {
+	gpgAgentConf="$GNUPGHOME/gpg-agent.conf"
+	touch "$gpgAgentConf"
+
+	# Fix pinentry.
+	currentPinetry=$(sed -En '/^[ 	]*pinentry-program "?([^"]*)"?/{s//\1/p;q;}' "$gpgAgentConf")
+	if ! isPinentryWorking "$currentPinetry" ;then
+		# Let's find a working pinentry
+		echo "Found working pinentry at: $working_pinentry"
+		if ! working_pinentry=$(findWorkingPinentry) ;then
+			echo "No working pinentry found. Abort!"
+			return 1
+		fi
+
+		if [[ -n "$currentPinetry" ]] ;then
+			echo "Replacing existing pinentry"
+			sed -Ei '' '/^([ 	]*pinentry-program ).*/s@@\1'"$working_pinentry@" "$gpgAgentConf"
+		else
+			echo "Add new pinentry"
+			echo -e "pinentry-program $working_pinentry" >> "$gpgAgentConf"
+		fi
+	fi
+
+
+	# "$GNUPGHOME" on NFS volumes
+    # http://gpgtools.lighthouseapp.com/projects/66001-macgpg2/tickets/55
+    if ! grep -Eq '^[       ]*no-use-standard-socket' "$gpgAgentConf" ;then
+		tempFile="$GNUPGHOME/test.tmp"
+		rm -f "$tempFile"
+		if ! mkfifo "$tempFile" >/dev/null 2>&1 && rm -f "$tempFile" ;then
+			echo "no-use-standard-socket" >> "$gpgAgentConf"
+		fi
     fi
 
-    # Remove any gpg-agent pinentry program options
-    touch "$HOME/.gnupg/gpg-agent.conf"
-    [ -e "$HOME/.gnupg/gpg-agent.conf" ] && sed -i '' 's/^[ 	]*\(pinentry-program\)/#\1/g' "$HOME/.gnupg/gpg-agent.conf"
-    [ -e "$HOME/.gnupg/gpg-agent.conf" ] && sed -i '' 's/^[ 	]*\(no-use-standard-socket\)/#\1/g' "$HOME/.gnupg/gpg-agent.conf"
-	
-	# It was removed, now let's add a working pinentry again so we can be sure
-	# that pinentry ALWAYS runs!
-	if [ "$(hasWorkingPinentry)" != "yes" ]; then
-		replacePinentryInConfig
-	fi
-	
 	killall gpg-agent 2> /dev/null
+
+    rm -f "$GNUPGHOME/S.gpg-agent" "$GNUPGHOME/S.gpg-agent.ssh"
+}
+
+function generalFixes() {
+	# Remove old plist files.
+	rm -f "$HOME/Library/LaunchAgents/org.gpgtools.macgpg2.gpg-agent.plist" \
+		"/Library/LaunchAgents/org.gpgtools.macgpg2.gpg-agent.plist" \
+		"/Library/LaunchAgents/com.sourceforge.macgpg2.gpg-agent.plist"
+
+    # Now remove the gpg-agent helper AppleScript from login items:
+    osascript -e 'tell application "System Events" to delete login item "start-gpg-agent"' 2> /dev/null
 	
     # Ascertain whether using obsolete login/out scripts and remove
     defaults read com.apple.loginwindow LoginHook 2>&1  | grep --quiet "$OldMacGPG2/sbin/gpg-login.sh"  && defaults delete com.apple.loginwindow LoginHook
     defaults read com.apple.loginwindow LogoutHook 2>&1 | grep --quiet "$OldMacGPG2/sbin/gpg-logout.sh" && defaults delete com.apple.loginwindow LogoutHook
 
-    # Now remove the gpg-agent helper AppleScript from login items:
-    osascript -e 'tell application "System Events" to delete login item "start-gpg-agent"' 2> /dev/null
-
-    # "$HOME/.gnupg" on NFS volumes
-    # http://gpgtools.lighthouseapp.com/projects/66001-macgpg2/tickets/55
-    if [ -e /private/tmp/testSockets.py ]; then
-      /private/tmp/testSockets.py "$HOME/.gnupg/" || echo "no-use-standard-socket" >> "$HOME/.gnupg/gpg-agent.conf"
-    fi
-
-		obsoleteMailPlist="/Library/Preferences/com.apple.mail.plist"
-		osver="$(echo `sw_vers`|cut -f2 -d.)"
-        [[ "${osver}" -ge "8" ]] && sudo rm -f "$obsoleteMailPlist"
+	# Remove obsolete com.apple.mail.plist
+	obsoleteMailPlist="/Library/Preferences/com.apple.mail.plist"
+	osver="$(sw_vers -productVersion | cut -f2 -d.)"
+	[[ "$osver" -ge 8 ]] && sudo rm -f "$obsoleteMailPlist"
 }
 
-fixEnigmail
+
+GNUPGHOME=${GNUPGHOME:-"$HOME/.gnupg"}
+
+generalFixes
+fixGPG
+fixGPGAgent
 fixGPGToolsPreferences
 fixGPGServices
 fixGPGMail
-fixMacGPG2
 
 exit 0
