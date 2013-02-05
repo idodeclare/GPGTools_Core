@@ -9,8 +9,25 @@ endif
 CONFIG ?= Release
 VPATH ?= build/Release
 
-
-
+help:
+	@echo "compile          - compile the sources"
+	@echo "clean            - remove old generated files"
+	@echo "clean-pkg        - remove old generated pkg's"
+	@echo "clean-libmacgpg  - remove old libmacgpg files"
+	@echo "update           - update all sources"
+	@echo "update-me        - update the sources"
+	@echo "update-core      - update the core dependency"
+	@echo "update-libmacgpg - update libmacgpg dependency"
+	@echo "pkg              - generate main pkg"
+	@echo "pkg-core         - generate core pkg"
+	@echo "pkg-libmacgpg    - generate libmacgpg pkg"
+	@echo "dmg              - generate final dmg"
+	@echo "signed-dmg       - generate signed dmg"
+	@echo "gpg-sig          - sign with gpg"
+	@echo "sparkle-sig      - sign for sparkle"
+	@echo "uninstaller-sig  - sign uninstaller"
+#	@echo "pkg-prepare-for-installer - copy the created core package into a specified folder"
+	
 all: compile
 
 test:
@@ -60,8 +77,11 @@ gpg-sig: dmg
 
 sparkle-sig: dmg
 	@./Dependencies/GPGTools_Core/newBuildSystem/sparkleSig.sh
+
+uninstaller-sig:
+	@./Dependencies/GPGTools_Core/newBuildSystem/uninstallerSig.sh
 	
-signed-dmg: gpg-sig sparkle-sig
+signed-dmg: gpg-sig sparkle-sig uninstaller-sig
 
 update-me:
 	@./Dependencies/GPGTools_Core/newBuildSystem/update.sh
