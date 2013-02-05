@@ -6,8 +6,10 @@ parseConfig
 
 devID="Developer ID Application: Lukas Pitschl"
 
+[[ "$PKG_SIGN" == "1" ]] || echo "Warning: PKG_SIGN not enabled. Skipping."
+
 #TODO: Test auf Jenkins einbauen ($JENKINS ist nur ein Platzhalter!)
-if [[ -z "$JENKINS" ]]; then
+if [[ "$PKG_SIGN" == "1" && -z "$JENKINS" ]]; then
     echo "Checking the environment..."
 	[[ -d "$rmPath" ]] || errExit "I require app '$rmPath' but it does not exit. Aborting."
     

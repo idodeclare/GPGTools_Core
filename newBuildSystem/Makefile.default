@@ -69,7 +69,7 @@ pkg-libmacgpg:
 pkg: pkg-core
 	@./Dependencies/GPGTools_Core/newBuildSystem/pkg.sh
 
-dmg: pkg
+dmg: pkg uninstaller-sig
 	@./Dependencies/GPGTools_Core/newBuildSystem/dmg.sh
 
 gpg-sig: dmg
