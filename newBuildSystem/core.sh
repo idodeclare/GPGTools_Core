@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
 # Enthällt standard Funktionen für die verschiedenen Shell-Skripte.
 
+# global variables -------------------------------------------------------------
+certNameApp="Developer ID Application: Lukas Pitschl"
+certNameInst="Developer ID Installer: Lukas Pitschl"
+# ------------------------------------------------------------------------------
+
 function errExit() {
 	msg="$* (${BASH_SOURCE[1]##*/}: line ${BASH_LINENO[0]})"
 	if [[ -t 1 ]] ;then

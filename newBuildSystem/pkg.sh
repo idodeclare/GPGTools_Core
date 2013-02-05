@@ -67,12 +67,11 @@ while [[ -n "${pkgProj_names[$((++i))]}" ]] ;do
 	xmlPath="PROJECT:PROJECT_SETTINGS:CERTIFICATE"
 	/usr/libexec/PlistBuddy -c "delete $xmlPath" "$pkgProj" 2>/dev/null
 	if [[ "$PKG_SIGN" == "1" ]] ;then
-		certName="Developer ID Installer: Lukas Pitschl"
-		keychain=$(security find-certificate -c "$certName" | sed -En 's/^keychain: "(.*)"/\1/p')
+		keychain=$(security find-certificate -c "$certNameInst" | sed -En 's/^keychain: "(.*)"/\1/p')
 		[[ -n "$keychain" ]] ||
-			errExit "I require certificate '$certName' but it can't be found.  Aborting."
+			errExit "I require certificate '$certNameInst' but it can't be found.  Aborting."
 
-		/usr/libexec/PlistBuddy -c "add $xmlPath dict" -c "add $xmlPath:NAME string '$certName'" -c "add $xmlPath:PATH string '$keychain'" "$pkgProj"
+		/usr/libexec/PlistBuddy -c "add $xmlPath dict" -c "add $xmlPath:NAME string '$certNameInst'" -c "add $xmlPath:PATH string '$keychain'" "$pkgProj"
 
 		# Unlock the keychain before using it if a password is given.
 		[[ -n "$UNLOCK_PWD" ]] &&
