@@ -79,7 +79,7 @@ sparkle-sig: dmg
 	@./Dependencies/GPGTools_Core/newBuildSystem/sparkleSig.sh
 
 uninstaller-sig:
-	@./Dependencies/GPGTools_Core/newBuildSystem/uninstallerSig.sh
+	@PKG_SIGN=1 ./Dependencies/GPGTools_Core/newBuildSystem/uninstallerSig.sh
 	
 signed-dmg: gpg-sig sparkle-sig uninstaller-sig
 
