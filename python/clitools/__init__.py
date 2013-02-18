@@ -429,3 +429,13 @@ class Diskimage(CommandLine):
     def run(self, cmd, args, dry=False):
         args.insert(0, cmd)
         return super(Diskimage, self).run(Diskimage.tool, args, dry=dry) == 0
+
+def print_status(message, end=False):
+    if not end:
+        sys.stdout.write("%s==>%s %s: " % (TerminalColor.blue(), TerminalColor.reset(), message))
+    elif end:
+        sys.stdout.write("%s\n" % (message))
+
+def ask_for(message):
+    return raw_input("%s==> %s%s: %s" % (TerminalColor.blue(), TerminalColor.color(39), message, TerminalColor.reset()))
+
