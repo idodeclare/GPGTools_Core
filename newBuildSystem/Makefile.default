@@ -26,7 +26,7 @@ help:
 	@echo "dmg              - generate final dmg"
 	@echo "signed-dmg       - generate signed dmg"
 	@echo "gpg-sig          - sign with gpg"
-	@echo "uninstaller-sig  - sign uninstaller (needs PKG_SIGN=1)"
+	@echo "uninstaller-sig  - sign uninstaller"
 #	@echo "pkg-prepare-for-installer - copy the created core package into a specified folder
 	@echo "release-patch"   - release a new patch version
 	@echo "release-minor"   - release a new minor version
@@ -72,7 +72,7 @@ pkg-libmacgpg:
 pkg: pkg-core
 	@./Dependencies/GPGTools_Core/newBuildSystem/pkg.sh
 
-dmg: pkg uninstaller-sig
+dmg: pkg
 	@./Dependencies/GPGTools_Core/newBuildSystem/dmg.sh
 
 gpg-sig: dmg
