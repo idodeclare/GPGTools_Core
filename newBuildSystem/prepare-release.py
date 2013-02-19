@@ -238,14 +238,32 @@ def update_version(version):
     
 def checkin_release_info_and_tag(version):
     """Commit the release notes and the updated Makefile.config"""
-    try:
-        run('git add "%s"' % (VERSION_PATH))
-        run('git add "%s"' % release_notes_file(version))
-        run('git commit -m "%s"' % (COMMIT_MSG % (format_version(version))))
-        run('git tag -a v%s  -m "%s"' % (format_version(version), COMMIT_MSG % (format_version(version))))
-    except Exception, e:
+    def run_or_undo(cmd, undo_cmds):
+        try:
+            run(cmd)
+        except Exception, e:
+            undo(undo_cmds, e)
+    
+    def undo(cmds, e):
+        for c in cmds:
+            print c
+            run(c)
         error("Couldn't checkin updated version files.\n\n%s" % (e))
-        return False
+    
+    undo_cmds = []
+    
+    run('git add "%s"' % (VERSION_PATH))
+    undo_cmds.append('git reset HEAD "%s"' % (VERSION_PATH))
+    
+    run_or_undo('git add "%s"' % release_notes_file(version), 
+                undo_cmds)
+    undo_cmds.append('git reset HEAD "%s"' % (release_notes_file(version)))
+    
+    run_or_undo('git commit -m "%s"' % (COMMIT_MSG % (format_version(version))),
+                undo_cmds)
+    
+    run_or_undo('git tag -a v%s  -m "%s"' % (format_version(version), COMMIT_MSG % (format_version(version))),
+                ['git reset --soft HEAD~1', 'git reset HEAD'])
     
     return True
 
