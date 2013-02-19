@@ -266,7 +266,7 @@ def checkin_release_info_and_tag(version):
     run_or_undo('git commit -m "%s"' % (COMMIT_MSG % (format_version(version))),
                 undo_cmds)
     
-    run_or_undo('git tag -a v%s  -m "%s"' % (format_version(version), COMMIT_MSG % (format_version(version))),
+    run_or_undo('git tag -a %s  -m "%s"' % (format_version(version), COMMIT_MSG % (format_version(version))),
                 ['git reset --soft HEAD~1', 'git reset HEAD', 'git checkout %s' % (VERSION_PATH)])
     
     return True
