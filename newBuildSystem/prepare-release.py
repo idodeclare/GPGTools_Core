@@ -148,6 +148,10 @@ def current_version():
             if key.lower() in ["major", "minor", "revision"]:
                 version[key.lower().replace("revision", "patch")] = int(value.strip())
     
+    # Patch is not required to be set.
+    if "patch" not in version:
+        version["patch"] = 0
+    
     return version
 
 def next_version(version, release_type, custom_version=None):
