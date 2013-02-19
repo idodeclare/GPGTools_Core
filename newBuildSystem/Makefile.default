@@ -26,8 +26,7 @@ help:
 	@echo "dmg              - generate final dmg"
 	@echo "signed-dmg       - generate signed dmg"
 	@echo "gpg-sig          - sign with gpg"
-	@echo "sparkle-sig      - sign for sparkle"
-	@echo "uninstaller-sig  - sign uninstaller"
+	@echo "uninstaller-sig  - sign uninstaller (needs PKG_SIGN=1)"
 #	@echo "pkg-prepare-for-installer - copy the created core package into a specified folder
 	@echo "release-patch"   - release a new patch version
 	@echo "release-minor"   - release a new minor version
@@ -79,13 +78,10 @@ dmg: pkg uninstaller-sig
 gpg-sig: dmg
 	@./Dependencies/GPGTools_Core/newBuildSystem/gpgSig.sh
 
-sparkle-sig: dmg
-	@./Dependencies/GPGTools_Core/newBuildSystem/sparkleSig.sh
-
 uninstaller-sig:
-	@PKG_SIGN=1 ./Dependencies/GPGTools_Core/newBuildSystem/uninstallerSig.sh
+	@./Dependencies/GPGTools_Core/newBuildSystem/uninstallerSig.sh
 	
-signed-dmg: gpg-sig sparkle-sig uninstaller-sig
+signed-dmg: gpg-sig
 
 update-me:
 	@./Dependencies/GPGTools_Core/newBuildSystem/update.sh
