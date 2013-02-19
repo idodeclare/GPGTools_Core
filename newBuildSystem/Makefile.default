@@ -104,14 +104,14 @@ pkg-prepare-for-installer: pkg-core
 
 # Targets to create new release
 release-patch:
-    @./Dependencies/GPGTools_Core/newBuildSystem/prepare-release.py --patch
+	@./Dependencies/GPGTools_Core/newBuildSystem/prepare-release.py --patch
 
 release-minor:
-    @./Dependencies/GPGTools_Core/newBuildSystem/prepare-release.py --minor
+	@./Dependencies/GPGTools_Core/newBuildSystem/prepare-release.py --minor
 
 release-major:
-    @./Dependencies/GPGTools_Core/newBuildSystem/prepare-release.py --major
+	@./Dependencies/GPGTools_Core/newBuildSystem/prepare-release.py --major
     
 release-custom:
-    @./Dependencies/GPGTools_Core/newBuildSystem/prepare-release.py --custom
+	@./Dependencies/GPGTools_Core/newBuildSystem/prepare-release.py --custom
 
