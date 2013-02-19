@@ -26,11 +26,11 @@ help:
 	@echo "gpg-sig          - sign with gpg"
 	@echo "sparkle-sig      - sign for sparkle"
 	@echo "uninstaller-sig  - sign uninstaller"
-#	@echo "pkg-prepare-for-installer - copy the created core package into a specified folder"
-    @echo "release-patch"   - release a new patch version
-    @echo "release-minor"   - release a new minor version
-    @echo "release-major"   - release a new major version
-    @echo "release-custom"  - release a custom version where the exact version is specified.   
+#	@echo "pkg-prepare-for-installer - copy the created core package into a specified folder
+	@echo "release-patch"   - release a new patch version
+	@echo "release-minor"   - release a new minor version
+	@echo "release-major"   - release a new major version
+	@echo "release-custom"  - release a custom version where the exact version is specified.   
 	
 all: compile
 
