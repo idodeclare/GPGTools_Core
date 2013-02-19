@@ -27,6 +27,10 @@ help:
 	@echo "sparkle-sig      - sign for sparkle"
 	@echo "uninstaller-sig  - sign uninstaller"
 #	@echo "pkg-prepare-for-installer - copy the created core package into a specified folder"
+    @echo "release-patch"   - release a new patch version
+    @echo "release-minor"   - release a new minor version
+    @echo "release-major"   - release a new major version
+    @echo "release-custom"  - release a custom version where the exact version is specified.   
 	
 all: compile
 
@@ -97,3 +101,17 @@ update: update-me update-core
 # Special target for copying the created core package into a specified folder.
 pkg-prepare-for-installer: pkg-core
 	@./Dependencies/GPGTools_Core/newBuildSystem/pkg-prepare-for-installer.sh $(CORE_PKG_DIR) $(PROJECT) $(ALT_NAME)
+
+# Targets to create new release
+release-patch:
+    @./Dependencies/GPGTools_Core/newBuildSystem/prepare-release.py --patch
+
+release-minor:
+    @./Dependencies/GPGTools_Core/newBuildSystem/prepare-release.py --minor
+
+release-major:
+    @./Dependencies/GPGTools_Core/newBuildSystem/prepare-release.py --major
+    
+release-custom:
+    @./Dependencies/GPGTools_Core/newBuildSystem/prepare-release.py --custom
+
