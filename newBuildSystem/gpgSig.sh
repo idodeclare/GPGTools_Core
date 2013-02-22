@@ -5,7 +5,7 @@ source "$(dirname "${BASH_SOURCE[0]}")/core.sh"
 parseConfig
 
 
-#TODO: Test auf Jenkins einbauen ($JENKINS ist nur ein Platzhalter!)
+#TODO: Test auf Jenkins einbauen oder Jenkins mit gpg ausstatten ($JENKINS ist nur ein Platzhalter!)
 if [[ -z "$JENKINS" ]] ; then
 	[[ -f "$dmgPath" ]] || errExit "I require file '$dmgPath' but it does not exit.  Aborting."
 	

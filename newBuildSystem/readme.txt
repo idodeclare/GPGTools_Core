@@ -11,8 +11,7 @@ clean-all    Wie clean, säubert zusätzlich alle Dependencies. (clean)
 update       Aktualisiert per git pull das aktuelle Projekt und die Dependencies. (update-me)
 update-me    Wie update, allerdings nur für das aktuelle Projekt.
 gpg-sig      Erzeugt eine detached signature für das dmg. (dmg)
-sparkle-sig  Berechnet die sparkle signature für das dmg. (smg)
-signed-dmg   Kombination aus gpg-sig und sparkle-sig. (gpg-sig, sparkle-sig)
+signed-dmg   Erzeugt ein signiertes dmg. (Im Moment gleich mit gpg-sig)
 
 Umgebungsvariablen:
 CODE_SIGN    Soll der Code signiert werden. (default=0)
@@ -41,8 +40,6 @@ volumeName="GPG Keychain Access.localized"  # Default
 volumeLayout="Installer/DS_Store"
 pkgPos="290, 220"
 
-sshKeyname="Sparkle GPGServices - Private key"
-
 unset REVISION PRERELEASE  # Required
 MAJOR=1  # Required
 MINOR=7  # Required
@@ -70,7 +67,7 @@ Jenkins:
 security unlock-keychain -p "Passwort" "Pfad zum Keychain"
 CODE_SIGN=1 make compile
 
-PKG_SIGN=0 make dmg
+PKG_SIGN=1 make dmg
 
 ./Dependencies/GPGTools_Core/newBuildSystem/bb_deploy_dmg.sh /GPGTools/public/nightlies.gpgtools.org
 
