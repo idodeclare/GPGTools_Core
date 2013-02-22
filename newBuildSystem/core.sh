@@ -64,5 +64,32 @@ function parseConfig() {
 	#echo "config parsed"
 }
 
+printConfig() {
+	parseConfig
+	echo "pkgProj_dir: ${pkgProj_dir}"
+	echo "pkgProj_corename: ${pkgProj_corename}"
+	echo "pkgCoreName: ${pkgCoreName}"
+	echo "pkgProj_name: ${pkgProj_name}"
+	echo "pkgName: ${pkgName}"
+	echo "pkgPath: ${pkgPath}"
+	echo "dmgName: ${dmgName}"
+	echo "dmgPath: ${dmgPath}"
+	echo "volumeName: ${volumeName}"
+	echo "rmPath: ${rmPath}"
+	echo "appVersion: ${appVersion}"
+	echo "MAJOR: ${MAJOR}"
+	echo "MINOR: ${MINOR}"
+	echo "REVISION: ${REVISION}"
+	echo "PRERELEASE: ${PRERELEASE}"
+	echo "commitHash: ${commitHash}"
+	echo "versionType: ${versionType}"
+	echo "version: ${version}"
+	echo "build_version: ${build_version}"
+}
+
+if [ "$1" == "print-config" ]; then
+	printConfig
+fi
+
 #echo "core.sh loaded from '${BASH_SOURCE[1]##*/}'"
 

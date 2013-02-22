@@ -115,3 +115,9 @@ release-major:
 release-custom:
 	@./Dependencies/GPGTools_Core/newBuildSystem/prepare-release.py --custom
 
+deploy: dmg
+	@./Dependencies/GPGTools_Core/newBuildSystem/deploy-release.py ${name}-${version}
+
+upload-to-aws:
+	@./Dependencies/GPGTools_Core/newBuildSystem/aws-upload.py ${file}
+

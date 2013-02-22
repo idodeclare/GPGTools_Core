@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-"""Prepares a new release for a tool of our GPGTools suite.
+"""Prepare a new release for a GPGTools project.
 
 Possible version bumps are:
 - Patch -> for bugfixes
