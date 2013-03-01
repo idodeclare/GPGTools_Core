@@ -67,16 +67,11 @@ VERSION_PART_AND_PRERELEASE_REGEX = re.compile(VERSION_PART_AND_PRERELEASE % {"p
 VERSION_PRERELEASE_REGEX = re.compile(VERSION_PRERELEASE % {"part": "general"}, re.X)
 
 CWD = os.getcwd()
-CONFIG_SCRIPT = "../GPGTools_Core/newBuildSystem/core.sh"
 VERSION_FILE = "Makefile.config"
 VERSION_PATH = "%s/%s" % (CWD, VERSION_FILE)
 RELEASE_NOTES_FOLDER = "Release Notes"
 RELEASE_NOTES_FOLDER_PATH = "%s/%s" % (CWD, RELEASE_NOTES_FOLDER)
 COMMIT_MSG = """Release of version: %s"""
-SOURCE_BRANCH="deploy-dev"
-DESTINATION_BRANCH="deploy-master"
-
-TOOL_CONFIG = None
 
 def parse_options():
     parser = OptionParser()
@@ -136,39 +131,6 @@ def parse_options():
         options.master_branch = options.master_branch != "master" and options.master_branch or "deploy-master"
     
     return (options, args)
-
-def tool_config(configkey=None):
-    global TOOL_CONFIG
-    if not TOOL_CONFIG:
-        # Make sure Makefile.config exists.
-        if not os.path.isfile(VERSION_PATH):
-            bailout("Version file can't be found - make sure Makefile.config exists.")
-        
-        CONFIG_SCRIPT_PATH = os.path.join(CWD, CONFIG_SCRIPT)
-        if not os.path.exists(CONFIG_SCRIPT_PATH):
-            bailout("Couldn't find the config script. Abort!") 
-    
-        raw_config = run("%s print-config" % (CONFIG_SCRIPT_PATH))
-    
-        lines = raw_config.split("\n")
-        TOOL_CONFIG = {}
-        for line in lines:
-            if line.find(":") == -1:
-                continue
-        
-            parts = line.split(":")
-            key = parts[0]
-            if len(parts) == 1:
-                value = None
-            else:
-                value = parts[1].strip()
-            TOOL_CONFIG[key] = value
-        
-    if not configkey:
-        return TOOL_CONFIG
-    
-    return TOOL_CONFIG[configkey]
-
 
 def parse_version(version_raw):
     """Check if the format of the version string represents a valid version.
@@ -484,16 +446,14 @@ def tag_release(version):
     except:
         bailout("Failed to create version tag. Abort")
 
-def merge_and_push(src, dst):
-    # Checkout the master branch.
-    run("git checkout %s" % (dst))
-    # Merge in the release info from the dev branch.
-    run("git merge %s" % (src))
+def push_release(master_branch):
     # Push the master branch so the actual deployment of the release
     # is triggered on the build server.
-    print("git push origin %s" % (dst))
-    # Checkout the dev branch again, so the developer can continue to develop. 
-    run("git checkout %s" % (src))
+    try:
+        print("git push origin %s" % (master_branch))
+    except Exception, e:
+        print e
+        error("Failed to push release to github. Abort")
 
 def format_version(version):
     version_parts = []
@@ -507,12 +467,6 @@ def format_version(version):
     
     return ".".join([str(x) for x in version_parts])
     
-def run(cmd):
-    if type(cmd) == type(""):
-        cmd = shlex.split(cmd)
-    
-    return check_output(cmd)
-
 def git_tag_exists(version):
     tag = run("git tag -l %s" % (version)).strip()
     if tag == version:
@@ -522,6 +476,8 @@ def git_tag_exists(version):
 
 def main():
     (options, args) = parse_options()
+    
+    original_branch = current_git_branch()
     
     # Make sure the workspace is clean, otherwise abort!
     if not options.test and not is_workspace_clean():
@@ -553,8 +509,16 @@ def main():
     
     release_notes = find_release_notes(new_version)
     if not release_notes:
-        error("""There are no release notes available - can't continue!\n"""
-              """Consider running `make release-notes version=%s` and try again.""" % (format_version(new_version)))
+        should_create = ask_with_expected_answers("Can't find release notes. Would you like to create them now? [default y]", 
+                                              ["y", "n"], 
+                                              default="y")
+        if should_create == "n":
+            error("""There are no release notes available - can't continue!\n"""
+                  """Consider running `make release-notes version=%s` and try again.""" % (format_version(new_version)))
+        else:
+            run_or_error("make release-notes version=%s" % (format_version(new_version)),
+                         "Failed to create release notes. Abort", silent=True)
+            release_notes = find_release_notes(new_version)
     
     status("  Found: %s/%s" % (RELEASE_NOTES_FOLDER, os.path.basename(release_notes)))
     
@@ -575,16 +539,16 @@ def main():
     status("Create version tag: v%s" % (format_version(new_version)))
     tag_release(new_version)
     
-    print "New version: %s" % (new_version)
-    
-    sys.exit(0)
-    
     # Merge the changes into the master branch (or the one specified) and push it.
     status("Pushing release to start deployment")
-    merge_and_push(SOURCE_BRANCH, DESTINATION_BRANCH)
+    #push_release(options.master_branch)
     
     success("""The new release %s has been successfully prepared.\n"""
             """Check http://build-ml.gpgtools.org to follow further progress.""" % (format_version(new_version)))
+    
+    # Re-checkout the original branch
+    if original_branch != current_git_branch():
+        run("git checkout %s" % (original_branch), silent=True)
     
     return True
 
