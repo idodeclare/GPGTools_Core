@@ -50,7 +50,7 @@ Release URLs
 %(release_dmg)s
 %(release_dmg_sig)s
 
-SHA1 Hash: %(release_hash)s
+SHA1: %(release_hash)s
 
 =========================================================
 
@@ -169,17 +169,6 @@ def main():
     
     sha1 = sha1_hash("%s/%s" % (BUILD_DIR, DMG))
     status("DMG SHA1: %s" % (sha1))
-    
-    # # Create the sparkle signature.
-    #     sparkle_dsa_sig = run_or_error("make sparkle-sig", 
-    #         "Couldn't sign the product disk image with the Sparkle SSL key.")
-    #     result = re.search(r'signature:\s*([^\n]+)', sparkle_dsa_sig, re.MULTILINE)
-    #     if not result:
-    #         error("Couldn't sign the product disk image with the Sparkle SSL key.")
-    #     
-    #     sparkle_dsa_sig = result.groups()[0]
-    #     
-    #     status("Sparkle DSA SIG: %s" % (sparkle_dsa_sig))
     
     status("Informing team of successful deploy.")
     inform_team({"release_dmg": dmg_url.strip(), "release_dmg_sig": signature_url.strip(), "release_hash": sha1.strip(),
