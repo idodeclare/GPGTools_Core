@@ -532,3 +532,14 @@ def open_in_editor(file):
         contents = fp.read()
     
     return contents
+
+def ask_with_expected_answers(msg, expected_answers, default):
+    while True:
+        value = raw_input("%s " % msg).strip()
+        value = value or default
+        if value in expected_answers:
+            break
+        else:
+            print "invalid answer. Possible answers: %s" % "|".join(expected_answers)
+    
+    return value
