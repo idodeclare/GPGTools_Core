@@ -22,6 +22,8 @@ sys.path.insert(1, os.path.join(os.getcwd(), './Dependencies/GPGTools_Core/pytho
 import shlex
 import hashlib
 import re
+import smtplib
+from email.mime.text import MIMEText
 
 from clitools import *
 from clitools.color import *
@@ -32,10 +34,36 @@ CONFIG_SCRIPT = "../GPGTools_Core/newBuildSystem/core.sh"
 
 TOOL_CONFIG = None
 
+EMAIL_SUBJECT = "%(name)s v%(version)s successfully deployed!"
+EMAIL_FROM = "GPGTools Release-Bot <release@gpgtools.org>"
+EMAIL_TO = "lukas.pitschl@me.com"
+EMAIL_BODY = """Congrats GPGTools-Team,
+
+%(name)s v%(version)s has been successfully deployed!
+
+To share this new release with the world, update your Sparkle
+Appcast with the information below and push it.
+
+Release URLs
+=========================================================
+
+%(release_dmg)s
+%(release_dmg_sig)s
+
+SHA1 Hash: %(release_hash)s
+
+=========================================================
+
+Wish you all the best that nothing goes wrong!
+
+Sincerely yours,
+
+GPGTools Release-Bot
+"""
+
 def tool_config(configkey=None):
     global TOOL_CONFIG
     if not TOOL_CONFIG:
-        print "reading tool config"
         CONFIG_SCRIPT_PATH = os.path.join(CWD, CONFIG_SCRIPT)
         if not os.path.exists(CONFIG_SCRIPT_PATH):
             die("Couldn't find the config script. Abort!") 
@@ -75,7 +103,7 @@ def run_or_error(cmd, error_msg, silent=False):
     try:
         return run(cmd, silent=silent)
     except Exception, e:
-        print "Error: %s" % (e)
+        #print "Error: %s" % (e)
         error("%s" % (error_msg))
 
 def emphasize(msg):
@@ -89,7 +117,26 @@ def sha1_hash(file):
     
     return sha1_hash
 
+def current_git_branch():
+    return run("git rev-parse --abbrev-ref HEAD").strip()
+
+def inform_team(release_info):
+    """Inform the team that the deploy was successful and the version is now ready."""
+    msg = MIMEText(EMAIL_BODY.replace("\n", "\r\n") % release_info)
+    msg['Subject'] = EMAIL_SUBJECT % release_info
+    msg['From'] = EMAIL_FROM
+    msg['To'] = EMAIL_TO
+    
+    s = smtplib.SMTP('localhost')
+    s.sendmail(EMAIL_FROM, [EMAIL_TO], msg.as_string())
+    s.quit()
+
 def main():
+    if current_git_branch() != "master" and current_git_branch() != "deploy-master":
+        error("You can only deploy from the master branch!\nRun `git checkout master` first.")
+    
+    title("Deploying %s v%s" % (tool_config("name"), tool_config("version")))
+    
     DMG = tool_config("dmgName")
     PKG = tool_config("pkgName")
     GPG_SIG = "%s.sig" % (DMG)
@@ -109,30 +156,34 @@ def main():
                  "Couldn't verify the product disk image signature.", silent=True)
     
     # Upload product disk image.
-    status("Deploying %s to AWS" % (DMG))
+    status("Uploading %s to AWS" % (DMG))
     dmg_url = run_or_error("make upload-to-aws file=%s/%s" % (BUILD_DIR, DMG), 
                            "Couldn't upload product disk image.")
     status("    %s" % (dmg_url.strip()))
     
     # Upload gpg signature.
-    status("Deploying %s to AWS" % (GPG_SIG))
+    status("Uploading %s to AWS" % (GPG_SIG))
     signature_url = run_or_error("make upload-to-aws file=%s/%s" % (BUILD_DIR, GPG_SIG),
                                  "Couldn't upload product disk image signature.")
     status("    %s" % (signature_url.strip()))
     
     sha1 = sha1_hash("%s/%s" % (BUILD_DIR, DMG))
-    status("SHA1 DMG Hash: %s" % (sha1))
+    status("DMG SHA1: %s" % (sha1))
     
-    # Create the sparkle signature.
-    sparkle_dsa_sig = run_or_error("make sparkle-sig", 
-        "Couldn't sign the product disk image with the Sparkle SSL key.")
-    result = re.search(r'signature:\s*([^\n]+)', sparkle_dsa_sig, re.MULTILINE)
-    if not result:
-        error("Couldn't sign the product disk image with the Sparkle SSL key.")
+    # # Create the sparkle signature.
+    #     sparkle_dsa_sig = run_or_error("make sparkle-sig", 
+    #         "Couldn't sign the product disk image with the Sparkle SSL key.")
+    #     result = re.search(r'signature:\s*([^\n]+)', sparkle_dsa_sig, re.MULTILINE)
+    #     if not result:
+    #         error("Couldn't sign the product disk image with the Sparkle SSL key.")
+    #     
+    #     sparkle_dsa_sig = result.groups()[0]
+    #     
+    #     status("Sparkle DSA SIG: %s" % (sparkle_dsa_sig))
     
-    sparkle_dsa_sig = result.groups()[0]
-    
-    status("Sparkle DSA SIG: %s" % (sparkle_dsa_sig))
+    status("Informing team of successful deploy.")
+    inform_team({"release_dmg": dmg_url.strip(), "release_dmg_sig": signature_url.strip(), "release_hash": sha1.strip(),
+                 "name": tool_config("name"), "version": tool_config("version")})
     
     success("Deploy is ready!\n"
             "For the old GPGTools website, please update the <tool>/config.php with this info and push.")

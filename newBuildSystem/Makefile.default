@@ -32,6 +32,8 @@ help:
 	@echo "release-minor"   - release a new minor version
 	@echo "release-major"   - release a new major version
 	@echo "release-custom"  - release a custom version where the exact version is specified.
+	@echo "release" 		- alias for release custom
+	@echo "release-notes version=<version>" - create a release notes file
 
 test:
 	@xcodebuild -project $(PROJECT).xcodeproj -target $(TEST_TARGET) -configuration $(CONFIG) build 
@@ -111,9 +113,14 @@ release-major:
 release-custom:
 	@./Dependencies/GPGTools_Core/newBuildSystem/prepare-release.py --custom
 
+release:
+	@./Dependencies/GPGTools_Core/newBuildSystem/prepare-release.py --custom
+
 deploy: dmg
 	@./Dependencies/GPGTools_Core/newBuildSystem/deploy-release.py ${name}-${version}
 
 upload-to-aws:
 	@./Dependencies/GPGTools_Core/newBuildSystem/aws-upload.py ${file}
 
+release-notes:
+	@./Dependencies/GPGTools_Core/newBuildSystem/prepare-release-notes.py ${version}
