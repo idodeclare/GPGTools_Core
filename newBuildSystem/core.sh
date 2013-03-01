@@ -42,17 +42,26 @@ function parseConfig() {
 	
 	if [[ -f "build/Release/$appName/$infoPlist" ]] ;then
 		appVersion=$(/usr/libexec/PlistBuddy -c "print CFBundleVersion" "build/Release/$appName/$infoPlist")
+		hrVersion=$(/usr/libexec/PlistBuddy -c "print CFBundleShortVersionString" "build/Release/$appName/$infoPlist")
 	else
 		appVersion=$build_version
+		hrVersion=$version
 	fi
-	
+
+	#appVersion: internal Version. (15n or 15)
+	#hrVersion: human-readable version. "2.0b5 (3fec296+)" or "2.0".
+
 	pkgProj_dir=${pkgProj_dir:-Installer}
 	pkgProj_corename=${pkgProj_corename:-${name}_Core.pkgproj}
 	pkgCoreName=${pkgCoreName:-${name}_Core.pkg}
 	pkgProj_name=${pkgProj_name:-${name}.pkgproj}
 	pkgName=${pkgName:-${name}.pkg}
 	pkgPath=$buildDir/$pkgName
-	dmgName=${dmgName:-$name-$appVersion.dmg}
+	if $isMasterBranch ;then
+		dmgName=${dmgName:-$name-$hrVersion.dmg}
+	else
+		dmgName=${dmgName:-$name-$appVersion.dmg}
+	fi
 	dmgPath=${dmgPath:-build/$dmgName}
 	volumeName=${volumeName:-$name}
 	[[ -n "$rmName" ]] && rmPath=${rmPath:-$pkgProj_dir/$rmName}
@@ -66,25 +75,26 @@ function parseConfig() {
 
 printConfig() {
 	parseConfig
-	echo "pkgProj_dir: ${pkgProj_dir}"
-	echo "pkgProj_corename: ${pkgProj_corename}"
-	echo "pkgCoreName: ${pkgCoreName}"
-	echo "pkgProj_name: ${pkgProj_name}"
-	echo "pkgName: ${pkgName}"
-	echo "pkgPath: ${pkgPath}"
-	echo "dmgName: ${dmgName}"
-	echo "dmgPath: ${dmgPath}"
-	echo "volumeName: ${volumeName}"
-	echo "rmPath: ${rmPath}"
-	echo "appVersion: ${appVersion}"
-	echo "MAJOR: ${MAJOR}"
-	echo "MINOR: ${MINOR}"
-	echo "REVISION: ${REVISION}"
-	echo "PRERELEASE: ${PRERELEASE}"
-	echo "commitHash: ${commitHash}"
-	echo "versionType: ${versionType}"
-	echo "version: ${version}"
-	echo "build_version: ${build_version}"
+	echo "pkgProj_dir: $pkgProj_dir"
+	echo "pkgProj_corename: $pkgProj_corename"
+	echo "pkgCoreName: $pkgCoreName"
+	echo "pkgProj_name: $pkgProj_name"
+	echo "pkgName: $pkgName"
+	echo "pkgPath: $pkgPath"
+	echo "dmgName: $dmgName"
+	echo "dmgPath: $dmgPath"
+	echo "volumeName: $volumeName"
+	echo "rmPath: $rmPath"
+	echo "appVersion: $appVersion"
+	echo "hrVersion: $hrVersion"
+	echo "MAJOR: $MAJOR"
+	echo "MINOR: $MINOR"
+	echo "REVISION: $REVISION"
+	echo "PRERELEASE: $PRERELEASE"
+	echo "commitHash: $commitHash"
+	echo "versionType: $versionType"
+	echo "version: $version"
+	echo "build_version: $build_version"
 }
 
 if [ "$1" == "print-config" ]; then
