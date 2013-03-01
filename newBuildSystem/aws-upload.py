@@ -36,6 +36,12 @@ except CalledProcessError:
 try:
 	connection = S3Connection(AWS_ACCESS_KEY, secret)
 	bucket = connection.get_bucket(BUCKET)
+	
+	# Check if there's no such file already on the server.
+	awsfile = bucket.get_key(filename)
+	if awsfile:
+	    exit("%s already exists on S3. Remove first!" % (filename))
+	
 	awsfile = bucket.new_key(filename)
 
 	awsfile.set_contents_from_filename(file)
