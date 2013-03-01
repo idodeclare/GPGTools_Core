@@ -66,6 +66,7 @@ function parseConfig() {
 
 printConfig() {
 	parseConfig
+	echo "name: ${name}"
 	echo "pkgProj_dir: ${pkgProj_dir}"
 	echo "pkgProj_corename: ${pkgProj_corename}"
 	echo "pkgCoreName: ${pkgCoreName}"

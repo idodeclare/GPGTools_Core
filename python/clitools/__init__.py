@@ -3,6 +3,7 @@ import glob
 import types
 import sys
 import shutil
+import shlex
 import traceback
 from optparse import OptionParser
 
@@ -439,3 +440,95 @@ def print_status(message, end=False):
 def ask_for(message):
     return raw_input("%s==> %s%s: %s" % (TerminalColor.blue(), TerminalColor.color(39), message, TerminalColor.reset()))
 
+def run(cmd, silent=False):
+    if type(cmd) == type(""):
+        cmd = shlex.split(cmd)
+    
+    kwargs = {}
+    if silent:
+        kwargs['stderr'] = open("/dev/null", "w")
+        
+    return check_output(cmd, **kwargs).strip()
+
+def run_or_error(cmd, error_msg, silent=False):
+    try:
+        return run(cmd, silent=silent).strip()
+    except Exception, e:
+        error("%s" % (error_msg))
+
+TOOL_CONFIG = None
+
+def tool_config(configkey=None):
+    global TOOL_CONFIG
+    
+    CWD = os.getcwd()
+    VERSION_FILE = "Makefile.config"
+    VERSION_PATH = "%s/%s" % (CWD, VERSION_FILE)
+    CONFIG_SCRIPT = "%s/Dependencies/GPGTools_Core/newBuildSystem/core.sh" % (CWD)
+    
+    if not TOOL_CONFIG:
+        # Make sure Makefile.config exists.
+        if not os.path.isfile(VERSION_PATH):
+            bailout("Version file can't be found - make sure Makefile.config exists.")
+        
+        CONFIG_SCRIPT_PATH = os.path.join(CWD, CONFIG_SCRIPT)
+        if not os.path.exists(CONFIG_SCRIPT_PATH):
+            bailout("Couldn't find the config script. Abort!") 
+    
+        raw_config = run("%s print-config" % (CONFIG_SCRIPT_PATH))
+    
+        lines = raw_config.split("\n")
+        TOOL_CONFIG = {}
+        for line in lines:
+            if line.find(":") == -1:
+                continue
+        
+            parts = line.split(":")
+            key = parts[0]
+            if len(parts) == 1:
+                value = None
+            else:
+                value = parts[1].strip()
+            TOOL_CONFIG[key] = value
+        
+    if not configkey:
+        return TOOL_CONFIG
+    
+    return TOOL_CONFIG[configkey]
+
+def editor():
+    # Good old vi as default.
+    default = "vi"
+    program = os.environ.get("GIT_EDITOR")
+    if program:
+       return program
+    
+    # Check if git has some info
+    program = run("git var GIT_EDITOR")
+    if program:
+        return program
+    
+    # Check if visual is set
+    program = os.environ.get("VISUAL")
+    if program:
+        return program
+    
+    # Check if editor is set
+    program = os.environ.get("EDITOR")
+    if program:
+        return program
+    
+    # If still no result, use vi.
+    return default
+
+def open_in_editor(file):
+    """Open a file in the preferred editor and return the content."""
+    edit = editor()
+    
+    run('%s "%s"' % (edit, file))
+    
+    contents = ""
+    with open(file, "r") as fp:
+        contents = fp.read()
+    
+    return contents
