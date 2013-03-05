@@ -72,4 +72,14 @@ PKG_SIGN=1 make dmg
 ./Dependencies/GPGTools_Core/newBuildSystem/bb_deploy_dmg.sh /GPGTools/public/nightlies.gpgtools.org
 
 
+=========================================================================================================
+
+Sparkle:
+
+Für GPGTools angepasstes Sparkle ist unter der Adresse https://github.com/GPGTools/Sparkle verfügbar.
+Vorgenommene Anpassungen:
+  pkg auf Signatur mit AppleID prüfen. DSA Signatur in diesem Fall nicht nötig.
+  pkgs werden unbeaufsichtigt installiert, paket.pkg.xml um die Installation anzupassen. Siehe "man installer" und "applyChoiceChangesXML".
+
+
 
