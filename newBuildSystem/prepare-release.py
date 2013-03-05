@@ -497,7 +497,7 @@ def main():
     if format_version(new_version) == format_version(version):
         bailout("You're trying to release the same version %s again." % (format_version(new_version)))
     
-    title("Prepare release for %s %s" % ("MacGPG", format_version(new_version)))
+    title("Prepare release for %s %s" % (tool_config("name"), format_version(new_version)))
     
     # Check if there's already a tag for this version.
     if git_tag_exists(format_version(new_version)):
