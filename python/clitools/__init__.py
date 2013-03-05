@@ -525,7 +525,7 @@ def open_in_editor(file):
     """Open a file in the preferred editor and return the content."""
     edit = editor()
     
-    run('%s "%s"' % (edit, file))
+    ret = call(shlex.split('%s "%s"' % (edit, file)))
     
     contents = ""
     with open(file, "r") as fp:

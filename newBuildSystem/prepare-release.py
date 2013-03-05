@@ -516,8 +516,10 @@ def main():
             error("""There are no release notes available - can't continue!\n"""
                   """Consider running `make release-notes version=%s` and try again.""" % (format_version(new_version)))
         else:
-            run_or_error("make release-notes version=%s" % (format_version(new_version)),
-                         "Failed to create release notes. Abort", silent=True)
+            ret = call(["make", "release-notes", "version=%s" % (format_version(new_version))])
+            if ret != 0:
+                error("%s" % ("Failed to create release notes. Abort"))
+            
             release_notes = find_release_notes(new_version)
     
     status("  Found: %s/%s" % (RELEASE_NOTES_FOLDER, os.path.basename(release_notes)))
