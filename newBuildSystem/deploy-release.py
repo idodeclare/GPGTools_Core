@@ -171,8 +171,12 @@ def main():
     status("DMG SHA1: %s" % (sha1))
     
     status("Informing team of successful deploy.")
-    inform_team({"release_dmg": dmg_url.strip(), "release_dmg_sig": signature_url.strip(), "release_hash": sha1.strip(),
-                 "name": tool_config("name"), "version": tool_config("version")})
+    
+    try:
+        inform_team({"release_dmg": dmg_url.strip(), "release_dmg_sig": signature_url.strip(), "release_hash": sha1.strip(),
+                     "name": tool_config("name"), "version": tool_config("version")})
+    except:
+        status("Not able to send the mail. Skipping...")
     
     success("Deploy is ready!\n"
             "For the old GPGTools website, please update the <tool>/config.php with this info and push.")
