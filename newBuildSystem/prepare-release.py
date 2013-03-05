@@ -85,7 +85,7 @@ def parse_options():
                       help="bump or create a pre-release version (alpha, beta)")
     parser.add_option("-t", "--test", dest="test", action="store_true", default=False,
                       help="run in test mode. Disables some checks and uses deploy-master and deploy-dev as default branches.")
-    parser.add_option("-u", "--updates", dest="changes_branch", default="dev")
+    parser.add_option("-u", "--updates", dest="changes_branch", default=None)
     parser.add_option("-s", "--master", dest="master_branch", default="master")
     
     # Parse the version if given, otherwise prompt for it.
@@ -126,8 +126,8 @@ def parse_options():
     if not options.release_type:
         options.release_type = "custom"
     
+    options.changes_branch = options.changes_branch != "dev" and options.changes_branch or current_git_branch()
     if options.test:
-        options.changes_branch = options.changes_branch != "dev" and options.changes_branch or "deploy-dev"
         options.master_branch = options.master_branch != "master" and options.master_branch or "deploy-master"
     
     return (options, args)
