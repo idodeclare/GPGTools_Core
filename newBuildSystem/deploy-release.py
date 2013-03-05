@@ -36,7 +36,7 @@ TOOL_CONFIG = None
 
 EMAIL_SUBJECT = "%(name)s v%(version)s successfully deployed!"
 EMAIL_FROM = "GPGTools Release-Bot <release@gpgtools.org>"
-EMAIL_TO = "lukas.pitschl@me.com"
+EMAIL_TO = "team@gpgtools.org"
 EMAIL_BODY = """Congrats GPGTools-Team,
 
 %(name)s v%(version)s has been successfully deployed!
