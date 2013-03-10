@@ -60,6 +60,7 @@ Sincerely yours,
 
 GPGTools Release-Bot
 """
+MIN_OS="10.6"
 
 def tool_config(configkey=None):
     global TOOL_CONFIG
@@ -131,6 +132,96 @@ def inform_team(release_info):
     s.sendmail(EMAIL_FROM, [EMAIL_TO], msg.as_string())
     s.quit()
 
+def update_website_for_release(release_info):
+    """Updates the websites version-<tool>.json file with the current
+       release information.
+    """
+    import json
+    import time
+    
+    WEBSITE_PATH = "/Users/lukele/Developer/GPGTools/gpgtools.org-deploy-test"
+    WEBSITE_BRANCH = "new"
+    CONFIG_PATH = os.path.join(WEBSITE_PATH, "config")
+    VERSIONS_FILE = "%s-versions.json" % (release_info["name"].lower())
+    VERSIONS_PATH = os.path.join(CONFIG_PATH, VERSIONS_FILE)
+    RELEASE_NOTES = "%s.json" % (release_info["version"])
+    RELEASE_NOTES_PATH = os.path.join(CWD, "Release Notes", RELEASE_NOTES)
+    BUILDNR = "650"
+    DMG = tool_config("dmgName")
+    DMG_PATH = os.path.join(BUILD_DIR, DMG)
+    
+    json_config = dict(indent=4, separators=(',', ': '), sort_keys=True)
+    
+    if not os.path.isdir(WEBSITE_PATH):
+        error("Couldn't find website repository: %s" % (WEBSITE_PATH))
+    
+    if not os.path.isfile(VERSIONS_PATH):
+        error("Couldn't find the versions file for %s" % (VERSIONS_FILE))
+    
+    if not os.path.isfile(RELEASE_NOTES_PATH):
+        error("Couldn't find the release notes for this version: %s" % (RELEASE_NOTES_PATH.replace(CWD + "/", "")))
+    
+    # Load release notes.
+    release_notes = None
+    try:
+        with open(RELEASE_NOTES_PATH, "r") as fp:
+            release_notes = json.load(fp)
+    except Exception, e:
+        error("Failed to load release notes file\nError: %s" % (e))
+    
+    if not release_notes:
+        error("Failed to load release notes file")
+    
+    # Find out the filesize of the release dmg.
+    filesize = 0
+    try:
+        stat = os.stat(DMG_PATH)
+        filesize = stat.st_size
+    except Exception, e:
+         error("Failed to determine release disk image file size\nError: " % (e))
+    
+    release = {"version": release_info["version"], "build": BUILDNR, "release_date": int(time.time()),
+               "checksum": release_info["release_hash"], "info": release_notes["info"],
+               "sparkle": {"url": release_info["release_dmg"], "size": filesize, "minOS": MIN_OS},
+               "newest-version": True}
+    
+    # Load the versions file of the website to add this version.
+    current_versions = None
+    print "versions path: %s" % (VERSIONS_PATH)
+    try:
+        with open(VERSIONS_PATH, "r") as fp:
+            current_versions = json.load(fp)
+    except Exception, e:
+        error("Failed to load the website's %s versions file\n* %s" % (release_info["name"], e))
+    
+    # Update the newest-version flag of each current version.
+    for entry in current_versions:
+        entry["newest-version"] = False
+    
+    # Insert the new version to the current versions as first version.
+    current_versions.insert(0, release)
+    
+    # Save the versions.
+    try:
+        with open(VERSIONS_PATH, "w") as fp:
+          json.dump(current_versions, fp, **json_config)
+    except Exception, e:
+        error("Failed to save the new version to the website's %s versions file\n* %s" % (release_info["name"], e))
+    
+    # Change into the website repository.
+    os.chdir(WEBSITE_PATH)
+    # Pull new changes in.
+    run_or_error("git pull origin %s" % (WEBSITE_BRANCH), "Failed to update website repository.")
+    # Reset the repository status.
+    run_or_error("git reset HEAD", "Failed to reset the website repository.")
+    # Add the versions file.
+    run_or_error("git add %s" % (VERSIONS_PATH), "Failed to checkin the versions file.")
+    # Commit the versions file.
+    run_or_error('git commit -m "Adding release of %s: %s"' % (release_info["name"], release_info["version"]),
+                 "Failed to commit the versions file changes.")
+    # Push the new version info.
+    run_or_error("git push origin %s" % (WEBSITE_BRANCH), "Failed to push changes to server.")
+
 def main():
     if current_git_branch() != "master" and current_git_branch() != "deploy-master":
         error("You can only deploy from the master branch!\nRun `git checkout master` first.")
@@ -151,30 +242,34 @@ def main():
     # Check if the signature was successfully created and the file verifies.
     if not os.path.isfile("%s/%s" % (BUILD_DIR, GPG_SIG)):
         error("Failed to sign the product disk image.")
-    
+        
     run_or_error("gpg -v %s/%s" % (BUILD_DIR, GPG_SIG),
                  "Couldn't verify the product disk image signature.", silent=True)
-    
+        
     # Upload product disk image.
     status("Uploading %s to AWS" % (DMG))
     dmg_url = run_or_error("make upload-to-aws file=%s/%s" % (BUILD_DIR, DMG), 
                            "Couldn't upload product disk image.")
     status("    %s" % (dmg_url.strip()))
-    
+        
     # Upload gpg signature.
     status("Uploading %s to AWS" % (GPG_SIG))
     signature_url = run_or_error("make upload-to-aws file=%s/%s" % (BUILD_DIR, GPG_SIG),
                                  "Couldn't upload product disk image signature.")
     status("    %s" % (signature_url.strip()))
-    
+        
     sha1 = sha1_hash("%s/%s" % (BUILD_DIR, DMG))
     status("DMG SHA1: %s" % (sha1))
+    
+    status("Update website and create appcast for Sparkle")
+    release_info = {"release_dmg": dmg_url.strip(), "release_dmg_sig": signature_url.strip(), "release_hash": sha1.strip(),
+                    "name": tool_config("name"), "version": tool_config("version")}
+    update_website_for_release(release_info)
     
     status("Informing team of successful deploy.")
     
     try:
-        inform_team({"release_dmg": dmg_url.strip(), "release_dmg_sig": signature_url.strip(), "release_hash": sha1.strip(),
-                     "name": tool_config("name"), "version": tool_config("version")})
+        inform_team(release_info)
     except:
         status("Not able to send the mail. Skipping...")
     
