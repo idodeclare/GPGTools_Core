@@ -328,6 +328,16 @@ def is_workspace_clean():
     
     return clean
 
+def workspace_is_behind():
+    """In order to release new version, it's necessary that the local branch
+    is not behind."""
+    # There's no easy way to do this, but it's easiest to simply parse this.
+    status = run("git status")
+    if status.find("branch is behind") != -1:
+        return True
+    
+    return False
+
 def find_release_notes(version):
     """Checks if there's a release notes file available for the specified version.
     
@@ -482,6 +492,10 @@ def main():
     # Make sure the workspace is clean, otherwise abort!
     if not options.test and not is_workspace_clean():
         error("There are non-committed changes in the workspace. Make sure all changes are checked in before trying to release!\nRun `git status` for more info.")
+    
+    if not options.test and not workspace_is_behind():
+        error("There are commits which were not yet pulled."
+              "Make sure to pull before trying to release!")
     
     version = current_version()
     title("Current version: %s" % format_version(version))
