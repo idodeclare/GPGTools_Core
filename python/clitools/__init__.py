@@ -5,6 +5,7 @@ import sys
 import shutil
 import shlex
 import traceback
+import hashlib
 from optparse import OptionParser
 
 from subprocess import call
@@ -543,3 +544,11 @@ def ask_with_expected_answers(msg, expected_answers, default):
             print "invalid answer. Possible answers: %s" % "|".join(expected_answers)
     
     return value
+
+def sha1_hash(file):
+    sha1_hash = None
+    
+    with open(file, "r") as f:
+        sha1_hash = hashlib.sha1(f.read()).hexdigest()
+    
+    return sha1_hash
