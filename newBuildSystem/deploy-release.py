@@ -62,9 +62,6 @@ GPGTools Release-Bot
 """
 MIN_OS="10.6"
 
-def emphasize(msg):
-    return "%s%s%s%s" % (TerminalColor.reset(), TerminalColor.em(), msg, TerminalColor.reset())
-
 def current_git_branch():
     return run("git rev-parse --abbrev-ref HEAD").strip()
 
@@ -80,8 +77,8 @@ def inform_team(release_info):
     s.quit()
 
 def update_website_for_release(release_info):
-    run_or_error("%s/GPGTools_Core/newBuildSystem/%s" % (CWD, "publish-release.py"),
-                 "Failed to add release to the GPGTools website.")
+    run_or_error("%s/Dependencies/GPGTools_Core/newBuildSystem/%s" % (CWD, "publish-release.py"),
+                 "Failed to add release to the GPGTools website.\n%s")
 
 def main():
     if current_git_branch() != "master" and current_git_branch() != "deploy-master":
@@ -134,7 +131,7 @@ def main():
     except:
         status("Not able to send the mail. Skipping...")
     
-    success("Deploy is ready!\n"
+    success("%s %s was successfully released!\n" % (tool_config("name"), tool_config("version")) +
             "For the old GPGTools website, please update the <tool>/config.php with this info and push.")
     
     return True
