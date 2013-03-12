@@ -494,7 +494,7 @@ def main():
         error("There are non-committed changes in the workspace. Make sure all changes are checked in before trying to release!\nRun `git status` for more info.")
     
     if not options.test and not workspace_is_behind():
-        error("There are commits which were not yet pulled."
+        error("There are commits which were not yet pulled.\n"
               "Make sure to pull before trying to release!")
     
     version = current_version()
@@ -541,6 +541,22 @@ def main():
     # Updating the version in the config file.
     status("Update version in Makefile.config")
     update_version(new_version)
+    
+    status("Cleaning workspace by removing any old builds")
+    try:
+        run("make clean-all")
+    except Exception, e:
+        # Revert version
+        update_version(version)
+        error("Failed to clean workspace.\nError: %s" % (e))
+    
+    status("Building the %s %s disk image." % (tool_config("name"), format_version(new_version)))
+    try:
+        run("make dmg")
+    except Exception, e:
+        # Revert version
+        update_version(version)
+        error("Failed to build disk image.\nError: %s" % (e))
     
     # Checkin the updated config file and release notes.
     checkin_release_info(new_version)
