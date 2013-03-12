@@ -59,3 +59,7 @@ def error(msg, noexit=False, exitcode=2):
     if not noexit:
         sys.exit(exitcode)
 
+def emphasize(msg):
+    return "%s%s%s%s" % (TerminalColor.reset(), TerminalColor.em(), msg, TerminalColor.reset())
+
+
