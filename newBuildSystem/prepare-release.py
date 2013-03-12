@@ -461,7 +461,7 @@ def push_release(master_branch):
     # Push the master branch so the actual deployment of the release
     # is triggered on the build server.
     try:
-        print("git push origin %s" % (master_branch))
+        print("git push --tags origin %s" % (master_branch))
     except Exception, e:
         print e
         error("Failed to push release to github. Abort")
