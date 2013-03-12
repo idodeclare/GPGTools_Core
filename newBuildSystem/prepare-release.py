@@ -404,13 +404,14 @@ def checkout_master_and_merge(master_branch, changes_branch):
     current_branch = current_git_branch()
     
     if current_branch != master_branch:
-        run("git checkout %s" % (master_branch))
+        run_or_error("git checkout %s" % (master_branch),
+                     "Failed to checkout master branch!\n%s" + 
+                     "\nConsider running `%s` to completely revert the release commit." % (
+                        emphasize("git reset --hard HEAD~1")), silent=True)
     
     # Check if this is the master branch now, otherwise, bail out,
     # something must have gone terribly wrong.
     current_branch = current_git_branch()
-    
-    print "Current branch: %s" % (current_branch)
     
     if current_branch != master_branch:
         bailout("Checking out the master branch %s failed. Abort" % (current_branch))
@@ -538,25 +539,15 @@ def main():
     
     status("  Found: %s/%s" % (RELEASE_NOTES_FOLDER, os.path.basename(release_notes)))
     
+    should_continue = ask_with_expected_answers("%s\nAre you sure you want to proceed? [default n]" % (
+        emphasize("The version is now being updated and the deploy process started.")), ["y", "n"], default="n")
+    
+    if should_continue != "y":
+        error("Aborting release of %s %s upon users request." % (tool_config("name"), format_version(new_version)))
+    
     # Updating the version in the config file.
     status("Update version in Makefile.config")
     update_version(new_version)
-    
-    status("Cleaning workspace by removing any old builds")
-    try:
-        run("make clean-all")
-    except Exception, e:
-        # Revert version
-        update_version(version)
-        error("Failed to clean workspace.\nError: %s" % (e))
-    
-    status("Building the %s %s disk image." % (tool_config("name"), format_version(new_version)))
-    try:
-        run("make dmg")
-    except Exception, e:
-        # Revert version
-        update_version(version)
-        error("Failed to build disk image.\nError: %s" % (e))
     
     # Checkin the updated config file and release notes.
     checkin_release_info(new_version)
