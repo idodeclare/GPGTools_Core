@@ -9,21 +9,35 @@ import hashlib
 from optparse import OptionParser
 
 from subprocess import call
-try:
-    from subprocess import check_output
-except ImportError:
-    def check_output(*popenargs, **kwargs):
-        if 'stdout' in kwargs:
-            raise ValueError('stdout argument not allowed, it will be overridden.')
-        process = Popen(stdout=PIPE, *popenargs, **kwargs)
-        output, unused_err = process.communicate()
-        retcode = process.poll()
-        if retcode:
-            cmd = kwargs.get("args")
-            if cmd is None:
-                cmd = popenargs[0]
-            raise CalledProcessError(retcode, cmd, output=output)
-        return output
+import subprocess
+
+class CommandError(Exception):
+    def __init__(self, retcode, cmd, output=None, error=None):
+        self.retcode = retcode
+        self.cmd = cmd
+        self.output = output
+        self.error = error.strip()
+
+    def __str__(self):
+        return repr(self.error)
+
+def check_output(*popenargs, **kwargs):
+    if 'stdout' in kwargs:
+        raise ValueError('stdout argument not allowed, it will be overridden.')
+    if 'silent' in kwargs:
+        kwargs['stderr'] = subprocess.PIPE
+        del kwargs['silent']
+    
+    process = subprocess.Popen(stdout=subprocess.PIPE, *popenargs, **kwargs)
+    output, error = process.communicate()
+    retcode = process.poll()
+    if retcode:
+        cmd = kwargs.get("args")
+        if cmd is None:
+            cmd = popenargs[0]
+        raise CommandError(retcode, cmd, output=output, error=error)
+    
+    return output
 
 from color import *
 
@@ -442,19 +456,22 @@ def ask_for(message):
     return raw_input("%s==> %s%s: %s" % (TerminalColor.blue(), TerminalColor.color(39), message, TerminalColor.reset()))
 
 def run(cmd, silent=False):
+    kwargs = {}
     if type(cmd) == type(""):
         cmd = shlex.split(cmd)
     
-    kwargs = {}
     if silent:
-        kwargs['stderr'] = open("/dev/null", "w")
-        
+        kwargs['silent'] = silent
+    
     return check_output(cmd, **kwargs).strip()
 
 def run_or_error(cmd, error_msg, silent=False):
     try:
         return run(cmd, silent=silent).strip()
     except Exception, e:
+        if error_msg.find("%s") != -1:
+            error_msg = error_msg % (str(e))
+        
         error("%s" % (error_msg))
 
 TOOL_CONFIG = None
