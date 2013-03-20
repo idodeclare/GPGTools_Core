@@ -85,6 +85,15 @@ def main():
     if not os.path.isfile(release_notes_path):
         error("Couldn't find the release notes for this version: %s" % (release_notes_path.replace(CWD + "/", "")))
     
+    # Change into the website repository.
+    os.chdir(website_folder)
+    # Reset the repository status.
+    run_or_error("git reset HEAD", "Failed to reset the website repository.", silent=True)
+    run_or_error("git checkout .", "Failed to undo local changes.", silent=True)
+    # Pull new changes in.
+    run_or_error("git pull origin %s" % (WEBSITE_REPOSITORY_BRANCH), "Failed to update website repository.", silent=True)
+    
+    status("Load release notes from %s" % (release_notes_path.replace(CWD + "/", "")))
     # Load release notes.
     release_notes = None
     try:
@@ -130,6 +139,8 @@ def main():
     # Insert the new version to the current versions as first version.
     current_versions.insert(0, release)
     
+    status("Add version %s %s to %s version file" % (tool_config("name"), tool_config("version"), 
+                                                     tool_config("name")))
     # Save the versions.
     try:
         with open(versions_path, "w") as fp:
@@ -137,26 +148,33 @@ def main():
     except Exception, e:
         error("Failed to save the new version to the website's %s versions file\n* %s" % (tool_config("name"), e))
     
-    # Change into the website repository.
-    os.chdir(website_folder)
-    # Pull new changes in.
-    run_or_error("git pull origin %s" % (WEBSITE_REPOSITORY_BRANCH), "Failed to update website repository.", silent=True)
-    # Reset the repository status.
-    run_or_error("git reset HEAD", "Failed to reset the website repository.", silent=True)
     # Add the versions file.
     run_or_error("git add %s" % (versions_path), "Failed to checkin the versions file.", silent=True)
+    # Create the new appcast.xml file.
+    status("Create Sparkle appcast.xml file")
+    run_or_error("php index.php -m get /releases/%s/appcast.xml" % (tool_config("name").lower()),
+                 "Failed to create Sparkle appcast.xml\n%s")
+    # Checkin the appcast.xml file.
+    run_or_error("git add releases/%s/appcast.xml" % (tool_config("name").lower()),
+                 "Failed to checkin Sparkle appcast.xml\n%s")
+    status("Re-create release notes")
+    run_or_error("php index.php /releases/%s/release-notes.html" % (tool_config("name").lower()),
+                 "Failed to update release notes\n%s")
+    # Checking the release notes file.
+    run_or_error("git add releases/%s/release-notes.html" % (tool_config("name").lower()),
+                 "Failed to checkin release notes\n%s")
+    
     # Commit the versions file.
     run_or_error('git commit -m "Adding release of %s: %s"' % (tool_config("name"), tool_config("version")),
                  "Failed to commit the versions file changes.", silent=True)
     # Push the new version info.
+    status("Push changes to github")
     run_or_error("git push origin %s" % (WEBSITE_REPOSITORY_BRANCH), "Failed to push changes to server.", silent=True)
     success("Release was published successfully.")
     
 if __name__ == "__main__":
     try:
         sys.exit(not main())
-    except SystemExit:
-        pass
     except KeyboardInterrupt:
         print ""
         sys.exit(1)
