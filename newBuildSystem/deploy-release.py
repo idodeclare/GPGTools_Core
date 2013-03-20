@@ -139,8 +139,6 @@ def main():
 if __name__ == "__main__":
     try:
         sys.exit(not main())
-    except SystemExit:
-        pass
     except KeyboardInterrupt:
         print ""
         sys.exit(1)
