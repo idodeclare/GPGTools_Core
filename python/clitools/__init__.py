@@ -16,7 +16,10 @@ class CommandError(Exception):
         self.retcode = retcode
         self.cmd = cmd
         self.output = output
-        self.error = error.strip()
+        if error:
+            self.error = error.strip()
+        else:
+            self.error = None
 
     def __str__(self):
         return repr(self.error)
@@ -470,7 +473,8 @@ def run_or_error(cmd, error_msg, silent=False):
         return run(cmd, silent=silent).strip()
     except Exception, e:
         if error_msg.find("%s") != -1:
-            error_msg = error_msg % (str(e))
+            cmd_error = e.error or ""
+            error_msg = error_msg % (cmd_error)
         
         error("%s" % (error_msg))
 

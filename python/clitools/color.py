@@ -55,7 +55,7 @@ def success(msg):
     print "%s==>%s %s%s" % (TerminalColor.green(), TerminalColor.white(), msg, TerminalColor.reset())
 
 def error(msg, noexit=False, exitcode=2):
-    print "%sError%s: %s" % (TerminalColor.red(), TerminalColor.reset(), msg)
+    sys.stderr.write("%sError%s: %s\n" % (TerminalColor.red(), TerminalColor.reset(), msg))
     if not noexit:
         sys.exit(exitcode)
 
