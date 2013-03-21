@@ -494,7 +494,7 @@ def main():
     if not options.test and not is_workspace_clean():
         error("There are non-committed changes in the workspace. Make sure all changes are checked in before trying to release!\nRun `git status` for more info.")
     
-    if not options.test and not workspace_is_behind():
+    if not options.test and workspace_is_behind():
         error("There are commits which were not yet pulled.\n"
               "Make sure to pull before trying to release!")
     

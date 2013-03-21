@@ -573,3 +573,22 @@ def sha1_hash(file):
         sha1_hash = hashlib.sha1(f.read()).hexdigest()
     
     return sha1_hash
+
+def is_git_repository(path):
+    if not os.path.isdir(path):
+        return False
+    
+    original_path = os.getcwd()
+    try:
+        os.chdir(path)
+    except OSError, e:
+        return False
+    
+    try:
+        run("git rev-parse --is-inside-work-tree", silent=True)
+    except:
+        return False
+    finally:
+        os.chdir(original_path)
+    
+    return True
