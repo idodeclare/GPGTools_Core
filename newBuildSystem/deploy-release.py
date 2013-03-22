@@ -98,9 +98,8 @@ def main():
     if not os.path.isfile("%s/%s" % (BUILD_DIR, GPG_SIG)):
         error("Failed to sign the product disk image.")
         
-    print "Environment: %s" % (os.environ)
     run_or_error("gpg -v %s" % (path_to_script("%s/%s" % (BUILD_DIR, GPG_SIG))),
-                 "Couldn't verify the product disk image signature.\n%s", debug=True)
+                 "Couldn't verify the product disk image signature.\n%s", silent=True)
         
     # Upload product disk image.
     status("Uploading %s to AWS" % (DMG))
