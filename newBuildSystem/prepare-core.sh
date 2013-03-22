@@ -48,6 +48,7 @@ if [[ -z "$coreRepo" ]] ;then
 fi
 
 depsDir=$currentRepo/Dependencies
+echo depsDir $depsDir
 if [[ -d "$depsDir" ]] ;then
 	relPath=$(python -c "import os.path; print os.path.relpath('$coreRepo', '$depsDir')")
 	ln -Fs "$relPath" "$depsDir/"
