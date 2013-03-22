@@ -23,7 +23,7 @@ topRepo=""
 coreRepo=""
 pathToTest=$PWD
 while [[ -n "$pathToTest" ]] ;do
-	if [[ -d "$pathToTest/.git" ]] ;then
+	if [[ -e "$pathToTest/.git" ]] ;then
 		if [[ "$pathToTest" == "/" ]] ;then
 			echo "Your root directory is a git repo. We can't work with this. Aborting"
 			exit 1
