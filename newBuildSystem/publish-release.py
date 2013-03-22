@@ -58,7 +58,7 @@ def main():
     if options.checkout_repository:
         if not os.path.isdir(website_folder):
             status("No website repository found. Checking it out from github")
-            run_or_error("git clone %s -b %s %s" % (WEBSITE_REPOSITORY_URL, WEBSITE_REPOSITORY_BRANCH, WEBSITE_FOLDER),
+            run_or_error("git clone %s -b %s %s" % (WEBSITE_REPOSITORY_URL, WEBSITE_REPOSITORY_BRANCH, path_to_script(WEBSITE_FOLDER)),
                          "Failed to checkout gpgtools website.\n"
                          "Try to checkout the website manually and specify the path by using --website-folder")
     else:
@@ -149,7 +149,7 @@ def main():
         error("Failed to save the new version to the website's %s versions file\n* %s" % (tool_config("name"), e))
     
     # Add the versions file.
-    run_or_error("git add %s" % (versions_path), "Failed to checkin the versions file.", silent=True)
+    run_or_error("git add %s" % (path_to_script(versions_path)), "Failed to checkin the versions file.", silent=True)
     # Create the new appcast.xml file.
     status("Create Sparkle appcast.xml file")
     run_or_error("php index.php -m get /releases/%s/appcast.xml" % (tool_config("name").lower()),

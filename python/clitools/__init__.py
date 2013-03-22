@@ -592,3 +592,11 @@ def is_git_repository(path):
         os.chdir(original_path)
     
     return True
+
+def path_to_script(path):
+    """Quotes paths if they contain spaces."""
+    if path.find(" ") == -1:
+        return path
+    
+    return '"%s"' % (path)
+

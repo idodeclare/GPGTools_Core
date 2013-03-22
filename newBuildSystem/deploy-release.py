@@ -30,9 +30,6 @@ from clitools.color import *
 
 CWD = os.getcwd()
 BUILD_DIR = "build"
-CONFIG_SCRIPT = "../GPGTools_Core/newBuildSystem/core.sh"
-
-TOOL_CONFIG = None
 
 EMAIL_SUBJECT = "%(name)s v%(version)s successfully deployed!"
 EMAIL_FROM = "GPGTools Release-Bot <release@gpgtools.org>"
@@ -77,7 +74,7 @@ def inform_team(release_info):
     s.quit()
 
 def update_website_for_release(release_info):
-    run_or_error("%s/Dependencies/GPGTools_Core/newBuildSystem/%s" % (CWD, "publish-release.py"),
+    run_or_error(path_to_script("%s/Dependencies/GPGTools_Core/newBuildSystem/%s" % (CWD, "publish-release.py")),
                  "Failed to add release to the GPGTools website.\n%s")
 
 def main():
@@ -101,18 +98,18 @@ def main():
     if not os.path.isfile("%s/%s" % (BUILD_DIR, GPG_SIG)):
         error("Failed to sign the product disk image.")
         
-    run_or_error("gpg -v %s/%s" % (BUILD_DIR, GPG_SIG),
+    run_or_error("gpg -v %s" % (path_to_script("%s/%s" % (BUILD_DIR, GPG_SIG))),
                  "Couldn't verify the product disk image signature.", silent=True)
         
     # Upload product disk image.
     status("Uploading %s to AWS" % (DMG))
-    dmg_url = run_or_error("make upload-to-aws file=%s/%s" % (BUILD_DIR, DMG), 
+    dmg_url = run_or_error("make upload-to-aws file=%s" % (path_to_script("%s/%s" % (BUILD_DIR, DMG))), 
                            "Couldn't upload product disk image.")
     status("    %s" % (dmg_url.strip()))
         
     # Upload gpg signature.
     status("Uploading %s to AWS" % (GPG_SIG))
-    signature_url = run_or_error("make upload-to-aws file=%s/%s" % (BUILD_DIR, GPG_SIG),
+    signature_url = run_or_error("make upload-to-aws file=%s" % (path_to_script("%s/%s" % (BUILD_DIR, GPG_SIG))),
                                  "Couldn't upload product disk image signature.")
     status("    %s" % (signature_url.strip()))
         
