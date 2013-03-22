@@ -44,7 +44,7 @@ fi
 
 if [[ -z "$coreRepo" ]] ;then
 	coreRepo=${topRepo%/*}/GPGTools_Core
-	git clone git@github.com:GPGTools/GPGTools_Core.git "$coreRepo"
+	git clone git://github.com/GPGTools/GPGTools_Core.git "$coreRepo"
 fi
 
 depsDir=$currentRepo/Dependencies
