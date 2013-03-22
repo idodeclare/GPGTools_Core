@@ -497,7 +497,7 @@ def tool_config(configkey=None):
         if not os.path.exists(CONFIG_SCRIPT_PATH):
             bailout("Couldn't find the config script. Abort!") 
     
-        raw_config = run("%s print-config" % (CONFIG_SCRIPT_PATH))
+        raw_config = run("\"%s\" print-config" % (CONFIG_SCRIPT_PATH))
     
         lines = raw_config.split("\n")
         TOOL_CONFIG = {}
