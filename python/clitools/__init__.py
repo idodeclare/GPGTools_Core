@@ -473,7 +473,10 @@ def run_or_error(cmd, error_msg, silent=False):
         return run(cmd, silent=silent).strip()
     except Exception, e:
         if error_msg.find("%s") != -1:
-            cmd_error = e.error or ""
+            if isinstance(e, OSError):
+                cmd_error = e.message
+            else:
+                cmd_error = e.error or ""
             error_msg = error_msg % (cmd_error)
         
         error("%s" % (error_msg))
