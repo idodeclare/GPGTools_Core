@@ -23,7 +23,7 @@ topRepo=""
 coreRepo=""
 pathToTest=$PWD
 while [[ -n "$pathToTest" ]] ;do
-	if [[ -d "$pathToTest/.git" ]] ;then
+	if [[ -e "$pathToTest/.git" ]] ;then
 		if [[ "$pathToTest" == "/" ]] ;then
 			echo "Your root directory is a git repo. We can't work with this. Aborting"
 			exit 1
@@ -39,9 +39,6 @@ while [[ -n "$pathToTest" ]] ;do
 	pathToTest=${pathToTest%/*}
 done
 
-echo PWD $PWD
-echo currentRepo $currentRepo
-
 
 if [[ -z "$currentRepo" ]] ;then
 	echo "No git repo found. Aborting"
@@ -54,7 +51,6 @@ if [[ -z "$coreRepo" ]] ;then
 fi
 
 depsDir=$currentRepo/Dependencies
-echo depsDir $depsDir
 if [[ -d "$depsDir" ]] ;then
 	relPath=$(python -c "import os.path; print os.path.relpath('$coreRepo', '$depsDir')")
 	ln -Fs "$relPath" "$depsDir/"
