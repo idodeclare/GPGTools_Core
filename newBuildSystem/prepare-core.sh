@@ -28,7 +28,9 @@ while [[ -n "$pathToTest" ]] ;do
 			echo "Your root directory is a git repo. We can't work with this. Aborting"
 			exit 1
 		fi
-		[[ -n "$currentRepo" ]] || currentRepo=$pathToTest
+		if [[ -z "$currentRepo" ]] ;then
+			currentRepo=$pathToTest
+		fi
 		topRepo=$pathToTest
 	fi
 	if [[ -d "$pathToTest/GPGTools_Core" ]] ;then
@@ -36,6 +38,10 @@ while [[ -n "$pathToTest" ]] ;do
 	fi
 	pathToTest=${pathToTest%/*}
 done
+
+echo PWD $PWD
+echo currentRepo $currentRepo
+
 
 if [[ -z "$currentRepo" ]] ;then
 	echo "No git repo found. Aborting"
