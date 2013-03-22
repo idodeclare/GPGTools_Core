@@ -98,7 +98,7 @@ def main():
     release_notes = None
     try:
         with open(release_notes_path, "r") as fp:
-            release_notes = json.load(fp)
+            release_notes = json.loads(fp.read().replace("\xc2\xa0", " "))
     except Exception, e:
         error("Failed to load release notes file\nError: %s" % (e))
     
@@ -171,6 +171,8 @@ def main():
     status("Push changes to github")
     run_or_error("git push origin %s" % (WEBSITE_REPOSITORY_BRANCH), "Failed to push changes to server.", silent=True)
     success("Release was published successfully.")
+    
+    return True
     
 if __name__ == "__main__":
     try:
