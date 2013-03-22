@@ -1,0 +1,126 @@
+# Enthält die standard Targets. Wird in den Makefiles per include eingebunden.
+
+XCCONFIG = ""
+ifeq ("$(CODE_SIGN)","1")
+    XCCONFIG=-xcconfig Dependencies/GPGTools_Core/make/code-signing.xcconfig
+endif
+
+
+CONFIG ?= Release
+VPATH ?= build/Release
+
+all: compile
+
+help:
+	@echo "compile          - compile the sources"
+	@echo "clean            - remove old generated files"
+	@echo "clean-pkg        - remove old generated pkg's"
+	@echo "clean-libmacgpg  - remove old libmacgpg files"
+	@echo "update           - update all sources"
+	@echo "update-me        - update the sources"
+	@echo "update-core      - update the core dependency"
+	@echo "update-libmacgpg - update libmacgpg dependency"
+	@echo "pkg              - generate main pkg"
+	@echo "pkg-core         - generate core pkg"
+	@echo "pkg-libmacgpg    - generate libmacgpg pkg"
+	@echo "dmg              - generate final dmg"
+	@echo "signed-dmg       - generate signed dmg"
+	@echo "gpg-sig          - sign with gpg"
+	@echo "uninstaller-sig  - sign uninstaller"
+#	@echo "pkg-prepare-for-installer - copy the created core package into a specified folder
+	@echo "release-patch"   - release a new patch version
+	@echo "release-minor"   - release a new minor version
+	@echo "release-major"   - release a new major version
+	@echo "release-custom"  - release a custom version where the exact version is specified.
+	@echo "release" 		- alias for release custom
+	@echo "release-notes version=<version>" - create a release notes file
+
+test:
+	@xcodebuild -project $(PROJECT).xcodeproj -target $(TEST_TARGET) -configuration $(CONFIG) build 
+
+ifdef PRODUCT
+compile: $(PRODUCT)
+else
+compile:
+	@xcodebuild -project $(PROJECT).xcodeproj -target $(TARGET) -configuration $(CONFIG) build $(XCCONFIG)
+endif
+
+ifeq ("$(wildcard $(PROJECT).xcodeproj)", "")
+clean:
+	@rm -rf ./build/*
+else
+clean:
+	@xcodebuild -project $(PROJECT).xcodeproj -target $(TARGET) -configuration $(CONFIG) clean > /dev/null
+	@rm -rf ./build/*
+endif
+
+
+
+
+clean-pkg:
+	@rm -rf ./build/*.pkg*
+
+clean-libmacgpg:
+	$(MAKE) -C Dependencies/Libmacgpg clean-all
+
+clean-all: clean
+
+pkg-core: compile
+	@./Dependencies/GPGTools_Core/newBuildSystem/pkg-core.sh
+
+pkg-libmacgpg:
+	$(MAKE) -C Dependencies/Libmacgpg pkg-core
+
+pkg: pkg-core
+	@./Dependencies/GPGTools_Core/newBuildSystem/pkg.sh
+
+dmg: pkg
+	@./Dependencies/GPGTools_Core/newBuildSystem/dmg.sh
+
+gpg-sig: dmg
+	@./Dependencies/GPGTools_Core/newBuildSystem/gpgSig.sh
+
+uninstaller-sig:
+	@./Dependencies/GPGTools_Core/newBuildSystem/uninstallerSig.sh
+	
+signed-dmg: gpg-sig
+
+update-me:
+	@./Dependencies/GPGTools_Core/newBuildSystem/update.sh
+
+update-core:
+	$(MAKE) -C Dependencies/GPGTools_Core update
+
+update-libmacgpg:
+	$(MAKE) -C Dependencies/Libmacgpg update
+
+update: update-me update-core
+
+# Special target for copying the created core package into a specified folder.
+pkg-prepare-for-installer: pkg-core
+	@./Dependencies/GPGTools_Core/newBuildSystem/pkg-prepare-for-installer.sh $(CORE_PKG_DIR) $(PROJECT) $(ALT_NAME)
+
+# Targets to create new release
+release-patch:
+	@./Dependencies/GPGTools_Core/newBuildSystem/prepare-release.py --patch
+
+release-minor:
+	@./Dependencies/GPGTools_Core/newBuildSystem/prepare-release.py --minor
+
+release-major:
+	@./Dependencies/GPGTools_Core/newBuildSystem/prepare-release.py --major
+    
+release-custom:
+	@./Dependencies/GPGTools_Core/newBuildSystem/prepare-release.py --custom
+
+release:
+	@./Dependencies/GPGTools_Core/newBuildSystem/prepare-release.py --custom
+
+deploy: dmg
+	@./Dependencies/GPGTools_Core/newBuildSystem/deploy-release.py ${name}-${version}
+
+upload-to-aws:
+	@./Dependencies/GPGTools_Core/newBuildSystem/aws-upload.py ${file}
+
+release-notes:
+	@./Dependencies/GPGTools_Core/newBuildSystem/prepare-release-notes.py ${version}
