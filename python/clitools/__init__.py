@@ -468,7 +468,7 @@ def run(cmd, silent=False):
     
     return check_output(cmd, **kwargs).strip()
 
-def run_or_error(cmd, error_msg, silent=False):
+def run_or_error(cmd, error_msg, silent=False, debug=False):
     try:
         return run(cmd, silent=silent).strip()
     except Exception, e:
@@ -478,6 +478,8 @@ def run_or_error(cmd, error_msg, silent=False):
             else:
                 cmd_error = e.error or ""
             error_msg = error_msg % (cmd_error)
+        
+        error_msg = debug and "%s\n%s" % (error_msg, traceback.format_exc()) or "%s" % (error_msg)
         
         error("%s" % (error_msg))
 
