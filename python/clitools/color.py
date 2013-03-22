@@ -43,7 +43,11 @@ class TerminalColor(object):
     
     @classmethod
     def escape(cls, s):
+        if not sys.stdout.isatty():
+            return s
+        
         return "\033[%sm" % (s)
+    
 
 def status(msg):
     print "%s==>%s - %s" % (TerminalColor.blue(), TerminalColor.reset(), msg)
