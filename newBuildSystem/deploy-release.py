@@ -81,7 +81,7 @@ def update_website_for_release(release_info):
                  "Failed to add release to the GPGTools website.\n%s")
 
 def main():
-    if current_git_branch() != "master" and current_git_branch() != "deploy-master":
+    if current_git_branch() not in ["master", "deploy-master", "jenkins-master"]:
         error("You can only deploy from the master branch!\nRun `git checkout master` first.")
     
     title("Deploying %s v%s" % (tool_config("name"), tool_config("version")))
