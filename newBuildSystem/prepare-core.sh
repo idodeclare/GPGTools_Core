@@ -56,7 +56,7 @@ if [[ -d "$depsDir" ]] ;then
 	ln -Fs "$relPath" "$depsDir/"
 fi
 
-cd $currentRepo
+cd "$currentRepo"
 git submodule foreach make init
 
 
