@@ -31,14 +31,20 @@ class TerminalColor(object):
     
     @classmethod
     def color(cls, s):
+        if not sys.stdout.isatty():
+            return s
         return TerminalColor.escape("0;%s" % (s))
     
     @classmethod
     def bold(cls, s):
+        if not sys.stdout.isatty():
+            return s
         return TerminalColor.escape("1;%s" % (s))
     
     @classmethod
     def underline(cls, s):
+        if not sys.stdout.isatty():
+            return s
         return TerminalColor.escape("4;%s" % (s))
     
     @classmethod
