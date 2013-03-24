@@ -5,6 +5,10 @@ ifeq ("$(CODE_SIGN)","1")
     XCCONFIG=-xcconfig Dependencies/GPGTools_Core/make/code-signing.xcconfig
 endif
 
+# Force signing of pkg if make deploy is run.
+ifeq ($(findstring deploy, $(MAKECMDGOALS)), deploy)
+        PKG_SIGN = 1
+endif
 
 CONFIG ?= Release
 VPATH ?= build/Release
