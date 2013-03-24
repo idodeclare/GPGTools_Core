@@ -57,8 +57,6 @@ Sincerely yours,
 
 GPGTools Release-Bot
 """
-MIN_OS="10.6"
-
 def current_git_branch():
     return run("git rev-parse --abbrev-ref HEAD").strip()
 

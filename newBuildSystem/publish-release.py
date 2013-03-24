@@ -26,9 +26,9 @@ WEBSITE_FOLDER = os.path.join(BUILD_DIR, "gpgtools-website")
 
 def parse_options():
     parser = OptionParser()
-    parser.add_option("-i", "--min-os", dest="minOS", default="10.7")
+    parser.add_option("-i", "--min-os", dest="minOS")
     parser.add_option("-m", "--max-os", dest="maxOS")
-    parser.add_option("-b", "--base-url", dest="base_url", default=DOWNLOAD_BASE_URL)
+    parser.add_option("-b", "--base-url", dest="base_url")
     parser.add_option("-r", "--website-folder", dest="website_folder")
     
     (options, args) = parser.parse_args()
@@ -43,6 +43,16 @@ def parse_options():
     
     if not tool_config("name"):
         parser.error("Not able to read tool name. Make sure Makefile.config exists in the current folder.")
+    
+    # Check environment variables for configuration.
+    options.minOS = options.minOS or os.environ.get("MIN_OS")
+    if not options.minOS
+        options.minOS = "10.7"
+    options.maxOS = options.maxOS or os.environ.get("MAX_OS")
+    options.website_folder = options.website_folder or os.environ.get("WEBSITE_FOLDER")
+    options.base_url = options.base_url or os.environ.get("BASE_URL")
+    if not options.base_url:
+        options.base_url = DOWNLOAD_BASE_URL
     
     return (options, args)
 
