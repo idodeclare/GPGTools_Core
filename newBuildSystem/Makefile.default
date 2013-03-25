@@ -7,7 +7,7 @@ endif
 
 # Force signing of pkg if make deploy is run.
 ifeq ($(findstring deploy, $(MAKECMDGOALS)), deploy)
-        PKG_SIGN = 1
+        export PKG_SIGN = 1
 endif
 
 # Always update GPGTool_Core before running any commands.
