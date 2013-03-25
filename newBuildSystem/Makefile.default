@@ -10,6 +10,11 @@ ifeq ($(findstring deploy, $(MAKECMDGOALS)), deploy)
         PKG_SIGN = 1
 endif
 
+# Always update GPGTool_Core before running any commands.
+# Update GPGTools_Core if it exists.
+CORE_PATH := $(shell dirname $(MAKE_DEFAULT))
+UPDATE_CORE := $(shell test -f $(MAKE_DEFAULT) && pushd "$(CORE_PATH)" &>/dev/null && git pull origin master &>/dev/null && popd &>/dev/null)
+
 CONFIG ?= Release
 VPATH ?= build/Release
 
