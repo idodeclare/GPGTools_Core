@@ -46,7 +46,7 @@ def parse_options():
     
     # Check environment variables for configuration.
     options.minOS = options.minOS or os.environ.get("MIN_OS")
-    if not options.minOS
+    if not options.minOS:
         options.minOS = "10.7"
     options.maxOS = options.maxOS or os.environ.get("MAX_OS")
     options.website_folder = options.website_folder or os.environ.get("WEBSITE_FOLDER")
