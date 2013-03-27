@@ -25,7 +25,11 @@ if $isMasterBranch ;then
 	unset COMMIT
 	versionType=${PRERELEASE:0:1}
 else
-	COMMIT=" ($commitHash)"
+    if [ ! -z "$commitHash" ]; then
+        COMMIT=" ($commitHash)"
+    else
+        unset COMMIT
+    fi
 	versionType="n"
 fi
 
