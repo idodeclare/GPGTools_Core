@@ -57,7 +57,6 @@ if [[ -d "$depsDir" ]] ;then
 fi
 
 cd "$currentRepo"
-git submodule foreach make init
-
+git submodule foreach 'make -q init 2>/dev/null && make init ||:'
 
 
