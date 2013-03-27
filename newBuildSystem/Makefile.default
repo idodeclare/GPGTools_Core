@@ -129,7 +129,7 @@ deploy: dmg
 	@./Dependencies/GPGTools_Core/newBuildSystem/deploy-release.py ${name}-${version}
 
 upload-to-aws:
-	@./Dependencies/GPGTools_Core/newBuildSystem/aws-upload.py ${file}
+	@./Dependencies/GPGTools_Core/newBuildSystem/aws-upload.py "${file}"
 
 release-notes:
 	@./Dependencies/GPGTools_Core/newBuildSystem/prepare-release-notes.py ${version}
