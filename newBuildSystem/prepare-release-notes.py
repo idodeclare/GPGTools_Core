@@ -58,7 +58,7 @@ def parse_options():
         parser.error("Couldn't find start tag. Please specify one manually")
     options.to_tag = options.to_tag or "HEAD"
     
-    options.preview_url = options.preview_url or os.getenv("PREVIEW_URL", PREVIEW_URL % tool_config("name").lower())
+    options.preview_url = options.preview_url or os.getenv("PREVIEW_URL", PREVIEW_URL % nname(tool_config("name")))
     
     return (options, args)
 
