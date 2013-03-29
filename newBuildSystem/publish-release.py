@@ -120,7 +120,7 @@ def main():
         stat = os.stat(dmg_path)
         filesize = stat.st_size
     except Exception, e:
-         error("Failed to determine release disk image file size\nError: " % (e))
+         error("Failed to determine release disk image file size\nError: %s" % (e))
     
     dmg_hash = sha1_hash(dmg_path)
     
