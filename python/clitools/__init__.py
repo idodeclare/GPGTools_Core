@@ -458,7 +458,7 @@ def print_status(message, end=False):
 def ask_for(message):
     return raw_input("%s==> %s%s: %s" % (TerminalColor.blue(), TerminalColor.color(39), message, TerminalColor.reset()))
 
-def run(cmd, silent=False):
+def run(cmd, silent=False, debug=False):
     kwargs = {}
     if type(cmd) == type(""):
         cmd = shlex.split(cmd)
@@ -466,11 +466,14 @@ def run(cmd, silent=False):
     if silent:
         kwargs['silent'] = silent
     
+    if debug:
+        print "$# %s" % (cmd)
+    
     return check_output(cmd, **kwargs).strip()
 
 def run_or_error(cmd, error_msg, silent=False, debug=False):
     try:
-        return run(cmd, silent=silent).strip()
+        return run(cmd, silent=silent, debug=debug).strip()
     except Exception, e:
         if error_msg.find("%s") != -1:
             if isinstance(e, OSError):
