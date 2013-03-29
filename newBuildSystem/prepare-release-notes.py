@@ -194,18 +194,33 @@ def save_release_notes(release_notes, version):
         content = open(file_path, "r").read()
         if content == md:
             error("You can't use the exact commit log as the release notes!", noexit=True)
-            continue
+            edit = ask_with_expected_answers("Do you want to edit them again? [yes|no, default yes]:", ["yes", "no"],
+                                             default="yes")
+            if edit == "yes":
+                continue
         
         # Check if the markdown can be converted back.
         try:
             release_notes = convert_markdown_to_release_notes(content)
         except:
             error("Invalid Markdown. Please verify!", noexit=True)
-            continue
+            edit = ask_with_expected_answers("Continue to edit? [yes|no, default yes]", ["yes", "no"],
+                                             default="yes")
+            if edit == "yes":
+                continue
+            else:
+                cleanup()
+                error("Failed to create release notes.")
         
         if release_notes[1]:
             error(release_notes[1], noexit=True)
-            continue
+            edit = ask_with_expected_answers("Continue to edit? [yes|no, default yes]", ["yes", "no"],
+                                             default="yes")
+            if edit == "yes":
+                continue
+            else:
+                cleanup()
+                error("Failed to create release notes.")
         
         # Release notes are okay, prompt for preview.
         release_notes = release_notes[0]
