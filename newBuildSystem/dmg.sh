@@ -63,8 +63,6 @@ if [ -n "$preDmgBuild" ]; then
 	"$preDmgBuild"
 fi
 
-#echo "Removing old files..."
-#rm -f "$dmgPath"
 
 echo "Creating temp directory..."
 mkdir "$dmgTempDir"
@@ -87,6 +85,14 @@ echo "Copying images..."
 mkdir "$dmgTempDir/.background"
 cp "$imgBackground" "$dmgTempDir/.background/Background.png"
 cp "$iconDmg" "$dmgTempDir/.VolumeIcon.icns"
+SetFile -a C "$dmgTempDir"
+
+if [[ -n "$volumeLayout" ]]; then
+	[[ -f "$volumeLayout" ]] || errExit "ERROR: volumeLayout set, but the file can't be found!"
+	echo "Copying .DS_Store..."
+	cp "$volumeLayout" "$dmgTempDir/.DS_Store"
+fi
+
 
 
 echo "Setting pkg icon..."
@@ -100,79 +106,90 @@ fi
 echo "Fixing for Packages 1.1..."
 chmod -R +w $dmgTempDir
 
+
 echo "Creating DMG..."
-hdiutil create -scrub -fs HFS+ -fsargs "-c c=64,a=16,e=16" -format UDRW -srcfolder "$dmgTempDir" -volname "$volumeName" "$tempDmg" ||
+hdiutil create -noscrub -fs HFS+ -fsargs "-c c=64,a=16,e=16" -format UDRW -srcfolder "$dmgTempDir" -volname "$volumeName" "$tempDmg" ||
 	errExit "ERROR: Create DMG failed!"
 
-trap unmount EXIT
 
+echo "Attaching DMG..."
+trap unmount EXIT
 mountInfo=$(hdiutil attach -readwrite -noverify "$tempDmg") ||
 	errExit "ERROR: Attach DMG failed!"
+device=$(head -1 <<<"$mountInfo" | cut -d" " -f 1)
+mountPoint=$(tail -1 <<<"$mountInfo" | cut -d"	" -f 3)
 
-device=$(echo "$mountInfo" | head -1 | cut -d " " -f 1)
-mountPoint=$(echo "$mountInfo" | tail -1 | sed -En 's/([^	]+[	]+){2}//p')
-
-echo "Setting attributes..."
 SetFile -a C "$mountPoint"
 
-if ps -xo command | grep -q "[M]acOS/Finder" ;then # Try to fix the "-10810" error
-	echo "Using Finder to set the attributes..."
-	osascript >/dev/null <<-EOT
-		tell application "Finder"
-			tell disk "$volumeName"
-				open
-				set viewOptions to icon view options of container window
-				set current view of container window to icon view
-				set toolbar visible of container window to false
-				set statusbar visible of container window to false
-				set bounds of container window to {$windowBounds}
-				set arrangement of viewOptions to not arranged
-				set icon size of viewOptions to $iconSize
-				set text size of viewOptions to $textSize
-				set background picture of viewOptions to file ".background:Background.png"
-				set position of item "$pkgName" of container window to {$pkgPos}
-			end tell
-		end tell
-	EOT
-	[ $? -eq 0 ] || errExit "ERROR: Set attributes failed!"
 
-	if [ -n "$rmName" ]; then # Set position of the Uninstaller
+if [[ -z "$volumeLayout" ]] ;then
+	echo "No volumeLayout specified."
+	if ps -xo command | grep -q "[M]acOS/Finder"; then
+		echo "Using Finder to set the attributes..."
+
+
 		osascript >/dev/null <<-EOT
 			tell application "Finder"
 				tell disk "$volumeName"
-					set position of item "$rmName" of container window to {$rmPos}
+					open
+					set viewOptions to icon view options of container window
+					set current view of container window to icon view
+					set toolbar visible of container window to false
+					set statusbar visible of container window to false
+					set bounds of container window to {$windowBounds}
+					set arrangement of viewOptions to not arranged
+					set icon size of viewOptions to $iconSize
+					set text size of viewOptions to $textSize
+					set background picture of viewOptions to file ".background:Background.png"
+					set position of item "$pkgName" of container window to {$pkgPos}
 				end tell
 			end tell
 		EOT
-		[ $? -eq 0 ] || errExit "ERROR: Set position of the Uninstaller failed!"
-	fi
+		[ $? -eq 0 ] || errExit "ERROR: Set attributes failed!"
 
-	osascript >/dev/null <<-EOT
-		tell application "Finder"
-			tell disk "$volumeName"
-				update without registering applications
-				close
+		if [ -n "$rmName" ]; then # Set position of the Uninstaller
+			osascript >/dev/null <<-EOT
+				tell application "Finder"
+					tell disk "$volumeName"
+						set position of item "$rmName" of container window to {$rmPos}
+					end tell
+				end tell
+			EOT
+			[ $? -eq 0 ] || errExit "ERROR: Set position of the Uninstaller failed!"
+		fi
+
+		osascript >/dev/null <<-EOT
+			tell application "Finder"
+				tell disk "$volumeName"
+					update without registering applications
+					close
+				end tell
 			end tell
-		end tell
-	EOT
-	[ $? -eq 0 ] || errExit "ERROR: Update attributes failed!"
-else
-    echo "Dynamically layouting the DMG is not possible. Looking for static information..."
-    if [ -f "$volumeLayout" ]; then
-        echo "Found static information. Using it..."
-        cp "$volumeLayout" "$mountPoint/.DS_Store"
-    else
-        echo "Not found static information."
-    fi
+		EOT
+		[ $? -eq 0 ] || errExit "ERROR: Update attributes failed!"
+	else
+		echo "Can't use the Finder to set attributes."
+	fi
 fi
 
-
 chmod -Rf +r,go-w "$mountPoint" || errExit "ERROR: chmod failed!"
-rm -r "$mountPoint/.Trashes" "$mountPoint/.fseventsd"
+rm -rf "$mountPoint/.Trashes" "$mountPoint/.fseventsd"
+
+echo "Detaching DMG..."
+hdiutil detach "$device"
+trap EXIT
+i=0
+while [[ -e "$device" ]] ;do
+	if [[ $((i++)) -ge 50 ]] ;then
+		echo "Unable to detach '$device'"
+		break
+	fi
+	sleep 0.1
+done
+
 
 
 echo "Converting DMG..."
-hdiutil detach -quiet "$mountPoint"
 hdiutil convert "$tempDmg" -format UDZO -imagekey zlib-level=9 -o "$dmgPath" ||
 	errExit "ERROR: Convert DMG failed!!"
 
