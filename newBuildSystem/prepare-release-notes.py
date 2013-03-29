@@ -123,7 +123,7 @@ def build_release_notes_from_commit_log(commit_log):
     else:
         for entry in temp_features:
             # Find the prefix and replace it.
-            prefix = ["[%s]" % prefix for prefix in FIX_PREFIXES if entry["title"].find("[%s]" % prefix) != -1][0]
+            prefix = ["[%s]" % prefix for prefix in FEATURE_PREFIXES if entry["title"].find("[%s]" % prefix) != -1][0]
             title = re.sub(r"^\s*%s\s*" % (re.escape(prefix)), r"", entry["title"])
             description = [x.strip() for x in entry["body"].split("\n")]
             features.append({"title": title, "description": description})

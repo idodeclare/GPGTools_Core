@@ -14,6 +14,7 @@ import time
 
 from optparse import OptionParser, OptionValueError
 
+from __init__ import *
 from clitools import *
 from clitools.color import *
 
@@ -75,9 +76,9 @@ def main():
         website_folder = options.website_folder
     
     config_path = os.path.join(website_folder, "config")
-    versions_file = "%s-versions.json" % (tool_config("name").lower())
+    versions_file = "%s-versions.json" % (nname(tool_config("name")))
     versions_path = os.path.join(config_path, versions_file)
-    release_notes = "%s.json" % (tool_config("version"))
+    release_notes = "%s.md" % (tool_config("version"))
     release_notes_path = os.path.join(CWD, "Release Notes", release_notes)
     buildnr = tool_config("build_version")
     dmg = tool_config("dmgName")
@@ -105,12 +106,10 @@ def main():
     
     status("Load release notes from %s" % (release_notes_path.replace(CWD + "/", "")))
     # Load release notes.
-    release_notes = None
-    try:
-        with open(release_notes_path, "r") as fp:
-            release_notes = json.loads(fp.read().replace("\xc2\xa0", " "))
-    except Exception, e:
-        error("Failed to load release notes file\nError: %s" % (e))
+    release_notes = convert_markdown_to_release_notes(filename=release_notes_path)
+    if release_notes[1]:
+        error("Failed to load release notes file\nError: %s" % (release_notes[1]))
+    release_notes = release_notes[0]
     
     if not release_notes:
         error("Failed to load release notes file")
