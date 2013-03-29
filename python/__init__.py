@@ -81,10 +81,9 @@ def convert_release_notes_to_markdown(release_notes, version, title="%s v%s - Re
     
     return "\n".join(lines)
 
-def convert_markdown_to_release_notes(md_code):
-    # Also Handle 
-    if type(md_code) not in types.StringTypes:
-        md_code = codecs.open(md_code, mode="r", encoding="utf8").read()
+def convert_markdown_to_release_notes(md_code=None, filename=None):
+    if filename:
+        md_code = codecs.open(filename, mode="r", encoding="utf8").read()
     elif type(md_code) == types.StringType:
         md_code = md_code.decode("utf8")
     
