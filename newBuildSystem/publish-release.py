@@ -161,16 +161,16 @@ def main():
     run_or_error("git add %s" % (path_to_script(versions_path)), "Failed to checkin the versions file.", silent=True)
     # Create the new appcast.xml file.
     status("Create Sparkle appcast.xml file")
-    run_or_error("php index.php -m get /releases/%s/appcast.xml" % (tool_config("name").lower()),
+    run_or_error("php index.php -m get /releases/%s/appcast.xml" % (nname(tool_config("name"))),
                  "Failed to create Sparkle appcast.xml\n%s")
     # Checkin the appcast.xml file.
-    run_or_error("git add releases/%s/appcast.xml" % (tool_config("name").lower()),
-                 "Failed to checkin Sparkle appcast.xml\n%s")
+    run_or_error("git add releases/%s/appcast.xml" % (nname(tool_config("name"))),
+                     "Failed to checkin Sparkle appcast.xml\n%s")
     status("Re-create release notes")
-    run_or_error("php index.php /releases/%s/release-notes.html" % (tool_config("name").lower()),
+    run_or_error("php index.php /releases/%s/release-notes.html" % (nname(tool_config("name"))),
                  "Failed to update release notes\n%s")
     # Checking the release notes file.
-    run_or_error("git add releases/%s/release-notes.html" % (tool_config("name").lower()),
+    run_or_error("git add releases/%s/release-notes.html" % (nname(tool_config("name"))),
                  "Failed to checkin release notes\n%s")
     
     # Commit the versions file.
