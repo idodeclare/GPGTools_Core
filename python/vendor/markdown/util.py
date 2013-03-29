@@ -59,6 +59,8 @@ try:
     from lxml import etree
     from pyquery_lxml_extension import ElementMaker, pq
 except ImportError:
+    from clitools import *
+    from clitools.color import *
     error("Please install lxml and cssselect by running `%s` and then `%s`" % (
         emphasize("STATIC_DEPS=true sudo pip install lxml==3.1.0"),
         emphasize("sudo pip install cssselect")))
