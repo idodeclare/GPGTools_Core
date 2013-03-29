@@ -467,7 +467,7 @@ def run(cmd, silent=False, debug=False):
         kwargs['silent'] = silent
     
     if debug:
-        print "$# %s" % (cmd)
+        print "$# %s" % (" ".join(cmd))
     
     return check_output(cmd, **kwargs).strip()
 
@@ -607,4 +607,11 @@ def path_to_script(path):
         return path
     
     return '"%s"' % (path)
+
+def nname(name):
+    """Normalize the name.
+    
+    Remove any spaces and replace them with - and lower case it.
+    """
+    return name.replace(" ", "-").lower()
 
