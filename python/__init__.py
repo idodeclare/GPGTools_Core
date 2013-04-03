@@ -140,14 +140,14 @@ def convert_markdown_to_release_notes(md_code=None, filename=None):
                 if item.is_("ul"):
                     for item in item.children("li"):
                         item = pq(item)
-                        features[j]["description"].append(item.html().strip())
+                        features[j]["description"].append("\n".join([x.strip() for x in item.html().split("\n")]))
                 
         elif title["title"] == "fixes":
             for item in title["items"]:
                 if item.is_("ul"):
                     for item in item.children("li"):
                         item = pq(item)
-                        fixes.append(item.html())
+                        fixes.append("\n".join([x.strip() for x in item.html().split("\n")]))
     
     info["fixes"] = fixes
     info["features"] = features
