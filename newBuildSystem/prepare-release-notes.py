@@ -111,6 +111,9 @@ def build_release_notes_from_commit_log(commit_log):
         elif is_fix:
             temp_fixes.append({"title": title, "body": None})
     
+    def remove_dashes(line):
+        return re.sub(r"^\s*-\s*", r"", line)
+    
     features = []
     fixes = []
     
@@ -120,11 +123,11 @@ def build_release_notes_from_commit_log(commit_log):
         for entry in temp_discarded:
             if entry["body"]:
                 features.append({"title": entry["title"], 
-                                 "description": [x.strip() for x in entry["body"].split("\n")]})
+                                 "description": [remove_dashes(x.strip()) for x in entry["body"].split("\n")]})
             else:
                 line = "%s%s" % (entry["title"], entry["body"] and "\n\n%s" % entry["body"] or "")
                 # Strip white space from each line.
-                line = "\n".join([x.strip() for x in line.split("\n")])
+                line = "\n".join([remove_dashes(x.strip()) for x in line.split("\n")])
                 if line:
                     fixes.append(line)
     else:
@@ -132,7 +135,7 @@ def build_release_notes_from_commit_log(commit_log):
             # Find the prefix and replace it.
             prefix = ["[%s]" % prefix for prefix in FEATURE_PREFIXES if entry["title"].find("[%s]" % prefix) != -1][0]
             title = re.sub(r"^\s*%s\s*" % (re.escape(prefix)), r"", entry["title"])
-            description = [x.strip() for x in entry["body"].split("\n")]
+            description = [remove_dashes(x.strip()) for x in entry["body"].split("\n")]
             features.append({"title": title, "description": description})
         
         for entry in temp_fixes:
@@ -141,7 +144,7 @@ def build_release_notes_from_commit_log(commit_log):
             title = re.sub(r"^\s*%s\s*" % (re.escape(prefix)), r"", entry["title"])
             if not title:
                 continue
-            fixes.append(title)
+            fixes.append(remove_dashes(title))
     
     return {"info": {"features": features, "fixes": fixes}}
 
