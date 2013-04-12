@@ -221,6 +221,8 @@ def main():
             "Release of %s nightly build: %s" % (name, tool_config("build_version"))),
                      "Failed to commit nightly release.")
     
+    success("Successfully created Sparkle info for nightly %s" % (BUILD_NR))
+    
     return True
     
 if __name__ == "__main__":
