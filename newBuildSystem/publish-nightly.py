@@ -27,7 +27,7 @@ except ImportError:
 CWD = os.getcwd()
 NIGHTLY_BASE_PATH = os.getenv("NIGHTLY_BUILD_BASE_PATH", "/tmp/gpgtools.org-nightly-releases")
 APPCASTER = "./Dependencies/GPGTools_Core/newBuildSystem/appcaster.py"
-BUILD_SERVER_URL = os.getenv("JENKINS_URL", "http://localhost:8080")
+BUILD_SERVER_URL = os.getenv("JENKINS_BASE_URL", "http://localhost:8080")
 BUILD_JOB_NAME = os.getenv("JOB_NAME")
 BUILD_SERVER_USER = os.getenv("JENKINS_USER")
 BUILD_SERVER_TOKEN = os.getenv("JENKINS_TOKEN")
