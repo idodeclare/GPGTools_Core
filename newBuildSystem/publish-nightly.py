@@ -31,7 +31,7 @@ BUILD_SERVER_URL = os.getenv("JENKINS_BASE_URL", "http://localhost:8080")
 BUILD_JOB_NAME = os.getenv("JOB_NAME")
 BUILD_SERVER_USER = os.getenv("JENKINS_USER")
 BUILD_SERVER_TOKEN = os.getenv("JENKINS_TOKEN")
-BUILD_NR = os.getenv("BUILD_NUMBER")
+BUILD_NR = int(os.getenv("BUILD_NUMBER"))
 BUILD_REVISION = os.getenv("GIT_COMMIT")
 
 E = ElementMaker()
@@ -150,8 +150,7 @@ def fetch_build_revisions(current_build):
                                                                          BUILD_SERVER_TOKEN,
                                                                          BUILD_SERVER_URL), silent=True)
     builds = json.loads(builds_json)
-    build_nr = sorted([b["number"] for b in builds["builds"]])
-    previous_build = build_nr[build_nr.index(current_build)-1]
+    previous_build = builds.get("lastCompletedBuild", {}).get("number", None)
     previous_build = previous_build != current_build and previous_build or None
     
     # Fetch the revision of the previous build.
@@ -219,6 +218,8 @@ def main():
         run_or_error("git commit -m \"%s\"" % (
             "Release of %s nightly build: %s" % (name, tool_config("build_version"))),
                      "Failed to commit nightly release.")
+    
+    return True
     
 if __name__ == "__main__":
     try:
