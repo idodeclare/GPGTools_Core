@@ -72,7 +72,7 @@ def current_git_tag():
     return run("git describe --abbrev=0", silent=True)
 
 def commit_log(from_tag, to_tag):
-    commit_log = run('git log %s --pretty=format:"%s"' % (from_tag and "%s..%s" % (from_tag, to_tag) or "", LOG_FORMAT))
+    commit_log = run('git log %s --pretty=format:"%s"' % (from_tag and "%s..%s" % (from_tag, to_tag) or "", LOG_FORMAT), debug=True)
     return commit_log
 
 def build_release_notes_from_commit_log(commit_log):
