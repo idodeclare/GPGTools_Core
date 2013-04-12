@@ -182,7 +182,7 @@ def preview_release_notes(version, release_notes):
     
     return tempfh
 
-def save_release_notes(release_notes, version):
+def save_release_notes(release_notes, version, batch_mode=False):
     path = os.path.join(CWD, RELEASE_NOTES_FOLDER)
     if not os.path.isdir(path):
         os.mkdir(RELEASE_NOTES_FOLDER)
@@ -195,7 +195,7 @@ def save_release_notes(release_notes, version):
         fp.write(md)
     
     release_notes = None
-    while True:
+    while True and not batch_mode:
         # Open the file in the favorite editor.
         open_in_editor(file_path)
         
@@ -275,7 +275,7 @@ def main():
     
     status("Save release notes to Release Notes/%s.json" % (tool_version))
     
-    save_release_notes(release_notes, tool_version)
+    save_release_notes(release_notes, tool_version, batch_mode=options.batch_mode)
     
     success("Successfully created the release notes!")
     
