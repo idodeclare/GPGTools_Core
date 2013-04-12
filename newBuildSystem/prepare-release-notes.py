@@ -160,7 +160,7 @@ def preview_release_notes(version, release_notes):
             
             <script>
                 var release_notes = '%s'
-                $("#release_notes").val(release_notes)
+                $("#release_notes").val(release_notes.replace("'", "\'"))
                 $("form").submit()
             </script>
         </body>
@@ -172,7 +172,8 @@ def preview_release_notes(version, release_notes):
     # Create a temporary file.
     tempfh = tempfile.NamedTemporaryFile(suffix=".html", delete=False)
     path = tempfh.name
-    tempfh.write(html_template % (preview_url, json.dumps(version_info).replace("'", "\\\'").replace("""\\\"""", """\\\\\"""")))
+    print tempfh.name
+    tempfh.write(html_template % (preview_url, json.dumps(version_info).replace("'", "\\\'").replace("""\\\"""", """\\\\\"""").replace("\\n", "\\\\n")))
     # Write changes to file.
     tempfh.flush()
     
