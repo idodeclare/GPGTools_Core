@@ -145,7 +145,7 @@ def additional_options_from_config(config, options):
     config["appcast_url"] = "%s/%s/%s" % (NIGHTLY_BASE_URL, tool_name, "appcast.xml")
     config["appicon_url"] = "%s/%s/%s" % (NIGHTLY_BASE_URL, tool_name, 
                                         "%s-icon.png" % (tool_name))
-    config["release_notes_url"] = "%s/%s/%s" % (NIGHTLY_BASE_URL, tool_name, "release-notes.html")
+    config["release_notes_url"] = "%s/releases/%s/%s" % (NIGHTLY_BASE_URL, tool_name, "release-notes.html")
     config["url"] = "%s/%s" % (NIGHTLY_DOWNLOAD_BASE_URL, config.get("dmgName"))
     config["minOS"] = "10.6"
     config["title"] = "%s nightly development builds" % (config.get("name"))
