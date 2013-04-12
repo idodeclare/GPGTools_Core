@@ -46,6 +46,7 @@ def parse_options():
     parser.add_option("-t", "--to", dest="to_tag", metavar="TO_TAG", help="The tag which should be used as end tag")
     parser.add_option("-p", "--preview-url", dest="preview_url", metavar="PREVIEW_URL", 
                       help="The URL which is able to preview release notes")
+    parser.add_option("-b", "--batch-mode", dest="batch_mode", action="store_true", default=False)
     (options, args) = parser.parse_args()
     
     if len(args) > 1:
@@ -53,8 +54,13 @@ def parse_options():
         parser.print_usage()
         sys.exit(1)
     
-    options.from_tag = options.from_tag or current_git_tag()
-    if not options.from_tag:
+    current_tag = None
+    try:
+        current_tag = current_git_tag()
+    except:
+        current_tag = ""
+    options.from_tag = options.from_tag or current_tag
+    if options.from_tag is None:
         parser.error("Couldn't find start tag. Please specify one manually")
     options.to_tag = options.to_tag or "HEAD"
     
@@ -66,7 +72,7 @@ def current_git_tag():
     return run("git describe --abbrev=0", silent=True)
 
 def commit_log(from_tag, to_tag):
-    commit_log = run('git log %s..%s --pretty=format:"%s"' % (from_tag, to_tag, LOG_FORMAT))
+    commit_log = run('git log %s --pretty=format:"%s"' % (from_tag and "%s..%s" % (from_tag, to_tag) or "", LOG_FORMAT))
     return commit_log
 
 def build_release_notes_from_commit_log(commit_log):
