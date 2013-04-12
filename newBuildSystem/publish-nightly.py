@@ -153,6 +153,8 @@ def fetch_build_revisions(current_build):
     previous_build = builds.get("lastCompletedBuild", {}).get("number", None)
     previous_build = previous_build != current_build and previous_build or None
     
+    print "Current build: %s - previous build: %s" % (current_build, previous_build)
+    
     # Fetch the revision of the previous build.
     previous_revision = None
     if previous_build is not None:
