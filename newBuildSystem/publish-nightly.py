@@ -170,7 +170,7 @@ def main():
     title("Publishing %s nightly build %s" % (tool_name, tool_config("build_version")))
     
     # Create the nightlies releases dir if it doesn't exist.
-    tool_path = os.path.join(NIGHTLY_BASE_PATH, name)
+    tool_path = os.path.join(NIGHTLY_BASE_PATH, nname(name))
     if not os.path.isdir(tool_path):
         status("Creating nightly releases folder %s" % (tool_path))
         os.makedirs(tool_path)
