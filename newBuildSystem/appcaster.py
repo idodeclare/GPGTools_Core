@@ -9,6 +9,7 @@ or the whole file replaced with only one entry.
 import os, sys
 sys.path.insert(1, os.path.join(os.getcwd(), './Dependencies/GPGTools_Core/python'))
 
+import urllib2
 import time
 
 from optparse import OptionParser, OptionValueError
@@ -147,6 +148,7 @@ def additional_options_from_config(config, options):
                                         "%s-icon.png" % (tool_name))
     config["release_notes_url"] = "%s/releases/%s/%s" % (NIGHTLY_BASE_URL, tool_name, "release-notes.html")
     config["url"] = "%s/%s" % (NIGHTLY_DOWNLOAD_BASE_URL, config.get("dmgName"))
+    config["url"] = "%s/%s" % (NIGHTLY_DOWNLOAD_BASE_URL, urllib2.quote(config.get("dmgName")))
     config["minOS"] = "10.6"
     config["title"] = "%s nightly development builds" % (config.get("name"))
     config["description"] = "Release Notes for the nightly versions of %s" % (config.get("name"))
