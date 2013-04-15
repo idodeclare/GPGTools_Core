@@ -146,14 +146,13 @@ def fetch_build_revisions(current_build):
     Return None as revision, if no previous revision exists.
     """
     current_build = int(current_build)
-    builds_json = run("curl --user %s:%s %s/job/GPGServices/api/json" % (BUILD_SERVER_USER, 
-                                                                         BUILD_SERVER_TOKEN,
-                                                                         BUILD_SERVER_URL), silent=True)
+    builds_json = run("curl --user %s:%s %s/job/%s/api/json" % (BUILD_SERVER_USER, 
+                                                                BUILD_SERVER_TOKEN,
+                                                                BUILD_SERVER_URL,
+                                                                BUILD_JOB_NAME), silent=True)
     builds = json.loads(builds_json)
     previous_build = builds.get("lastCompletedBuild", {}).get("number", None)
     previous_build = previous_build != current_build and previous_build or None
-    
-    print "Current build: %s - previous build: %s" % (current_build, previous_build)
     
     # Fetch the revision of the previous build.
     previous_revision = None
