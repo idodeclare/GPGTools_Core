@@ -215,4 +215,6 @@ echo "Cleaning up..."
 chmod -Rf +w "$tempPath" "$dmgPath" "$pkgPath" "$rmPath" 2>/dev/null
 rm -rf "$tempPath" 2>/dev/null
 
+echo "Finish!"
+
 exit 0
