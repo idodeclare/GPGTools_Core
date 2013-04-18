@@ -46,6 +46,7 @@ def parse_options():
     parser.add_option("-t", "--to", dest="to_tag", metavar="TO_TAG", help="The tag which should be used as end tag")
     parser.add_option("-p", "--preview-url", dest="preview_url", metavar="PREVIEW_URL", 
                       help="The URL which is able to preview release notes")
+    parser.add_option("-b", "--batch-mode", dest="batch_mode", action="store_true", default=False)
     (options, args) = parser.parse_args()
     
     if len(args) > 1:
@@ -53,8 +54,13 @@ def parse_options():
         parser.print_usage()
         sys.exit(1)
     
-    options.from_tag = options.from_tag or current_git_tag()
-    if not options.from_tag:
+    current_tag = None
+    try:
+        current_tag = current_git_tag()
+    except:
+        current_tag = ""
+    options.from_tag = options.from_tag or current_tag
+    if options.from_tag is None:
         parser.error("Couldn't find start tag. Please specify one manually")
     options.to_tag = options.to_tag or "HEAD"
     
@@ -66,7 +72,7 @@ def current_git_tag():
     return run("git describe --abbrev=0", silent=True)
 
 def commit_log(from_tag, to_tag):
-    commit_log = run('git log %s..%s --pretty=format:"%s"' % (from_tag, to_tag, LOG_FORMAT))
+    commit_log = run('git log %s --pretty=format:"%s"' % (from_tag and "%s..%s" % (from_tag, to_tag) or "", LOG_FORMAT))
     return commit_log
 
 def build_release_notes_from_commit_log(commit_log):
@@ -105,6 +111,9 @@ def build_release_notes_from_commit_log(commit_log):
         elif is_fix:
             temp_fixes.append({"title": title, "body": None})
     
+    def remove_dashes(line):
+        return re.sub(r"^\s*-\s*", r"", line)
+    
     features = []
     fixes = []
     
@@ -114,25 +123,28 @@ def build_release_notes_from_commit_log(commit_log):
         for entry in temp_discarded:
             if entry["body"]:
                 features.append({"title": entry["title"], 
-                                 "description": [x.strip() for x in entry["body"].split("\n")]})
+                                 "description": [remove_dashes(x.strip()) for x in entry["body"].split("\n")]})
             else:
                 line = "%s%s" % (entry["title"], entry["body"] and "\n\n%s" % entry["body"] or "")
                 # Strip white space from each line.
-                line = "\n".join([x.strip() for x in line.split("\n")])
-                fixes.append(line)
+                line = "\n".join([remove_dashes(x.strip()) for x in line.split("\n")])
+                if line:
+                    fixes.append(line)
     else:
         for entry in temp_features:
             # Find the prefix and replace it.
             prefix = ["[%s]" % prefix for prefix in FEATURE_PREFIXES if entry["title"].find("[%s]" % prefix) != -1][0]
             title = re.sub(r"^\s*%s\s*" % (re.escape(prefix)), r"", entry["title"])
-            description = [x.strip() for x in entry["body"].split("\n")]
+            description = [remove_dashes(x.strip()) for x in entry["body"].split("\n")]
             features.append({"title": title, "description": description})
         
         for entry in temp_fixes:
             # Find the prefix and replace it.
             prefix = ["[%s]" % prefix for prefix in FIX_PREFIXES if entry["title"].find("[%s]" % prefix) != -1][0]
             title = re.sub(r"^\s*%s\s*" % (re.escape(prefix)), r"", entry["title"])
-            fixes.append(title)
+            if not title:
+                continue
+            fixes.append(remove_dashes(title))
     
     return {"info": {"features": features, "fixes": fixes}}
 
@@ -151,7 +163,7 @@ def preview_release_notes(version, release_notes):
             
             <script>
                 var release_notes = '%s'
-                $("#release_notes").val(release_notes)
+                $("#release_notes").val(release_notes.replace("'", "\'"))
                 $("form").submit()
             </script>
         </body>
@@ -163,7 +175,8 @@ def preview_release_notes(version, release_notes):
     # Create a temporary file.
     tempfh = tempfile.NamedTemporaryFile(suffix=".html", delete=False)
     path = tempfh.name
-    tempfh.write(html_template % (preview_url, json.dumps(version_info).replace("'", "\\\'").replace("""\\\"""", """\\\\\"""")))
+    print tempfh.name
+    tempfh.write(html_template % (preview_url, json.dumps(version_info).replace("'", "\\\'").replace("""\\\"""", """\\\\\"""").replace("\\n", "\\\\n")))
     # Write changes to file.
     tempfh.flush()
     
@@ -172,7 +185,7 @@ def preview_release_notes(version, release_notes):
     
     return tempfh
 
-def save_release_notes(release_notes, version):
+def save_release_notes(release_notes, version, batch_mode=False):
     path = os.path.join(CWD, RELEASE_NOTES_FOLDER)
     if not os.path.isdir(path):
         os.mkdir(RELEASE_NOTES_FOLDER)
@@ -185,7 +198,7 @@ def save_release_notes(release_notes, version):
         fp.write(md)
     
     release_notes = None
-    while True:
+    while True and not batch_mode:
         # Open the file in the favorite editor.
         open_in_editor(file_path)
         
@@ -265,7 +278,7 @@ def main():
     
     status("Save release notes to Release Notes/%s.json" % (tool_version))
     
-    save_release_notes(release_notes, tool_version)
+    save_release_notes(release_notes, tool_version, batch_mode=options.batch_mode)
     
     success("Successfully created the release notes!")
     

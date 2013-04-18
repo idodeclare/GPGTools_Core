@@ -9,6 +9,7 @@ or the whole file replaced with only one entry.
 import os, sys
 sys.path.insert(1, os.path.join(os.getcwd(), './Dependencies/GPGTools_Core/python'))
 
+import urllib2
 import time
 
 from optparse import OptionParser, OptionValueError
@@ -80,7 +81,7 @@ def parse_options():
     
     return (options, args)
 
-NIGHTLY_BASE_URL = "https://nightly.gpgtools.org/releases"
+NIGHTLY_BASE_URL = "https://nightly.gpgtools.org"
 NIGHTLY_DOWNLOAD_BASE_URL = NIGHTLY_BASE_URL
 CWD = os.getcwd()
 NAMESPACES = {"atom": "http://www.w3.org/2005/Atom", 
@@ -142,11 +143,11 @@ def add_release(root, url, length, version, shortVersion, title, releaseNotes, m
 
 def additional_options_from_config(config, options):
     tool_name = config["name"].lower()
-    config["appcast_url"] = "%s/%s/%s" % (NIGHTLY_BASE_URL, tool_name, "appcast.xml")
-    config["appicon_url"] = "%s/%s/%s" % (NIGHTLY_BASE_URL, tool_name, 
-                                        "%s-icon.png" % (tool_name))
-    config["release_notes_url"] = "%s/%s/%s" % (NIGHTLY_BASE_URL, tool_name, "release-notes.html")
-    config["url"] = "%s/%s" % (NIGHTLY_DOWNLOAD_BASE_URL, config.get("dmgName"))
+    config["appcast_url"] = "%s/%s/%s" % (NIGHTLY_BASE_URL, nname(tool_name), "appcast.xml")
+    config["appicon_url"] = "%s/%s/%s" % (NIGHTLY_BASE_URL, nname(tool_name), 
+                                        "%s-icon.png" % (nname(tool_name)))
+    config["release_notes_url"] = "%s/releases/%s/%s" % (NIGHTLY_BASE_URL, nname(tool_name), "release-notes.html")
+    config["url"] = "%s/%s" % (NIGHTLY_DOWNLOAD_BASE_URL, urllib2.quote(config.get("dmgName")))
     config["minOS"] = "10.6"
     config["title"] = "%s nightly development builds" % (config.get("name"))
     config["description"] = "Release Notes for the nightly versions of %s" % (config.get("name"))

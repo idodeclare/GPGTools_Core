@@ -613,5 +613,8 @@ def nname(name):
     
     Remove any spaces and replace them with - and lower case it.
     """
+    special = "gpg keychain access"
+    if name.lower() in [special, special.replace(" ", "")]:
+        return "gka"
     return name.replace(" ", "-").lower()
 
