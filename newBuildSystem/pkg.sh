@@ -63,24 +63,37 @@ while [[ -n "${pkgProj_names[$((++i))]}" ]] ;do
 	# Version und commit-hash ersetzen.
 	sed "s/$verString/$appVersion/g;s/$buildString/$commitHash/g" "$origPkgProj" > "$pkgProj"
 
-	# Signing informationen in das pkgproj schreiben oder entfernen.
+
+	# Signing informationen aus dem pkgproj entfernen.
 	xmlPath="PROJECT:PROJECT_SETTINGS:CERTIFICATE"
 	/usr/libexec/PlistBuddy -c "delete $xmlPath" "$pkgProj" 2>/dev/null
+
+
+	echo "Building '$pkgProj'..."
+	"$pkgBin" "$pkgProj" ||
+		errExit "Build of '$pkgProj' failed.  Aborting."
+
+	# pkg signieren.
 	if [[ "$PKG_SIGN" == "1" ]] ;then
 		keychain=$(security find-certificate -c "$certNameInst" | sed -En 's/^keychain: "(.*)"/\1/p')
 		[[ -n "$keychain" ]] ||
 			errExit "I require certificate '$certNameInst' but it can't be found.  Aborting."
 
-		/usr/libexec/PlistBuddy -c "add $xmlPath dict" -c "add $xmlPath:NAME string '$certNameInst'" -c "add $xmlPath:PATH string '$keychain'" "$pkgProj"
-
+		# Auskommentiert da direkt signiert wird, um mit 10.6 kompatibel zu sein.
+		#/usr/libexec/PlistBuddy -c "add $xmlPath dict" -c "add $xmlPath:NAME string '$certNameInst'" -c "add $xmlPath:PATH string '$keychain'" "$pkgProj"
+		
 		# Unlock the keychain before using it if a password is given.
 		[[ -n "$UNLOCK_PWD" ]] &&
 			security unlock-keychain -p "$UNLOCK_PWD" "$keychain"
+
+		# Sign the package
+		/usr/bin/productsign --sign "$certNameInst" --keychain "$keychain" "$pkgPath" "$pkgPathSigned"
+		# Check if the signing was successful.
+		/usr/sbin/pkgutil --check-signature $pkgPathSigned >/dev/null || errExit "Failed to sign $pkgPath."
+		# Replace original package with the signed package.
+		mv -f "$pkgPathSigned" "$pkgPath"
 	fi
 
-	echo "Building '$pkgProj'..."
-	"$pkgBin" "$pkgProj" ||
-		errExit "Build of '$pkgProj' failed.  Aborting."
 	
 	# Version als extended attribute setzen, damit das Abfragen der Version einfacher fällt.
 	xattr -w org.gpgtools.version "$appVersion" "$pkgPath"
