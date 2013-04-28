@@ -10,6 +10,10 @@ ifeq ($(findstring deploy, $(MAKECMDGOALS)), deploy)
         export PKG_SIGN = 1
 endif
 
+ifdef NEED_LIBMACGPG
+	LIBMACGPG = Dependencies/Libmacgpg
+endif
+
 
 CONFIG ?= Release
 VPATH ?= build/Release
@@ -61,11 +65,16 @@ endif
 
 
 
+ifdef NEED_LIBMACGPG
+.PRECIOUS: $(LIBMACGPG)
+$(LIBMACGPG):
+	@bash -c "$$(curl -fsSL https://raw.github.com/GPGTools/GPGTools_Core/master/newBuildSystem/prepare-libmacgpg.sh)"
+endif
 
 clean-pkg:
 	@rm -rf ./build/*.pkg*
 
-clean-libmacgpg:
+clean-libmacgpg: $(LIBMACGPG)
 	$(MAKE) -C Dependencies/Libmacgpg clean-all
 
 clean-all: clean
@@ -73,7 +82,7 @@ clean-all: clean
 pkg-core: compile
 	@./Dependencies/GPGTools_Core/newBuildSystem/pkg-core.sh
 
-pkg-libmacgpg:
+pkg-libmacgpg: $(LIBMACGPG)
 	$(MAKE) -C Dependencies/Libmacgpg pkg-core
 
 pkg: pkg-core
@@ -96,7 +105,7 @@ update-me:
 update-core:
 	$(MAKE) -C Dependencies/GPGTools_Core update
 
-update-libmacgpg:
+update-libmacgpg: $(LIBMACGPG)
 	$(MAKE) -C Dependencies/Libmacgpg update
 
 update: update-me update-core
@@ -114,7 +123,7 @@ release-minor:
 
 release-major:
 	@./Dependencies/GPGTools_Core/newBuildSystem/prepare-release.py --major
-    
+
 release-custom:
 	@./Dependencies/GPGTools_Core/newBuildSystem/prepare-release.py --custom
 
