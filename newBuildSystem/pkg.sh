@@ -45,16 +45,17 @@ command -v "$pkgBin" >/dev/null 2>&1 ||
 
 i=-1
 while [[ -n "${pkgProj_names[$((++i))]}" ]] ;do
-	pkgProj="$buildDir/${pkgProj_names[$i]}"
-	origPkgProj="$pkgProj_dir/${pkgProj_names[$i]}"
-	pkgPath="build/${pkgNames[$i]}"
-	pkgPathSigned="${pkgPath}.signed"
+	tPkgName=${pkgNames[$i]}
+	tPkgProjName=${pkgProj_names[$i]}
+	pkgProj=$buildDir/$tPkgProjName
+	origPkgProj=$pkgProj_dir/$tPkgProjName
+	pkgPath=$buildDir/$tPkgName
+	pkgPathSigned=${pkgPath}.signed
 
 	[[ -f "$origPkgProj" ]] ||
 		errExit "I require file '$origPkgProj' but it does not exist.  Aborting."
 
 	# pkg nicht neubauen wenn es schon existiert und die Version übereinstimmt.
-	pkgPath="$buildDir/${pkgNames[$i]}"
 	if [[ -f "$pkgPath" ]] ;then
 		pkgVersion=$(xattr -p org.gpgtools.version "$pkgPath" 2>/dev/null)
 		[[ "$pkgVersion" == "$appVersion" ]] && continue
@@ -72,6 +73,26 @@ while [[ -n "${pkgProj_names[$((++i))]}" ]] ;do
 	echo "Building '$pkgProj'..."
 	"$pkgBin" "$pkgProj" ||
 		errExit "Build of '$pkgProj' failed.  Aborting."
+		
+
+	if [[ "$tPkgName" =~ 'Core' ]] ;then
+		# Force upgrading instead of updating. See pkgbuild(1) BundleOverwriteAction.
+		pkgTemp=${pkgPath}temp
+		rm -rf "$pkgTemp"
+		mkdir "$pkgTemp"
+		xar -x -C "$pkgTemp" -f "$pkgPath" ||
+			errExit "Unable to extract pkg.  Aborting."
+
+		bundleId=$(sed -En '/.*<bundle .*id="([^"]*)".*/{s//\1/;p;q;}' "$pkgTemp/PackageInfo")
+		if [[ -n "$bundleId" ]] ;then
+			sed -i '' -E 's#</pkg-info>#<upgrade-bundle><bundle id="'"$bundleId"'"/></upgrade-bundle></pkg-info>#' "$pkgTemp/PackageInfo" ||
+				errExit "Unable to fix PackageInfo.  Aborting."
+
+			pkgutil --flatten "$pkgTemp" "$pkgPath" ||
+				errExit "pkgutil --flatten failed.  Aborting."
+		fi
+	fi
+
 
 	# pkg signieren.
 	if [[ "$PKG_SIGN" == "1" ]] ;then
