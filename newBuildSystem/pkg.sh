@@ -100,9 +100,6 @@ while [[ -n "${pkgProj_names[$((++i))]}" ]] ;do
 		[[ -n "$keychain" ]] ||
 			errExit "I require certificate '$certNameInst' but it can't be found.  Aborting."
 
-		# Auskommentiert da direkt signiert wird, um mit 10.6 kompatibel zu sein.
-		#/usr/libexec/PlistBuddy -c "add $xmlPath dict" -c "add $xmlPath:NAME string '$certNameInst'" -c "add $xmlPath:PATH string '$keychain'" "$pkgProj"
-		
 		# Unlock the keychain before using it if a password is given.
 		[[ -n "$UNLOCK_PWD" ]] &&
 			security unlock-keychain -p "$UNLOCK_PWD" "$keychain"
