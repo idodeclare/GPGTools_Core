@@ -471,7 +471,7 @@ def run(cmd, silent=False, debug=False):
         print "$# %s" % (" ".join(cmd))
     
     return check_output(cmd, **kwargs).strip()
-
+    
 def run_or_error(cmd, error_msg, silent=False, debug=False):
     try:
         return run(cmd, silent=silent, debug=debug).strip()
@@ -480,7 +480,7 @@ def run_or_error(cmd, error_msg, silent=False, debug=False):
             if isinstance(e, OSError):
                 cmd_error = e.message
             else:
-                cmd_error = e.error or ""
+                cmd_error = e.error and e.error or (e.output and e.output or "")
             error_msg = error_msg % (cmd_error)
         
         error_msg = debug and "%s\n%s" % (error_msg, traceback.format_exc()) or "%s" % (error_msg)
