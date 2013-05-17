@@ -14,6 +14,7 @@ parseConfig
 
 echo "Remove old disk images..."
 shopt -s extglob # Erweiterte Pfadnamen-Muster
+name=${dmgNamePrefix:-$name}
 rm -f "$1/$name-"+([0-9])n.dmg
 
 echo "Copying '$dmgPath' to '$1/$dmgName'..."
