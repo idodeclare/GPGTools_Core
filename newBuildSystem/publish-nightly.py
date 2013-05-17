@@ -170,7 +170,7 @@ def main():
     
     # TOOL_ALT_NAME allows to specify an alternative name for the tool,
     # which is required for example for GPGMail to support various OS X versions.
-    alt_name = os.environ.get("ALT_TOOL_NAME", nname(name)).lower()
+    alt_name = os.environ.get("TOOL_ALT_NAME", nname(name)).lower()
     
     # Create the nightlies releases dir if it doesn't exist.
     tool_path = os.path.join(NIGHTLY_BASE_PATH, alt_name)
