@@ -234,9 +234,10 @@ class CommandLine(object):
         return path
     
     def __exit__(self, type, value, exc_traceback):
-        traceback.print_tb(exc_traceback)
         self.popPath()
-        return True
+        # Forward any exceptions by returning False. return True would swallow
+        # the exception.
+        return False
 
 class Package(CommandLine):
     tool = "/usr/sbin/installer"
