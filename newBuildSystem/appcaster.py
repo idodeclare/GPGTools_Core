@@ -143,7 +143,7 @@ def add_release(root, url, length, version, shortVersion, title, releaseNotes, m
 
 def additional_options_from_config(config, options):
     tool_name = config["name"].lower()
-    name = os.environ("TOOL_ALT_NAME", nname(tool_name))
+    name = os.environ.get("TOOL_ALT_NAME", nname(tool_name)).lower()
     config["appcast_url"] = "%s/%s/%s" % (NIGHTLY_BASE_URL, name, "appcast.xml")
     config["appicon_url"] = "%s/%s/%s" % (NIGHTLY_BASE_URL, name, 
                                         "%s-icon.png" % (nname(tool_name)))

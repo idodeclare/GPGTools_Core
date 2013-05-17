@@ -168,8 +168,12 @@ def main():
     
     title("Publishing %s nightly build %s" % (tool_name, tool_config("build_version")))
     
+    # TOOL_ALT_NAME allows to specify an alternative name for the tool,
+    # which is required for example for GPGMail to support various OS X versions.
+    alt_name = os.environ.get("ALT_TOOL_NAME", nname(name)).lower()
+    
     # Create the nightlies releases dir if it doesn't exist.
-    tool_path = os.path.join(NIGHTLY_BASE_PATH, nname(name))
+    tool_path = os.path.join(NIGHTLY_BASE_PATH, alt_name)
     if not os.path.isdir(tool_path):
         status("Creating nightly releases folder %s" % (tool_path))
         os.makedirs(tool_path)
@@ -217,8 +221,8 @@ def main():
         run_or_error("git add %s" % (path_to_script(release_notes_path.replace("%s/" % (NIGHTLY_BASE_PATH), ""))),
                      "Failed to check in release-notes.html\n%s")
         run_or_error("git commit -m \"%s\"" % (
-            "Release of %s nightly build: %s" % (name, tool_config("build_version"))),
-                     "Failed to commit nightly release.")
+            "Release of %s nightly build: %s" % (tool_name, tool_config("build_version"))),
+                     "Failed to commit nightly release.\n%s")
     
     success("Successfully created Sparkle info for nightly %s" % (BUILD_NR))
     
