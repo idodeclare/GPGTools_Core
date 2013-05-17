@@ -159,7 +159,7 @@ def additional_options_from_config(config, options):
         filesize = stat.st_size
         config["filesize"] = filesize
     except Exception, e:
-         error("Failed to determine release disk image file size\nError: " % (e))
+         error("Failed to determine release disk image file size\nError: %s" % (e))
     
     options_to_override = dict([(k,v) for k, v in options.__dict__.iteritems() if v != None])
     config.update(options_to_override)
