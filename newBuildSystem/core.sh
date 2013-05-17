@@ -57,10 +57,13 @@ function parseConfig() {
 	pkgProj_name=${pkgProj_name:-${name}.pkgproj}
 	pkgName=${pkgName:-${name}.pkg}
 	pkgPath=$buildDir/$pkgName
+	# Allows to specify an alternative tool name for the dmg.
+	# Necessary for GPGMail to cover different iOS versions.
+	dmgNamePrefix=${dmgNamePrefix:-$name}
 	if $isMasterBranch ;then
-		dmgName=${dmgName:-$name-$hrVersion.dmg}
+		dmgName=${dmgName:-$dmgNamePrefix-$hrVersion.dmg}
 	else
-		dmgName=${dmgName:-$name-$appVersion.dmg}
+		dmgName=${dmgName:-$dmgNamePrefix-$appVersion.dmg}
 	fi
 	dmgPath=${dmgPath:-build/$dmgName}
 	volumeName=${volumeName:-$name}
