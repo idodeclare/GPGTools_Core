@@ -276,7 +276,7 @@ def main():
     
     release_notes = build_release_notes_from_commit_log(log)
     
-    status("Save release notes to Release Notes/%s.json" % (tool_version))
+    status("Save release notes to Release Notes/%s.md" % (tool_version))
     
     save_release_notes(release_notes, tool_version, batch_mode=options.batch_mode)
     

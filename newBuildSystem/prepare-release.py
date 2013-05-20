@@ -343,7 +343,7 @@ def find_release_notes(version):
     
     Optionally allows the developer to create one automatically.
     """
-    release_notes_path = "%s/%s.json" % (RELEASE_NOTES_FOLDER_PATH, format_version(version))
+    release_notes_path = "%s/%s.md" % (RELEASE_NOTES_FOLDER_PATH, format_version(version))
     
     if not os.path.isfile(release_notes_path):
         return None
@@ -351,7 +351,7 @@ def find_release_notes(version):
     return release_notes_path
 
 def release_notes_file(version):
-    return "%s/%s.json" % (RELEASE_NOTES_FOLDER_PATH, format_version(version))
+    return "%s/%s.md" % (RELEASE_NOTES_FOLDER_PATH, format_version(version))
 
 def update_version(version):
     """Write the new version to the Makefile.config file."""
