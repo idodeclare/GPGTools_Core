@@ -41,8 +41,12 @@ done
 
 
 if [[ -z "$currentRepo" ]] ;then
-	echo "No git repo found. Aborting"
-	exit 1
+	currentRepo="$PWD"
+	if [[ ! -d "$currentRepo/Dependencies" ]] ;then
+		echo "No git repo and no Dependencies dir found. Aborting"
+		exit 1
+	fi
+	topRepo=$currentRepo
 fi
 
 if [[ -z "$coreRepo" ]] ;then
@@ -56,7 +60,8 @@ if [[ -d "$depsDir" ]] ;then
 	ln -Fs "$relPath" "$depsDir/"
 fi
 
-cd "$currentRepo"
-git submodule foreach 'make -q init 2>/dev/null && make init ||:'
-
+if [[ -e "$currentRepo/.git" ]] ;then
+	cd "$currentRepo"
+	git submodule foreach 'make -q init 2>/dev/null && make init ||:'
+fi
 
