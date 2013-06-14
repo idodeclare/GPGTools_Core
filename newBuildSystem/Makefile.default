@@ -1,6 +1,6 @@
 # Enthält die standard Targets. Wird in den Makefiles per include eingebunden.
 
-XCCONFIG = ""
+XCCONFIG=
 ifeq ("$(CODE_SIGN)","1")
     XCCONFIG=-xcconfig Dependencies/GPGTools_Core/make/code-signing.xcconfig
 endif
