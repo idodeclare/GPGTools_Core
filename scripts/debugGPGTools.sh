@@ -134,6 +134,17 @@ gpg2 -aes --default-recipient-self <<<"test"
 echo "========================================================================="
 
 
+echo -e "\n*** Testing pinentry...\n========================================================================="
+pinentry=$(perl -ne '/pinentry-program[ \t]+(.*?)[ \t]*$/ and print $1 and exit' < $GNUPG_DIR/gpg-agent.conf)
+pinentrys=(${pinentry:+"$pinentry"} {/usr/local/MacGPG2/libexec,/Library/Frameworks/Libmacgpg.framework/Resources}/pinentry-mac.app/Contents/MacOS/pinentry-mac)
+
+for pinentry in "${pinentrys[@]}" ;do
+	echo "Test '$pinentry'"
+	"$pinentry" <<< ""
+done
+echo "========================================================================="
+
+
 echo -e "\n*** Showing installed mail bundles...\n========================================================================="
 echo "  * /L/M/B:"
 ls -lad /Library/Mail/Bundles*
