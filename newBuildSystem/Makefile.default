@@ -85,8 +85,6 @@ libmacgpg-if-needed:
 
 $(PRODUCT): libmacgpg-if-needed
 
-compile: libmacgpg-if-needed
-
 update: update-libmacgpg
 
 pkg: pkg-libmacgpg
