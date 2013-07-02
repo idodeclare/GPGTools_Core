@@ -18,6 +18,13 @@ ifndef PRODUCT
 	PRODUCT = simple-compile
 endif
 
+ifeq ($(USER),root)
+	INSTALL_ROOT = /
+else
+	INSTALL_ROOT = "$$HOME/"
+endif
+
+
 CONFIG ?= Release
 VPATH ?= build/Release
 
