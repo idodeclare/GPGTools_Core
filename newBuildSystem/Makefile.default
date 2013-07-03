@@ -11,7 +11,7 @@ ifeq ($(findstring deploy, $(MAKECMDGOALS)), deploy)
 endif
 
 ifdef NEED_LIBMACGPG
-	LIBMACGPG = Dependencies/Libmacgpg
+	LIBMACGPG_REPO = Dependencies/Libmacgpg
 endif
 
 ifndef PRODUCT
@@ -24,9 +24,12 @@ else
 	INSTALL_ROOT = "$$HOME/"
 endif
 
+SCRIPTS_DIR = ./Dependencies/GPGTools_Core/newBuildSystem
 
 CONFIG ?= Release
 VPATH ?= build/Release
+
+
 
 
 all: compile
@@ -34,19 +37,25 @@ all: compile
 help:
 	@echo "compile          - compile the sources"
 	@echo "install          - install the product"
-	@echo "clean            - remove old generated files"
-	@echo "clean-pkg        - remove old generated pkg's"
-	@echo "clean-libmacgpg  - remove old libmacgpg files"
+	@echo "clean            - remove generated files"
+	@echo "clean-pkg        - remove generated pkg's"
+ifdef NEED_LIBMACGPG
+	@echo "clean-libmacgpg  - remove libmacgpg files"
+endif
+	@echo "clean-all        - remove all generated files"
 	@echo "update           - update all sources"
 	@echo "update-me        - update the sources"
 	@echo "update-core      - update the core dependency"
+ifdef NEED_LIBMACGPG
 	@echo "update-libmacgpg - update libmacgpg dependency"
+endif
 	@echo "pkg              - generate main pkg"
 	@echo "pkg-core         - generate core pkg"
+ifdef NEED_LIBMACGPG
 	@echo "pkg-libmacgpg    - generate libmacgpg pkg"
-	@echo "dmg              - generate final dmg"
-	@echo "signed-dmg       - generate signed dmg"
-	@echo "gpg-sig          - sign with gpg"
+endif
+	@echo "dmg              - generate dmg"
+	@echo "gpg-sig          - sign dmg with gpg"
 	@echo "uninstaller-sig  - sign uninstaller"
 #	@echo "pkg-prepare-for-installer - copy the created core package into a specified folder
 	@echo "release-patch"   - release a new patch version
@@ -55,18 +64,59 @@ help:
 	@echo "release-custom"  - release a custom version where the exact version is specified.
 	@echo "release" 		- alias for release custom
 	@echo "release-notes version=<version>" - create a release notes file
+	@echo "CODE_SIGN=1      - enable code signing"
+	@echo "PKG_SIGN=1       - enable pkg  signing"
+
 
 test:
 	@xcodebuild -project $(PROJECT).xcodeproj -target $(TEST_TARGET) -configuration $(CONFIG) build 
 
 ifeq ("$(wildcard $(PROJECT).xcodeproj)", "")
+
 clean:
 	@rm -rf ./build/*
 else
 clean:
 	@xcodebuild -project $(PROJECT).xcodeproj -target $(TARGET) -configuration $(CONFIG) clean > /dev/null
 	@rm -rf ./build/*
+	
 endif
+
+
+
+ifdef NEED_LIBMACGPG
+
+.PRECIOUS: $(LIBMACGPG_REPO) Libmacgpg
+
+$(LIBMACGPG_REPO):
+	@echo "Prepare Libmacgpg"
+	@bash -c "$$(curl -fsSL https://raw.github.com/GPGTools/GPGTools_Core/master/newBuildSystem/prepare-libmacgpg.sh)"
+
+
+VPATH += :/Library/Frameworks/Libmacgpg.framework/Versions/Current:$(HOME)/Library/Frameworks/Libmacgpg.framework/Versions/Current:Dependencies/Libmacgpg/build/$(CONFIG)/Libmacgpg.framework/Versions/Current
+
+Libmacgpg: $(LIBMACGPG_REPO)
+	@"$(MAKE)" -C Dependencies/Libmacgpg compile
+
+$(PRODUCT): Libmacgpg
+
+update: update-libmacgpg
+
+update-libmacgpg: $(LIBMACGPG_REPO)
+	"$(MAKE)" -C Dependencies/Libmacgpg update
+
+pkg: pkg-libmacgpg
+
+pkg-libmacgpg: $(LIBMACGPG_REPO)
+	"$(MAKE)" -C Dependencies/Libmacgpg pkg-core
+
+clean-all: clean-libmacgpg
+
+clean-libmacgpg: $(LIBMACGPG_REPO)
+	"$(MAKE)" -C Dependencies/Libmacgpg clean-all
+
+endif
+
 
 
 simple-compile:
@@ -75,98 +125,62 @@ simple-compile:
 compile: $(PRODUCT)
 
 
-ifdef NEED_LIBMACGPG
-.PRECIOUS: $(LIBMACGPG)
-$(LIBMACGPG):
-	@echo "Prepare Libmacgpg"
-	@bash -c "$$(curl -fsSL https://raw.github.com/GPGTools/GPGTools_Core/master/newBuildSystem/prepare-libmacgpg.sh)"
-
-libmacgpg: $(LIBMACGPG)
-	@"$(MAKE)" -C Dependencies/Libmacgpg compile
-
-libmacgpg-if-needed:
-	@[[ -x /Library/Frameworks/Libmacgpg.framework/Libmacgpg || \
-	  -x "$$HOME/Library/Frameworks/Libmacgpg.framework/Libmacgpg" || \
-	  -x "Dependencies/Libmacgpg/build/$(CONFIG)/Libmacgpg.framework/Libmacgpg" ]] || \
-	  "$(MAKE)" libmacgpg
-
-$(PRODUCT): libmacgpg-if-needed
-
-update: update-libmacgpg
-
-pkg: pkg-libmacgpg
-
-clean-all: clean-libmacgpg
-endif
-
-
-
-
-
 clean-pkg:
 	@rm -rf ./build/*.pkg*
-
-clean-libmacgpg: $(LIBMACGPG)
-	"$(MAKE)" -C Dependencies/Libmacgpg clean-all
 
 clean-all: clean
 
 pkg-core: compile
-	@./Dependencies/GPGTools_Core/newBuildSystem/pkg-core.sh
-
-pkg-libmacgpg: $(LIBMACGPG)
-	"$(MAKE)" -C Dependencies/Libmacgpg pkg-core
+	@$(SCRIPTS_DIR)/pkg-core.sh
 
 pkg: pkg-core
-	@./Dependencies/GPGTools_Core/newBuildSystem/pkg.sh
+	@$(SCRIPTS_DIR)/pkg.sh
 
 dmg: pkg
-	@./Dependencies/GPGTools_Core/newBuildSystem/dmg.sh
+	@$(SCRIPTS_DIR)/dmg.sh
 
 gpg-sig: dmg
-	@./Dependencies/GPGTools_Core/newBuildSystem/gpgSig.sh
+	@$(SCRIPTS_DIR)/gpgSig.sh
 
 uninstaller-sig:
-	@./Dependencies/GPGTools_Core/newBuildSystem/uninstallerSig.sh
+	@$(SCRIPTS_DIR)/uninstallerSig.sh
 	
 signed-dmg: gpg-sig
 
 update-me:
-	@./Dependencies/GPGTools_Core/newBuildSystem/update.sh
+	@$(SCRIPTS_DIR)/update.sh
 
 update-core:
 	"$(MAKE)" -C Dependencies/GPGTools_Core update
-
-update-libmacgpg: $(LIBMACGPG)
-	"$(MAKE)" -C Dependencies/Libmacgpg update
 
 update: update-me update-core
 
 # Special target for copying the created core package into a specified folder.
 pkg-prepare-for-installer: pkg-core
-	@./Dependencies/GPGTools_Core/newBuildSystem/pkg-prepare-for-installer.sh $(CORE_PKG_DIR) $(PROJECT) $(ALT_NAME)
+	@$(SCRIPTS_DIR)/pkg-prepare-for-installer.sh $(CORE_PKG_DIR) $(PROJECT) $(ALT_NAME)
 
 # Targets to create new release
 release-patch:
-	@./Dependencies/GPGTools_Core/newBuildSystem/prepare-release.py --patch
+	@$(SCRIPTS_DIR)/prepare-release.py --patch
 
 release-minor:
-	@./Dependencies/GPGTools_Core/newBuildSystem/prepare-release.py --minor
+	@$(SCRIPTS_DIR)/prepare-release.py --minor
 
 release-major:
-	@./Dependencies/GPGTools_Core/newBuildSystem/prepare-release.py --major
+	@$(SCRIPTS_DIR)/prepare-release.py --major
 
 release-custom:
-	@./Dependencies/GPGTools_Core/newBuildSystem/prepare-release.py --custom
+	@$(SCRIPTS_DIR)/prepare-release.py --custom
 
 release:
-	@./Dependencies/GPGTools_Core/newBuildSystem/prepare-release.py --custom
+	@$(SCRIPTS_DIR)/prepare-release.py --custom
 
 deploy: dmg
-	@./Dependencies/GPGTools_Core/newBuildSystem/deploy-release.py ${name}-${version}
+	@$(SCRIPTS_DIR)/deploy-release.py ${name}-${version}
 
 upload-to-aws:
-	@./Dependencies/GPGTools_Core/newBuildSystem/aws-upload.py "${file}"
+	@$(SCRIPTS_DIR)/aws-upload.py "${file}"
 
 release-notes:
-	@./Dependencies/GPGTools_Core/newBuildSystem/prepare-release-notes.py ${version}
+	@$(SCRIPTS_DIR)/prepare-release-notes.py ${version}
+
