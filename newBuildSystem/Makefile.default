@@ -75,14 +75,20 @@ ifeq ("$(wildcard $(PROJECT).xcodeproj)", "")
 
 clean:
 	@rm -rf ./build/*
+
+else ifneq ("$(SCHEME)", "")
+
+clean:
+	@xcodebuild -project $(PROJECT).xcodeproj -scheme "$(SCHEME)" -configuration $(CONFIG) clean > /dev/null
+	@rm -rf ./build/*
+
 else
+
 clean:
 	@xcodebuild -project $(PROJECT).xcodeproj -target $(TARGET) -configuration $(CONFIG) clean > /dev/null
 	@rm -rf ./build/*
-	
+
 endif
-
-
 
 ifdef NEED_LIBMACGPG
 
