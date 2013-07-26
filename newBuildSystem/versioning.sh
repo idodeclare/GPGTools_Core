@@ -11,9 +11,12 @@
 
 
 [[ "$(git symbolic-ref -q HEAD)" == "refs/heads/master" ]] && isMasterBranch=true || isMasterBranch=false
+
 # Allow an optional name for the master branch in order
 # to be able to test releases.
-[[ "$MASTER_TEST_BRANCH" != "" && "$(git symbolic-ref -q HEAD)" == "refs/heads/$MASTER_TEST_BRANCH" ]] && isMasterBranch=true || isMasterBranch=false
+if [[ "$MASTER_TEST_BRANCH" != "" ]] ;then
+	[[ "$(git symbolic-ref -q HEAD)" == "refs/heads/$MASTER_TEST_BRANCH" ]] && isMasterBranch=true || isMasterBranch=false
+fi
 
 buildNumber=${BUILD_NUMBER:-0}
 repoDirtyState=$(test -z "$(git status --porcelain)" || echo "+")
