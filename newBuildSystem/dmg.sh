@@ -20,18 +20,18 @@ function unmount() {
 echo "Setting configuration parameter..."
 setIcon="$coreDir/bin/setfileicon"
 iconDmg="$coreDir/images/icon_dmg.icns"
-iconTrash="$coreDir/images/icon_uninstaller.icns"
+#iconTrash="$coreDir/images/icon_uninstaller.icns"
 iconInstaller="$coreDir/images/icon_installer.icns"
 
 tempPath="$(mktemp -d -t dmgBuild)"
 tempDmg="$tempPath/temp.dmg"
 dmgTempDir="$tempPath/dmg"
 
-pkgPos=${pkgPos:-"160, 220"}
-rmPos=${rmPos:-"370, 220"}
-iconSize=${iconSize:-"80"}
+pkgPos=${pkgPos:-"226, 212"}
+rmPos=${rmPos:-"369, 212"}
+iconSize=${iconSize:-"76"}
 textSize=${textSize:-"13"}
-windowBounds=${windowBounds:-"400, 200, 980, 520"}
+windowBounds=${windowBounds:-"400, 200, 1000, 600"}
 
 echo "Checking environment..."
 if [[ -e "$dmgPath" ]] ;then
@@ -98,10 +98,10 @@ fi
 echo "Setting pkg icon..."
 "$setIcon" "$iconInstaller" "$dmgTempDir/$pkgName"
 
-if [ -n "$rmPath" ]; then
-	echo "Setting uninstaller icon..."	
-	"$setIcon" "$iconTrash" "$dmgTempDir/$rmName"
-fi
+#if [ -n "$rmPath" ]; then
+#	echo "Setting uninstaller icon..."
+#	"$setIcon" "$iconTrash" "$dmgTempDir/$rmName"
+#fi
 
 echo "Fixing for Packages 1.1..."
 chmod -R +w $dmgTempDir
@@ -174,6 +174,7 @@ fi
 
 chmod -Rf +r,go-w "$mountPoint" || errExit "ERROR: chmod failed!"
 rm -rf "$mountPoint/.Trashes" "$mountPoint/.fseventsd"
+
 
 echo "Detaching DMG..."
 hdiutil detach "$device"
