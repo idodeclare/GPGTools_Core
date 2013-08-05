@@ -31,12 +31,9 @@ keys="`su \"$USER\" -c 'gpg --homedir=\"$HOME/.gnupg\" -K 2>/dev/null'`"
 
 echo "[GCK] Open GKA..."
 if [ "$keys" == "" ]; then
-  #su - "$USER" -c "/Applications/GPG\ Keychain\ Access.app/Contents/MacOS/GPG\ Keychain\ Access --gen-key" &
-  su - "$USER" -c "open /Applications/GPG\ Keychain\ Access.app --args --gen-key"
-  #Again for 10.5
-  su - "$USER" -c "open /Applications/GPG\ Keychain\ Access.app"
+  sudo -u "$USER" open -b "org.gpgtools.gpgkeychainaccess" --args --gen-key
   echo "[GCK] Open First Steps page..."
-  open http://support.gpgtools.org/kb/how-to/first-steps-where-do-i-start-where-do-i-begin
+  sudo -u "$USER" open http://support.gpgtools.org/kb/how-to/first-steps-where-do-i-start-where-do-i-begin
 else
   echo "[GCK] Sec-Key found"
 fi
