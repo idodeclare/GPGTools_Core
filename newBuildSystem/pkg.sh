@@ -92,6 +92,12 @@ while [[ -n "${pkgProj_names[$((++i))]}" ]] ;do
 	#			errExit "pkgutil --flatten failed.  Aborting."
 	#	fi
 	#fi
+	
+
+	echo "Setting icon..."
+	pkgIcon=${pkgIcon:-"$coreDir/images/icon_installer.icns"}
+	"$coreDir/bin/setfileicon" "$pkgIcon" "$pkgPath"
+	SetFile -a E "$pkgPath"
 
 
 	# pkg signieren.
