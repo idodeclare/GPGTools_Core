@@ -10,28 +10,22 @@ echo "Parsing configuration..."
 source "$(dirname "${BASH_SOURCE[0]}")/core.sh"
 parseConfig
 
-echo "Defining functions..."
-function unmount() {
-	if [ -n "$mountPoint" ] ;then
-		hdiutil detach -quiet "$mountPoint"
-	fi	
-}
+
+
+makeDmg="$(dirname "${BASH_SOURCE[0]}")/../perl/make_dmg.pl"
 
 echo "Setting configuration parameter..."
-setIcon="$coreDir/bin/setfileicon"
 iconDmg="$coreDir/images/icon_dmg.icns"
-#iconTrash="$coreDir/images/icon_uninstaller.icns"
 iconInstaller="$coreDir/images/icon_installer.icns"
 
-tempPath="$(mktemp -d -t dmgBuild)"
-tempDmg="$tempPath/temp.dmg"
-dmgTempDir="$tempPath/dmg"
 
-pkgPos=${pkgPos:-"226, 212"}
-rmPos=${rmPos:-"369, 212"}
+pkgPos=${pkgPos:-"226,212"}
+rmPos=${rmPos:-"369,212"}
 iconSize=${iconSize:-"76"}
 textSize=${textSize:-"13"}
-windowBounds=${windowBounds:-"400, 200, 1000, 600"}
+windowPos=${windowPos:-"400,200"}
+windowSize=${windowSize:-"600,400"}
+
 
 echo "Checking environment..."
 if [[ -e "$dmgPath" ]] ;then
@@ -42,161 +36,49 @@ fi
 [[ -e "$pkgPath" ]] || errExit "ERROR: pkg not found: '$pkgPath'!"
 
 
-echo "Hiding pkg file extension..."
-xattr -xw com.apple.FinderInfo '0000000000000000001000000000000000000000000000000000000000000000' "$pkgPath"
+echo "Creating temporary directory..."
+tempPath="$(mktemp -d -t dmgBuild)"
 
-echo "Trying to fix permissions..."
-chmod -Rf +w "$tempPath" "$dmgPath" "$pkgPath" "$rmPath" 2>/dev/null
-
-echo "Trying to fix issues when an on image is still mounted..."
-if mountInfo="$(mount | grep -F "$volumeName")" ;then
-	echo "Unmount old DMG..."
-	hdiutil detach "${mountInfo%% *}"
-
-	mount | grep -qF "$volumeName" &&
-		errExit "ERROR: volume '$volumeName' is already mounted!"
-fi
 
 echo "Running preDmgBuild script..."
-if [ -n "$preDmgBuild" ]; then
+if [[ -n "$preDmgBuild" ]]; then
 	echo "Run preDmgBuild..."
 	"$preDmgBuild"
 fi
 
+echo "Building parameters array..."
+fileParams=(-file "$pkgPos" "$pkgPath")
 
-echo "Creating temp directory..."
-mkdir "$dmgTempDir"
-
-echo "Copying files..."
-cp -PR "$pkgPath" "$dmgTempDir/" ||
-	errExit "ERROR: could not copy '$pkgPath'!"
-if [ -n "$localizeDir" ]; then
-	echo "Copy localization files..."
-	mkdir "$dmgTempDir/.localized"
-	cp -PR "$localizeDir/" "$dmgTempDir/.localized/"
+if [[ -n "$rmPath" ]] ;then
+	echo "Adding the Uninstaller..."
+	fileParams=("${fileParams[@]}" -file "$rmPos" "$rmPath")
 fi
 
-if [ -n "$rmPath" ]; then
-	echo "Copy uninstaller..."
-	cp -PR "$rmPath" "$dmgTempDir/$rmName"
-fi
-
-echo "Copying images..."
-mkdir "$dmgTempDir/.background"
-cp "$imgBackground" "$dmgTempDir/.background/Background.png"
-cp "$iconDmg" "$dmgTempDir/.VolumeIcon.icns"
-SetFile -a C "$dmgTempDir"
-
-if [[ -n "$volumeLayout" ]]; then
-	[[ -f "$volumeLayout" ]] || errExit "ERROR: volumeLayout set, but the file can't be found!"
-	echo "Copying .DS_Store..."
-	cp "$volumeLayout" "$dmgTempDir/.DS_Store"
+if [[ -n "$localizeDir" ]]; then
+	echo "Adding the localization..."
+	mkdir "$tempPath/.localized"
+	cp -PR "$localizeDir/" "$tempPath/.localized/"
+	fileParams=("${fileParams[@]}" -file "0,0" "$tempPath/.localized")
 fi
 
 
 
-echo "Setting pkg icon..."
-"$setIcon" "$iconInstaller" "$dmgTempDir/$pkgName"
-
-#if [ -n "$rmPath" ]; then
-#	echo "Setting uninstaller icon..."
-#	"$setIcon" "$iconTrash" "$dmgTempDir/$rmName"
-#fi
-
-echo "Fixing for Packages 1.1..."
-chmod -R +w $dmgTempDir
-
-
-echo "Creating DMG..."
-hdiutil create -noscrub -fs HFS+ -fsargs "-c c=64,a=16,e=16" -format UDRW -srcfolder "$dmgTempDir" -volname "$volumeName" "$tempDmg" ||
-	errExit "ERROR: Create DMG failed!"
-
-
-echo "Attaching DMG..."
-trap unmount EXIT
-mountInfo=$(hdiutil attach -readwrite -noverify "$tempDmg") ||
-	errExit "ERROR: Attach DMG failed!"
-device=$(head -1 <<<"$mountInfo" | cut -d" " -f 1)
-mountPoint=$(tail -1 <<<"$mountInfo" | cut -d"	" -f 3)
-
-SetFile -a C "$mountPoint"
-
-
-if [[ -z "$volumeLayout" ]] ;then
-	echo "No volumeLayout specified."
-	if ps -xo command | grep -q "[M]acOS/Finder"; then
-		echo "Using Finder to set the attributes..."
-
-
-		osascript >/dev/null <<-EOT
-			tell application "Finder"
-				tell disk "$volumeName"
-					open
-					set viewOptions to icon view options of container window
-					set current view of container window to icon view
-					set toolbar visible of container window to false
-					set statusbar visible of container window to false
-					set bounds of container window to {$windowBounds}
-					set arrangement of viewOptions to not arranged
-					set icon size of viewOptions to $iconSize
-					set text size of viewOptions to $textSize
-					set background picture of viewOptions to file ".background:Background.png"
-					set position of item "$pkgName" of container window to {$pkgPos}
-				end tell
-			end tell
-		EOT
-		[ $? -eq 0 ] || errExit "ERROR: Set attributes failed!"
-
-		if [ -n "$rmName" ]; then # Set position of the Uninstaller
-			osascript >/dev/null <<-EOT
-				tell application "Finder"
-					tell disk "$volumeName"
-						set position of item "$rmName" of container window to {$rmPos}
-					end tell
-				end tell
-			EOT
-			[ $? -eq 0 ] || errExit "ERROR: Set position of the Uninstaller failed!"
-		fi
-
-		osascript >/dev/null <<-EOT
-			tell application "Finder"
-				tell disk "$volumeName"
-					update without registering applications
-					close
-				end tell
-			end tell
-		EOT
-		[ $? -eq 0 ] || errExit "ERROR: Update attributes failed!"
-	else
-		echo "Can't use the Finder to set attributes."
-	fi
-fi
-
-chmod -Rf +r,go-w "$mountPoint" || errExit "ERROR: chmod failed!"
-rm -rf "$mountPoint/.Trashes" "$mountPoint/.fseventsd"
-
-
-echo "Detaching DMG..."
-hdiutil detach "$device"
-trap EXIT
-i=0
-while [[ -e "$device" ]] ;do
-	if [[ $((i++)) -ge 50 ]] ;then
-		echo "Unable to detach '$device'"
-		break
-	fi
-	sleep 0.1
-done
-
-
-
-echo "Converting DMG..."
-hdiutil convert "$tempDmg" -format UDZO -imagekey zlib-level=9 -o "$dmgPath" ||
-	errExit "ERROR: Convert DMG failed!!"
+echo "Creating dmg..."
+"$makeDmg" \
+	-icon-size "$iconSize" \
+	-label-size "$textSize" \
+	-window-pos "$windowPos" \
+	-window-size "$windowSize" \
+	-volname "$volumeName" \
+	-image $imgBackground \
+	-volicon "$iconDmg" \
+	"${fileParams[@]}" \
+	"$dmgPath" ||
+		errExit "Unable to create dmg!"
 
 
 echo "Running postDmgBuild script..."
-if [ -n "$postDmgBuild" ]; then
+if [[ -n "$postDmgBuild" ]]; then
 	"$postDmgBuild"
 fi
 #-------------------------------------------------------------------------
@@ -213,7 +95,6 @@ echoBold " * SHA1: $sha1";
 
 
 echo "Cleaning up..."
-chmod -Rf +w "$tempPath" "$dmgPath" "$pkgPath" "$rmPath" 2>/dev/null
 rm -rf "$tempPath" 2>/dev/null
 
 echo "Finish!"

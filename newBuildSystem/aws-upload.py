@@ -54,7 +54,7 @@ try:
 	
 	awsfile = bucket.new_key(filename)
 	if os.isatty(1):
-		print 'Upload "%s"...  ' % (filename)
+		print 'Uploading "%s"...  ' % (filename)
 		awsfile.set_contents_from_filename(file, cb=progress_callback, num_cb=100)
 	else:
 		awsfile.set_contents_from_filename(file) # Only show the progress if stdout is a terminal.
@@ -64,7 +64,7 @@ except S3ResponseError, e:
 	if e.status == 403:
 		exit("Login failed, please check your Amazon credentials!")
 	elif e.status == 404:
-		exit("The bucket doen't exist!")
+		exit("The bucket doesn't exist!")
 	else:
 		exit("Unknown error (" + e.status + ")!")
 else:
