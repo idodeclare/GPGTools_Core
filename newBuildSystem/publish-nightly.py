@@ -157,8 +157,10 @@ def fetch_build_revisions(current_build):
     # Fetch the revision of the previous build.
     previous_revision = None
     if previous_build is not None:
-        previous_revision = run("curl --user %s:%s %s/job/%s/%s/api/xml?xpath=//lastBuiltRevision/SHA1/text()" % (
+        previous_revision = run("curl --user %s:%s %s/job/%s/%s/api/xml?xpath=//lastBuiltRevision/SHA1" % (
             BUILD_SERVER_USER, BUILD_SERVER_TOKEN, BUILD_SERVER_URL, BUILD_JOB_NAME, previous_build), silent=True)
+        if previous_revision:
+            previous_revision = previous_revision.lower().replace("<sha1>", "").replace("</sha1>", "")
     
     return (BUILD_REVISION, previous_revision)
 
