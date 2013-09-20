@@ -93,13 +93,6 @@ while [[ -n "${pkgProj_names[$((++i))]}" ]] ;do
 	#	fi
 	#fi
 	
-
-	echo "Setting icon..."
-	pkgIcon=${pkgIcon:-"$coreDir/images/icon_installer.icns"}
-	"$coreDir/bin/setfileicon" "$pkgIcon" "$pkgPath"
-	SetFile -a E "$pkgPath"
-
-
 	# pkg signieren.
 	if [[ "$PKG_SIGN" == "1" ]] ;then
 		keychain=$(security find-certificate -c "$certNameInst" | sed -En 's/^keychain: "(.*)"/\1/p')
@@ -118,6 +111,12 @@ while [[ -n "${pkgProj_names[$((++i))]}" ]] ;do
 		mv -f "$pkgPathSigned" "$pkgPath"
 	fi
 
+    # If the icon is set earlier, this information gets lost
+    # when the package is replaced by the signed version.
+	echo "Setting icon..."
+	pkgIcon=${pkgIcon:-"$coreDir/images/icon_installer.icns"}
+	"$coreDir/bin/setfileicon" "$pkgIcon" "$pkgPath"
+	SetFile -a E "$pkgPath"
 	
 	# Version als extended attribute setzen, damit das Abfragen der Version einfacher fällt.
 	xattr -w org.gpgtools.version "$appVersion" "$pkgPath"
