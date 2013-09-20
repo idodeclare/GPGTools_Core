@@ -24,7 +24,7 @@ rmPos=${rmPos:-"369,212"}
 iconSize=${iconSize:-"76"}
 textSize=${textSize:-"13"}
 windowPos=${windowPos:-"400,200"}
-windowSize=${windowSize:-"600,400"}
+windowSize=${windowSize:-"600,420"}
 
 
 echo "Checking environment..."
