@@ -3,6 +3,9 @@
 source "$(dirname "${BASH_SOURCE[0]}")/core.sh"
 parseConfig
 
+if [ "$1" == "" ]; then
+    rmPath="$1"
+fi
 
 echo "Checking the environment..."
 [[ -d "$rmPath" ]] || errExit "I require app '$rmPath' but it does not exit. Aborting."
