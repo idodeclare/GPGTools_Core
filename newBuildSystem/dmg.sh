@@ -6,6 +6,7 @@
 #
 # Erstellt aus dem pkg ein dmg.
 
+SCRIPT_DIR=$(dirname "${BASH_SOURCE[0]}")
 echo "Parsing configuration..."
 source "$(dirname "${BASH_SOURCE[0]}")/core.sh"
 parseConfig
@@ -51,6 +52,14 @@ fileParams=(-file "$pkgPos" "$pkgPath")
 
 if [[ -n "$rmPath" ]] ;then
 	echo "Adding the Uninstaller..."
+	if [ "$PKG_SIGN" == "1" ] || [ "$CODE_SIGN" == "1" ]; then
+		# Copy the uninstaller into the build folder to sign it.
+		uninstallerPath="build/$(basename $rmPath)"
+		cp -R "$rmPath" "$uninstallerPath"
+		# Code sign the uninstaller.
+		$SCRIPT_DIR/uninstallerSig.sh "$uninstallerPath"
+		rmPath="$uninstallerPath"
+	fi
 	fileParams=("${fileParams[@]}" -file "$rmPos" "$rmPath")
 fi
 
