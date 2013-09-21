@@ -11,7 +11,7 @@ ifeq ($(findstring deploy, $(MAKECMDGOALS)), deploy)
 endif
 
 ifdef NEED_LIBMACGPG
-	LIBMACGPG_REPO = Dependencies/Libmacgpg
+	LIBMACGPG_REPO = Libmacgpg.xcodeproj
 endif
 
 ifndef PRODUCT
@@ -28,7 +28,6 @@ SCRIPTS_DIR = ./Dependencies/GPGTools_Core/newBuildSystem
 
 CONFIG ?= Release
 VPATH ?= build/Release
-
 
 
 
@@ -92,14 +91,11 @@ endif
 
 ifdef NEED_LIBMACGPG
 
-.PRECIOUS: $(LIBMACGPG_REPO) Libmacgpg
+VPATH += :Dependencies/Libmacgpg:Dependencies/Libmacgpg/build/$(CONFIG)/Libmacgpg.framework/Versions/Current:/Library/Frameworks/Libmacgpg.framework/Versions/Current:$(HOME)/Library/Frameworks/Libmacgpg.framework/Versions/Current
 
 $(LIBMACGPG_REPO):
 	@echo "Prepare Libmacgpg"
 	@bash -c "$$(curl -fsSL https://raw.github.com/GPGTools/GPGTools_Core/master/newBuildSystem/prepare-libmacgpg.sh)"
-
-
-VPATH += :/Library/Frameworks/Libmacgpg.framework/Versions/Current:$(HOME)/Library/Frameworks/Libmacgpg.framework/Versions/Current:Dependencies/Libmacgpg/build/$(CONFIG)/Libmacgpg.framework/Versions/Current
 
 Libmacgpg: $(LIBMACGPG_REPO)
 	@"$(MAKE)" -C Dependencies/Libmacgpg compile
@@ -129,7 +125,6 @@ simple-compile:
 	@xcodebuild -project $(PROJECT).xcodeproj -target $(TARGET) -configuration $(CONFIG) build $(XCCONFIG)
 
 compile: $(PRODUCT)
-
 
 clean-pkg:
 	@rm -rf ./build/*.pkg*
