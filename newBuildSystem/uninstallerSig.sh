@@ -3,7 +3,7 @@
 source "$(dirname "${BASH_SOURCE[0]}")/core.sh"
 parseConfig
 
-if [ "$1" == "" ]; then
+if [ "$1" != "" ]; then
     rmPath="$1"
 fi
 
