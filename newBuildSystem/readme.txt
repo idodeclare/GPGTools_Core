@@ -16,6 +16,7 @@ signed-dmg   Erzeugt ein signiertes dmg. (Im Moment gleich mit gpg-sig)
 Umgebungsvariablen:
 CODE_SIGN    Soll der Code signiert werden. (default=0)
 PKG_SIGN     Sollen die pkgs signiert werden. (default=0)
+DEBUG        Soll DEBUGGING gesetzt werden. Dadurch wird mit GPGDebugLog kompiliert. (default=0)
 
 =========================================================================================================
 Makefile.config:

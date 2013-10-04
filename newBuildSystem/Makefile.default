@@ -3,7 +3,15 @@
 XCCONFIG=
 ifeq ("$(CODE_SIGN)","1")
     XCCONFIG = "CODE_SIGN_IDENTITY=Developer ID Application: Lukas Pitschl"
+	MACROS += CODE_SIGN_CHECK
 endif
+
+ifeq ("$(DEBUG)","1")
+	MACROS += DEBUGGING
+endif
+
+XCCONFIG += 'GCC_PREPROCESSOR_DEFINITIONS=$$inherited $(MACROS)'
+
 
 # Force signing of pkg if make deploy is run.
 ifeq ($(findstring deploy, $(MAKECMDGOALS)), deploy)
