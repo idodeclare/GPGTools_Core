@@ -20,5 +20,8 @@ rm -f "$1/$name-"+([0-9])n.dmg
 echo "Copying '$dmgPath' to '$1/$dmgName'..."
 cp "$dmgPath" "$1/$dmgName"
 
+echo "Linking"
+ln -fs "$1/$dmgName" "$1/$name-latest.dmg"
+
 echo "Fixing permissions..."
 chmod +r "$1/$dmgName"
