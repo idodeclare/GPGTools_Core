@@ -25,7 +25,7 @@ rmPos=${rmPos:-"369,212"}
 iconSize=${iconSize:-"76"}
 textSize=${textSize:-"13"}
 windowPos=${windowPos:-"400,200"}
-windowSize=${windowSize:-"600,420"}
+windowSize=${windowSize:+"-window-size $windowSize"}
 
 
 echo "Checking environment..."
@@ -77,7 +77,7 @@ echo "Creating dmg..."
 	-icon-size "$iconSize" \
 	-label-size "$textSize" \
 	-window-pos "$windowPos" \
-	-window-size "$windowSize" \
+	$windowSize \
 	-volname "$volumeName" \
 	-image $imgBackground \
 	-volicon "$iconDmg" \
