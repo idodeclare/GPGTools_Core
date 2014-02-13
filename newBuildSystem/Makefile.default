@@ -187,9 +187,6 @@ release:
 deploy: dmg
 	@$(SCRIPTS_DIR)/deploy-release.py ${name}-${version}
 
-upload-to-aws:
-	@$(SCRIPTS_DIR)/aws-upload.py "${file}"
-
 release-notes:
 	@$(SCRIPTS_DIR)/prepare-release-notes.py ${version}
 

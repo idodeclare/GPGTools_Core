@@ -5,7 +5,7 @@
 This script performs the following steps to deploy a new release:
 
 1.) Sign the project dmg using OpenPGP.
-2.) Upload the dmg and signature file to Amazon S3.
+2.) Copy the dmg and signature file into "/GPGTools/public/releases.gpgtools.org/".
 3.) Calculate the SHA1 hash of the project dmg.
 4.) Sign the project dmg using an SSL key for Sparkle updates.
 5.) Create the version json file pertaining to the release.
@@ -23,8 +23,8 @@ import shlex
 import hashlib
 import re
 import smtplib
+from shutil import copy
 from email.mime.text import MIMEText
-
 from clitools import *
 from clitools.color import *
 
@@ -99,18 +99,14 @@ def main():
     run_or_error("gpg -v %s" % (path_to_script("%s/%s" % (BUILD_DIR, GPG_SIG))),
                  "Couldn't verify the product disk image signature.\n%s", silent=True)
         
-    # Upload product disk image.
-    status("Uploading %s to AWS" % (DMG))
-    dmg_url = run_or_error("make upload-to-aws file=%s" % (path_to_script("%s/%s" % (BUILD_DIR, DMG))), 
-                           "Couldn't upload product disk image.")
-    status("    %s" % (dmg_url.strip()))
-        
-    # Upload gpg signature.
-    status("Uploading %s to AWS" % (GPG_SIG))
-    signature_url = run_or_error("make upload-to-aws file=%s" % (path_to_script("%s/%s" % (BUILD_DIR, GPG_SIG))),
-                                 "Couldn't upload product disk image signature.")
-    status("    %s" % (signature_url.strip()))
-        
+    
+    
+    # Copy files into the release directory.
+    copy("%s/%s" % (BUILD_DIR, DMG), "/GPGTools/public/releases.gpgtools.org/")
+    status("https://releases.gpgtools.org/%s" % DMG)
+    copy("%s/%s" % (BUILD_DIR, GPG_SIG), "/GPGTools/public/releases.gpgtools.org/")
+    status("https://releases.gpgtools.org/%s" % GPG_SIG)
+    
     sha1 = sha1_hash("%s/%s" % (BUILD_DIR, DMG))
     status("DMG SHA1: %s" % (sha1))
     
