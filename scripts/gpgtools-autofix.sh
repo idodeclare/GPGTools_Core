@@ -115,9 +115,15 @@ function updateGPGMail {
 function updateGPGMailUUIDs {
 	# Usage: updateGPGMailUUIDs /Library/Mail/Bundles/GPGMail.mailbundle
 	# The var PlistBuddy need to be set, to the path to PlistBuddy.
-	plistBundle="$1/Contents/Info.plist"
-	plistMail="/Applications/Mail.app/Contents/Info.plist"
+
+	# Find Mail.app
+	mailLocation=$(mdfind -onlyin /Applications "kMDItemCFBundleIdentifier = com.apple.mail" | head -1)
+	mailLocation=${mailLocation:-/Applications/Mail.app}
+
+	# Path to the plists
+	plistMail="$mailLocation/Contents/Info"
     plistFramework="/System/Library/Frameworks/Message.framework/Resources/Info.plist"
+	plistBundle="$1/Contents/Info.plist"
 	entry="SupportedPluginCompatibilityUUIDs"
 
 	myEcho "Patching GPGMail UUIDs..."
