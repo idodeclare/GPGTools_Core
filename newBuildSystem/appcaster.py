@@ -81,7 +81,7 @@ def parse_options():
     
     return (options, args)
 
-NIGHTLY_BASE_URL = "http://releases.gpgtools.org/nightlies"
+NIGHTLY_BASE_URL = "https://releases.gpgtools.org/nightlies"
 NIGHTLY_DOWNLOAD_BASE_URL = NIGHTLY_BASE_URL
 CWD = os.getcwd()
 NAMESPACES = {"atom": "http://www.w3.org/2005/Atom", 
