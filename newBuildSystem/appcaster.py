@@ -144,10 +144,10 @@ def add_release(root, url, length, version, shortVersion, title, releaseNotes, m
 def additional_options_from_config(config, options):
     tool_name = config["name"].lower()
     name = os.environ.get("TOOL_ALT_NAME", nname(tool_name)).lower()
-    config["appcast_url"] = "%s/releases/%s/%s" % (NIGHTLY_BASE_URL, name, "appcast.xml")
-    config["appicon_url"] = "%s/releases/%s/%s" % (NIGHTLY_BASE_URL, name, 
+    config["appcast_url"] = "%s/%s/%s" % (NIGHTLY_BASE_URL, name, "appcast.xml")
+    config["appicon_url"] = "%s/%s/%s" % (NIGHTLY_BASE_URL, name, 
                                         "%s-icon.png" % (nname(tool_name)))
-    config["release_notes_url"] = "%s/releases/%s/%s" % (NIGHTLY_BASE_URL, name, "release-notes.html")
+    config["release_notes_url"] = "%s/%s/%s" % (NIGHTLY_BASE_URL, name, "release-notes.html")
     config["url"] = "%s/%s" % (NIGHTLY_DOWNLOAD_BASE_URL, urllib2.quote(config.get("dmgName")))
     config["minOS"] = os.environ.get("TOOL_MIN_OS", "10.6")
     config["maxOS"] = os.environ.get("TOOL_MAX_OS", None)
