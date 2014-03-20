@@ -7,7 +7,7 @@ or the whole file replaced with only one entry.
 """
 
 import os, sys
-sys.path.insert(1, os.path.join(os.getcwd(), './Dependencies/GPGTools_Core/python'))
+sys.path.insert(1, os.path.join(os.path.dirname(os.path.realpath(__file__)), '../python'))
 
 import urllib2
 import time
@@ -22,8 +22,8 @@ try:
     from pyquery_lxml_extension import ElementMaker, pq
 except ImportError:
     error("Please install lxml and cssselect by running `%s` and then `%s`" % (
-        emphasize("STATIC_DEPS=true sudo pip install lxml==3.1.0"),
-        emphasize("sudo pip install cssselect")))
+        emphasize("pip install lxml"),
+        emphasize("pip install cssselect")))
 
 def parse_options():
     parser = OptionParser(usage="%prog [options] <appcast.xml>")
@@ -81,7 +81,7 @@ def parse_options():
     
     return (options, args)
 
-NIGHTLY_BASE_URL = "https://nightly.gpgtools.org"
+NIGHTLY_BASE_URL = "http://releases.gpgtools.org/nightlies"
 NIGHTLY_DOWNLOAD_BASE_URL = NIGHTLY_BASE_URL
 CWD = os.getcwd()
 NAMESPACES = {"atom": "http://www.w3.org/2005/Atom", 
