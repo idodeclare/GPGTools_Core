@@ -27,8 +27,7 @@ except ImportError:
 CWD = os.getcwd()
 NIGHTLY_BASE_PATH = os.getenv("NIGHTLY_BUILD_BASE_PATH", "/tmp/gpgtools.org-nightly-releases")
 APPCASTER = "./Dependencies/GPGTools_Core/newBuildSystem/appcaster.py"
-BUILD_SERVER_URL = os.getenv("JENKINS_BASE_URL", "http://localhost:8080")
-BUILD_JOB_NAME = os.getenv("JOB_NAME")
+BUILD_JOB_URL = os.getenv("JOB_URL")
 BUILD_SERVER_USER = os.getenv("JENKINS_USER")
 BUILD_SERVER_TOKEN = os.getenv("JENKINS_TOKEN")
 BUILD_NR = int(os.getenv("BUILD_NUMBER"))
@@ -146,10 +145,9 @@ def fetch_build_revisions(current_build):
     Return None as revision, if no previous revision exists.
     """
     current_build = int(current_build)
-    builds_json = run("curl --user %s:%s %s/job/%s/api/json" % (BUILD_SERVER_USER, 
+    builds_json = run("curl --user %s:%s %sapi/json" % (BUILD_SERVER_USER, 
                                                                 BUILD_SERVER_TOKEN,
-                                                                BUILD_SERVER_URL,
-                                                                BUILD_JOB_NAME), silent=True)
+                                                                BUILD_JOB_URL), silent=True)
     builds = json.loads(builds_json)
     previous_build = builds.get("lastCompletedBuild", {}).get("number", None)
     previous_build = previous_build != current_build and previous_build or None
@@ -157,8 +155,8 @@ def fetch_build_revisions(current_build):
     # Fetch the revision of the previous build.
     previous_revision = None
     if previous_build is not None:
-        previous_revision = run("curl --user %s:%s %s/job/%s/%s/api/xml?xpath=//lastBuiltRevision/SHA1" % (
-            BUILD_SERVER_USER, BUILD_SERVER_TOKEN, BUILD_SERVER_URL, BUILD_JOB_NAME, previous_build), silent=True)
+        previous_revision = run("curl --user %s:%s %s%s/api/xml?xpath=//lastBuiltRevision/SHA1" % (
+            BUILD_SERVER_USER, BUILD_SERVER_TOKEN, BUILD_JOB_URL, previous_build), silent=True)
         if previous_revision:
             previous_revision = previous_revision.lower().replace("<sha1>", "").replace("</sha1>", "")
     
