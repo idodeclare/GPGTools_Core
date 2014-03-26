@@ -12,6 +12,7 @@ sys.path.insert(1, os.path.join(os.getcwd(), './Dependencies/GPGTools_Core/newBu
 
 import time
 import json
+import cgi
 
 from clitools import *
 from clitools.color import *
@@ -96,7 +97,7 @@ def html_for_release_notes(release_notes, tool):
         if minOS:
             options["data-min-os"] = minOS
         if maxOS:
-            options["data-max-os"] = macOS
+            options["data-max-os"] = maxOS
         
         parent = E(pq(root.element).find(".sparkle-release-notes")[0])
         release = E("div", 
@@ -110,7 +111,7 @@ def html_for_release_notes(release_notes, tool):
             features = E("div", {"class": "features"})
             for feature in release_notes["features"]:
                 fe = E("div", {"class": "feature"})
-                fe.append(E("h3", feature["title"]))
+                fe.append(E("h3", feature["title"].decode('utf-8)')))
                 description_list = E("ul").append(
                     *([E("li", d) for d in feature["description"]])
                 )
@@ -150,7 +151,6 @@ def fetch_build_revisions(current_build):
                                                                 BUILD_JOB_URL), silent=True)
     builds = json.loads(builds_json)
     previous_build = builds.get("lastCompletedBuild", {}).get("number", None)
-    previous_build = previous_build != current_build and previous_build or None
     
     # Fetch the revision of the previous build.
     previous_revision = None
@@ -201,7 +201,7 @@ def main():
     prn = __import__("prepare-release-notes")
     commit_log = prn.commit_log(last_revision, current_revision)
     
-    release_notes =  prn.build_release_notes_from_commit_log(commit_log)
+    release_notes = prn.build_release_notes_from_commit_log(commit_log)
     
     # Create the release notes file.
     html = html_for_release_notes(release_notes["info"], tool_config())
