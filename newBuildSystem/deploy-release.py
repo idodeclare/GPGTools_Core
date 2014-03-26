@@ -103,9 +103,11 @@ def main():
     
     # Copy files into the release directory.
     copy("%s/%s" % (BUILD_DIR, DMG), "/GPGTools/public/releases.gpgtools.org/")
-    status("https://releases.gpgtools.org/%s" % DMG)
+    dmg_url = "https://releases.gpgtools.org/%s" % DMG
+    status(dmg_url)
     copy("%s/%s" % (BUILD_DIR, GPG_SIG), "/GPGTools/public/releases.gpgtools.org/")
-    status("https://releases.gpgtools.org/%s" % GPG_SIG)
+    signature_url = "https://releases.gpgtools.org/%s" % GPG_SIG
+    status(signature_url)
     
     sha1 = sha1_hash("%s/%s" % (BUILD_DIR, DMG))
     status("DMG SHA1: %s" % (sha1))
