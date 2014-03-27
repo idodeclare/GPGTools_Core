@@ -66,7 +66,7 @@ def main():
     title("Publish %s %s release on gpgtools.org" % (tool_config("name"), tool_config("version")))
     
     website_folder = WEBSITE_FOLDER
-    if options.checkout_repository:
+    if options.checkout_repository and not os.path.isdir(options.website_folder):
         if not os.path.isdir(website_folder):
             status("No website repository found. Checking it out from github")
             run_or_error("git clone %s -b %s %s" % (WEBSITE_REPOSITORY_URL, WEBSITE_REPOSITORY_BRANCH, path_to_script(WEBSITE_FOLDER)),
