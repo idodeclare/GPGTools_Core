@@ -75,7 +75,7 @@ def main():
     else:
         website_folder = options.website_folder
     
-    config_path = os.path.join(website_folder, "config")
+    config_path = os.path.join(website_folder, "source/tools/config")
     versions_file = "%s-versions.json" % (nname(tool_config("name")))
     versions_path = os.path.join(config_path, versions_file)
     release_notes = "%s.md" % (tool_config("version"))
@@ -91,7 +91,7 @@ def main():
         error("Couldn't find website repository: %s" % (website_folder))
     
     if not os.path.isfile(versions_path):
-        error("Couldn't find the versions file for %s" % (versions_file))
+        error("Couldn't find the versions file for %s" % (versions_path))
     
     if not os.path.isfile(release_notes_path):
         error("Couldn't find the release notes for this version: %s" % (release_notes_path.replace(CWD + "/", "")))
@@ -99,9 +99,12 @@ def main():
     # Change into the website repository.
     os.chdir(website_folder)
     # Reset the repository status.
+    status("git reset")
     run_or_error("git reset HEAD", "Failed to reset the website repository.", silent=True)
+    status("git checkout")
     run_or_error("git checkout .", "Failed to undo local changes.", silent=True)
     # Pull new changes in.
+    status("git pull")
     run_or_error("git pull origin %s" % (WEBSITE_REPOSITORY_BRANCH), "Failed to update website repository.", silent=True)
     
     status("Load release notes from %s" % (release_notes_path.replace(CWD + "/", "")))

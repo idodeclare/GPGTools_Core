@@ -72,8 +72,8 @@ def inform_team(release_info):
     s.quit()
 
 def update_website_for_release(release_info):
-    run_or_error(path_to_script("%s/Dependencies/GPGTools_Core/newBuildSystem/%s" % (CWD, "publish-release.py")),
-                 "Failed to add release to the GPGTools website.\n%s")
+    if os.system(path_to_script("%s/Dependencies/GPGTools_Core/newBuildSystem/%s" % (CWD, "publish-release.py"))) != 0:
+        error("Failed to add release to the GPGTools website.")
 
 def main():
     if current_git_branch() not in ["master", "deploy-master", "jenkins-master"]:
