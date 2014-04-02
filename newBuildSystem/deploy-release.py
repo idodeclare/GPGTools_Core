@@ -124,8 +124,7 @@ def main():
     except:
         status("    Not able to send the mail. Skipping...")
     
-    success("%s %s was successfully released!\n" % (tool_config("name"), tool_config("version")) +
-            "For the old GPGTools website, please update the <tool>/config.php with this info and push.")
+    success("%s %s was successfully released!" % (tool_config("name"), tool_config("version")))
     
     return True
     

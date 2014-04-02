@@ -22,7 +22,7 @@ CWD = os.getcwd()
 BUILD_DIR = os.path.join(CWD, "build")
 DOWNLOAD_BASE_URL = "https://releases.gpgtools.org"
 WEBSITE_REPOSITORY_URL = "https://github.com/GPGTools/GPGTools_Homepage"
-WEBSITE_REPOSITORY_BRANCH = "master"
+WEBSITE_REPOSITORY_BRANCH = "dev"
 WEBSITE_FOLDER = os.path.join(BUILD_DIR, "gpgtools-website")
 
 def parse_options():
@@ -76,10 +76,12 @@ def main():
         website_folder = options.website_folder
     
     config_path = os.path.join(website_folder, "source/tools/config")
-    versions_file = "%s-versions.json" % (nname(tool_config("name")))
+    short_name = nname(tool_config("name"))
+    versions_file = "%s-versions.json" % (short_name)
     versions_path = os.path.join(config_path, versions_file)
     release_notes = "%s.md" % (tool_config("version"))
-    release_notes_path = os.path.join(CWD, "Release Notes", release_notes)
+    release_notes_file = os.path.join("Release Notes", release_notes)
+    release_notes_path = os.path.join(CWD, release_notes_file)
     buildnr = tool_config("build_version")
     dmg = tool_config("dmgName")
     dmg_path = os.path.join(BUILD_DIR, dmg)
@@ -94,21 +96,24 @@ def main():
         error("Couldn't find the versions file for %s" % (versions_path))
     
     if not os.path.isfile(release_notes_path):
-        error("Couldn't find the release notes for this version: %s" % (release_notes_path.replace(CWD + "/", "")))
+        error("Couldn't find the release notes for this version: %s" % (release_notes_file))
     
     # Change into the website repository.
     os.chdir(website_folder)
+        
     # Reset the repository status.
     status("git reset")
     run_or_error("git reset HEAD", "Failed to reset the website repository.", silent=True)
     status("git checkout")
     run_or_error("git checkout .", "Failed to undo local changes.", silent=True)
+    
     # Pull new changes in.
     status("git pull")
     run_or_error("git pull origin %s" % (WEBSITE_REPOSITORY_BRANCH), "Failed to update website repository.", silent=True)
     
-    status("Load release notes from %s" % (release_notes_path.replace(CWD + "/", "")))
+    
     # Load release notes.
+    status("Load release notes from %s" % (release_notes_file))
     release_notes = convert_markdown_to_release_notes(filename=release_notes_path)
     if release_notes[1]:
         error("Failed to load release notes file\nError: %s" % (release_notes[1]))
@@ -116,6 +121,7 @@ def main():
     
     if not release_notes:
         error("Failed to load release notes file")
+    
     
     # Find out the filesize of the release dmg.
     filesize = 0
@@ -134,6 +140,7 @@ def main():
     if options.maxOS:
         release["sparkle"]["maxOS"] = options.maxOS
     
+    
     # Load the versions file of the website to add this version.
     current_versions = None
     try:
@@ -142,11 +149,13 @@ def main():
     except Exception, e:
         error("Failed to load the website's %s versions file\n* %s" % (tool_config("name"), e))
     
+    
     # Update the newest-version flag of each current version.
     for entry in current_versions:
         if entry["version"] == release["version"]:
             error("Version %s was already released." % (release["version"]))
         entry["newest-version"] = False
+    
     
     # Insert the new version to the current versions as first version.
     current_versions.insert(0, release)
@@ -160,28 +169,19 @@ def main():
     except Exception, e:
         error("Failed to save the new version to the website's %s versions file\n* %s" % (tool_config("name"), e))
     
+        
     # Add the versions file.
     run_or_error("git add %s" % (path_to_script(versions_path)), "Failed to checkin the versions file.", silent=True)
-    # Create the new appcast.xml file.
-    status("Create Sparkle appcast.xml file")
-    run_or_error("php index.php -m get /releases/%s/appcast.xml" % (nname(tool_config("name"))),
-                 "Failed to create Sparkle appcast.xml\n%s")
-    # Checkin the appcast.xml file.
-    run_or_error("git add releases/%s/appcast.xml" % (nname(tool_config("name"))),
-                     "Failed to checkin Sparkle appcast.xml\n%s")
-    status("Re-create release notes")
-    run_or_error("php index.php /releases/%s/release-notes.html" % (nname(tool_config("name"))),
-                 "Failed to update release notes\n%s")
-    # Checking the release notes file.
-    run_or_error("git add releases/%s/release-notes.html" % (nname(tool_config("name"))),
-                 "Failed to checkin release notes\n%s")
+    
     
     # Commit the versions file.
     run_or_error('git commit -m "Adding release of %s: %s"' % (tool_config("name"), tool_config("version")),
                  "Failed to commit the versions file changes.", silent=True)
+    
     # Push the new version info.
-    status("Push changes to github")
+    status("Push changes to remote repository")
     run_or_error("git push origin %s" % (WEBSITE_REPOSITORY_BRANCH), "Failed to push changes to server.", silent=True)
+    
     success("Release was published successfully.")
     
     return True
