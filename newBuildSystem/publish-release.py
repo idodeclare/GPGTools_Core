@@ -21,8 +21,8 @@ from clitools.color import *
 CWD = os.getcwd()
 BUILD_DIR = os.path.join(CWD, "build")
 DOWNLOAD_BASE_URL = "https://releases.gpgtools.org"
-WEBSITE_REPOSITORY_URL = "https://github.com/GPGTools/GPGTools_Homepage"
-WEBSITE_REPOSITORY_BRANCH = "dev"
+WEBSITE_REPOSITORY_URL = "gpgtools@gpgtools.org:git-repositories/release-info.git"
+WEBSITE_REPOSITORY_BRANCH = "master"
 WEBSITE_FOLDER = os.path.join(BUILD_DIR, "gpgtools-website")
 
 def parse_options():
@@ -49,8 +49,11 @@ def parse_options():
     options.minOS = options.minOS or os.environ.get("MIN_OS")
     if not options.minOS:
         options.minOS = "10.7"
+    
     options.maxOS = options.maxOS or os.environ.get("MAX_OS")
+    
     options.website_folder = options.website_folder or os.environ.get("WEBSITE_FOLDER")
+    
     options.base_url = options.base_url or os.environ.get("BASE_URL")
     if not options.base_url:
         options.base_url = DOWNLOAD_BASE_URL
@@ -75,10 +78,9 @@ def main():
     else:
         website_folder = options.website_folder
     
-    config_path = os.path.join(website_folder, "source/tools/config")
     short_name = nname(tool_config("name"))
     versions_file = "%s-versions.json" % (short_name)
-    versions_path = os.path.join(config_path, versions_file)
+    versions_path = os.path.join(website_folder, versions_file)
     release_notes = "%s.md" % (tool_config("version"))
     release_notes_file = os.path.join("Release Notes", release_notes)
     release_notes_path = os.path.join(CWD, release_notes_file)
@@ -89,18 +91,19 @@ def main():
     
     json_config = dict(indent=4, separators=(',', ': '), sort_keys=True)
     
-    if not os.path.isdir(website_folder):
-        error("Couldn't find website repository: %s" % (website_folder))
     
-    if not os.path.isfile(versions_path):
-        error("Couldn't find the versions file for %s" % (versions_path))
-    
+    # Check whether the release-notes exists.
     if not os.path.isfile(release_notes_path):
         error("Couldn't find the release notes for this version: %s" % (release_notes_file))
     
+    
+    # Check whether the website-folder exists.
+    if not os.path.isdir(website_folder):
+        error("Couldn't find website repository: %s" % (website_folder))
+    
     # Change into the website repository.
     os.chdir(website_folder)
-        
+    
     # Reset the repository status.
     status("git reset")
     run_or_error("git reset HEAD", "Failed to reset the website repository.", silent=True)
@@ -110,7 +113,12 @@ def main():
     # Pull new changes in.
     status("git pull")
     run_or_error("git pull origin %s" % (WEBSITE_REPOSITORY_BRANCH), "Failed to update website repository.", silent=True)
-    
+
+
+    # Check whether the versions-file exists.
+    if not os.path.isfile(versions_path):
+        error("Couldn't find the versions file for %s" % (versions_path))
+        
     
     # Load release notes.
     status("Load release notes from %s" % (release_notes_file))
@@ -192,3 +200,4 @@ if __name__ == "__main__":
     except KeyboardInterrupt:
         print ""
         sys.exit(1)
+        

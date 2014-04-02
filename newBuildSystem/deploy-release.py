@@ -6,10 +6,7 @@ This script performs the following steps to deploy a new release:
 
 1.) Sign the project dmg using OpenPGP.
 2.) Copy the dmg and signature file into "/GPGTools/public/releases.gpgtools.org/".
-3.) Calculate the SHA1 hash of the project dmg.
-4.) Sign the project dmg using an SSL key for Sparkle updates.
-5.) Create the version json file pertaining to the release.
-6.) Integrate the version json file into the gpgtools.org website
+3.) Update the version json file pertaining to the release.
     The Sparkle Appcast file is dynamically created from the version json file.
 
 If any step fails, its trying to undo the changes in a best
@@ -38,16 +35,11 @@ EMAIL_BODY = """Congrats GPGTools-Team,
 
 %(name)s v%(version)s has been successfully deployed!
 
-To share this new release with the world, update your Sparkle
-Appcast with the information below and push it.
-
 Release URLs
 =========================================================
 
 %(release_dmg)s
 %(release_dmg_sig)s
-
-SHA1: %(release_hash)s
 
 =========================================================
 
@@ -57,6 +49,9 @@ Sincerely yours,
 
 GPGTools Release-Bot
 """
+
+
+
 def current_git_branch():
     return run("git rev-parse --abbrev-ref HEAD").strip()
 
@@ -71,8 +66,8 @@ def inform_team(release_info):
     s.sendmail(EMAIL_FROM, [EMAIL_TO], msg.as_string())
     s.quit()
 
-def update_website_for_release(release_info):
-    if os.system(path_to_script("%s/Dependencies/GPGTools_Core/newBuildSystem/%s" % (CWD, "publish-release.py"))) != 0:
+def update_website_for_release():
+    if os.system(path_to_script("%s/publish-release.py" % (os.path.dirname(__file__)))) != 0:
         error("Failed to add release to the GPGTools website.")
 
 def main():
@@ -90,8 +85,10 @@ def main():
         error("The product disk image doesn't exist: %s.\nRun `%s` to create it." % (
               DMG, emphasize("make dmg")))
     
+    
     # Create the gpg signature.
     run("make gpg-sig")
+    
     # Check if the signature was successfully created and the file verifies.
     if not os.path.isfile("%s/%s" % (BUILD_DIR, GPG_SIG)):
         error("Failed to sign the product disk image.")
@@ -105,24 +102,24 @@ def main():
     copy("%s/%s" % (BUILD_DIR, DMG), "/GPGTools/public/releases.gpgtools.org/")
     dmg_url = "https://releases.gpgtools.org/%s" % DMG
     status(dmg_url)
+    
     copy("%s/%s" % (BUILD_DIR, GPG_SIG), "/GPGTools/public/releases.gpgtools.org/")
     signature_url = "https://releases.gpgtools.org/%s" % GPG_SIG
     status(signature_url)
     
-    sha1 = sha1_hash("%s/%s" % (BUILD_DIR, DMG))
-    status("DMG SHA1: %s" % (sha1))
-    
+
     status("Update website and create appcast for Sparkle")
-    release_info = {"release_dmg": dmg_url.strip(), "release_dmg_sig": signature_url.strip(), "release_hash": sha1.strip(),
-                    "name": tool_config("name"), "version": tool_config("version")}
-    update_website_for_release(release_info)
+    update_website_for_release()
+    
     
     status("Informing team of successful deploy.")
-    
+    release_info = {"release_dmg": dmg_url.strip(), "release_dmg_sig": signature_url.strip(),
+                    "name": tool_config("name"), "version": tool_config("version")}
     try:
         inform_team(release_info)
     except:
         status("    Not able to send the mail. Skipping...")
+    
     
     success("%s %s was successfully released!" % (tool_config("name"), tool_config("version")))
     
