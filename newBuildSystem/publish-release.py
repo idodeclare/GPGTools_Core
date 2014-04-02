@@ -22,7 +22,7 @@ CWD = os.getcwd()
 BUILD_DIR = os.path.join(CWD, "build")
 DOWNLOAD_BASE_URL = "https://releases.gpgtools.org"
 WEBSITE_REPOSITORY_URL = "https://github.com/GPGTools/GPGTools_Homepage"
-WEBSITE_REPOSITORY_BRANCH = "new"
+WEBSITE_REPOSITORY_BRANCH = "master"
 WEBSITE_FOLDER = os.path.join(BUILD_DIR, "gpgtools-website")
 
 def parse_options():
