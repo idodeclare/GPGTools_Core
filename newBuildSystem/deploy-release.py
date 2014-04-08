@@ -79,6 +79,9 @@ def copy_for_release(file):
     # Copy files into the release directory.
     copy(src, dst)
     url = "https://releases.gpgtools.org/%s" % file
+
+    if os.path.isfile("%s/%s" % (RELEASE_DIR, file)):
+        error("The file '%s' already exists in the release directoy!" % file)
     
     status(url)
     return url
@@ -109,21 +112,13 @@ def main():
     run_or_error("gpg -v %s" % (path_to_script("%s/%s" % (BUILD_DIR, GPG_SIG))),
                  "Couldn't verify the product disk image signature.\n%s", silent=True)
         
-    
-    if os.path.isfile("%s/%s" % (RELEASE_DIR, DMG)):
-        error("The file '%s' already exists in the release directoy!" % DMG)
-
-    if os.path.isfile("%s/%s" % (RELEASE_DIR, GPG_SIG)):
-        error("The file '%s' already exists in the release directoy!" % GPG_SIG)
+    status("Copy files into release directory.")
+    dmg_url = copy_for_release(DMG)
+    signature_url = copy_for_release(GPG_SIG)
 
 
     status("Update website and create appcast for Sparkle.")
     update_website_for_release()
-    
-    
-    status("Copy files into release directory.")
-    dmg_url = copy_for_release(DMG)
-    signature_url = copy_for_release(GPG_SIG)
     
     
     status("Informing team of successful deploy.")
