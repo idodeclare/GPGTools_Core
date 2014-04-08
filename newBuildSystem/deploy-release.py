@@ -70,6 +70,21 @@ def update_website_for_release():
     if os.system(path_to_script("%s/publish-release.py" % (os.path.dirname(__file__)))) != 0:
         error("Failed to add release to the GPGTools website.")
 
+def copy_for_release(file):
+    src = "%s/%s" % (BUILD_DIR, file)
+    dst = "/GPGTools/public/releases.gpgtools.org/%s" % file
+    
+    if os.path.isfile(dst):
+        error("The file '%s' already exists!" % file)
+    
+    # Copy files into the release directory.
+    copy(src, dst)
+    url = "https://releases.gpgtools.org/%s" % file
+    
+    status(url)
+    return url
+    
+
 def main():
     if current_git_branch() not in ["master", "deploy-master", "jenkins-master"]:
         error("You can only deploy from the master branch!\nRun `git checkout master` first.")
@@ -97,18 +112,12 @@ def main():
                  "Couldn't verify the product disk image signature.\n%s", silent=True)
         
     
-    
-    # Copy files into the release directory.
-    copy("%s/%s" % (BUILD_DIR, DMG), "/GPGTools/public/releases.gpgtools.org/")
-    dmg_url = "https://releases.gpgtools.org/%s" % DMG
-    status(dmg_url)
-    
-    copy("%s/%s" % (BUILD_DIR, GPG_SIG), "/GPGTools/public/releases.gpgtools.org/")
-    signature_url = "https://releases.gpgtools.org/%s" % GPG_SIG
-    status(signature_url)
-    
+    status("Copy files into release directory.")
+    copy_for_release(DMG)
+    copy_for_release(GPG_SIG)
+        
 
-    status("Update website and create appcast for Sparkle")
+    status("Update website and create appcast for Sparkle.")
     update_website_for_release()
     
     
