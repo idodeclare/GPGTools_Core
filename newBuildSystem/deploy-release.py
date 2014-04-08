@@ -27,6 +27,8 @@ from clitools.color import *
 
 CWD = os.getcwd()
 BUILD_DIR = "build"
+RELEASE_DIR = "/GPGTools/public/releases.gpgtools.org"
+RELEASE_URL = "https://releases.gpgtools.org"
 
 EMAIL_SUBJECT = "%(name)s v%(version)s successfully deployed!"
 EMAIL_FROM = "GPGTools Release-Bot <release@gpgtools.org>"
@@ -72,18 +74,14 @@ def update_website_for_release():
 
 def copy_for_release(file):
     src = "%s/%s" % (BUILD_DIR, file)
-    dst = "/GPGTools/public/releases.gpgtools.org/%s" % file
-    
-    if os.path.isfile(dst):
-        error("The file '%s' already exists!" % file)
-    
+    dst = "%s/%s" % (RELEASE_DIR, file)
+        
     # Copy files into the release directory.
     copy(src, dst)
     url = "https://releases.gpgtools.org/%s" % file
     
     status(url)
     return url
-    
 
 def main():
     if current_git_branch() not in ["master", "deploy-master", "jenkins-master"]:
@@ -112,13 +110,20 @@ def main():
                  "Couldn't verify the product disk image signature.\n%s", silent=True)
         
     
-    status("Copy files into release directory.")
-    copy_for_release(DMG)
-    copy_for_release(GPG_SIG)
-        
+    if os.path.isfile("%s/%s" % (RELEASE_DIR, DMG)):
+        error("The file '%s' already exists in the release directoy!" % DMG)
+
+    if os.path.isfile("%s/%s" % (RELEASE_DIR, GPG_SIG)):
+        error("The file '%s' already exists in the release directoy!" % GPG_SIG)
+
 
     status("Update website and create appcast for Sparkle.")
     update_website_for_release()
+    
+    
+    status("Copy files into release directory.")
+    dmg_url = copy_for_release(DMG)
+    signature_url = copy_for_release(GPG_SIG)
     
     
     status("Informing team of successful deploy.")
