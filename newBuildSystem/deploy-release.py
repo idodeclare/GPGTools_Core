@@ -76,13 +76,13 @@ def copy_for_release(file):
     src = "%s/%s" % (BUILD_DIR, file)
     dst = "%s/%s" % (RELEASE_DIR, file)
         
+    if os.path.isfile(dst):
+        error("The file '%s' already exists in the release directoy!" % file)
+
     # Copy files into the release directory.
     copy(src, dst)
     url = "https://releases.gpgtools.org/%s" % file
 
-    if os.path.isfile("%s/%s" % (RELEASE_DIR, file)):
-        error("The file '%s' already exists in the release directoy!" % file)
-    
     status(url)
     return url
 
