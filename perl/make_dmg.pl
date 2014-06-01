@@ -396,8 +396,8 @@ sub windowEntries {
                         pict => $pictAlias,
 
                         # Window dimensions and settings
-                        fwvh => $height,
-                        fwsw => 20,
+                        fwvh => $height - 2,
+                        fwsw => 0,
                         fwi0_flds => [ $topy, $topx, $topy+$height, $topx+$width, "icnv", 0, 0 ],
 
                         icgo => "\0\0\0\0\0\0\0\4",
