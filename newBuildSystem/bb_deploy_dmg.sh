@@ -17,6 +17,14 @@ name=${dmgNamePrefix:-$name}
 # Delete the old dmg's. Ignore files listed in hashes/save.txt.
 ls -1 "$1/$name"-*.dmg | grep -vf "$1/hashes/save.txt" | tr "\n" "\0" | xargs -0 rm -f
 
+echo "Remove old signatures..."
+for signature in "$1/$name"-*.dmg.sig ;do
+	if [[ ! -e "${signature%.sig}" ]] ;then
+		rm "$signature"
+	fi
+done
+
+
 echo "Copying '$dmgPath' to '$1/$dmgName'..."
 cp "$dmgPath" "$1/$dmgName"
 
