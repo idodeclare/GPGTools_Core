@@ -24,9 +24,13 @@ for signature in "$1/$name"-*.dmg.sig ;do
 	fi
 done
 
-
 echo "Copying '$dmgPath' to '$1/$dmgName'..."
 cp "$dmgPath" "$1/$dmgName"
+
+if [[ -e "$dmgPath.sig" ]] ;then
+	echo "Copying '$dmgPath.sig' to '$1/$dmgName.sig'..."
+	cp "$dmgPath.sig" "$1/$dmgName.sig"
+fi
 
 echo "Linking"
 ln -fs "$1/$dmgName" "$1/$name-latest.dmg"
