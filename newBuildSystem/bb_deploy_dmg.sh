@@ -15,7 +15,7 @@ parseConfig
 echo "Remove old disk images..."
 name=${dmgNamePrefix:-$name}
 # Delete the old dmg's. Ignore files listed in hashes/save.txt.
-ls -1 "$1/$name"-*.dmg | grep -vf "$1/hashes/save.txt" | tr "\n" "\0" | xargs -0 rm -f
+ls -1 "$1/$name"-*.dmg | grep -vxf "$1/hashes/save.txt" | tr "\n" "\0" | xargs -0 rm -f
 
 echo "Remove old signatures..."
 for signature in "$1/$name"-*.dmg.sig ;do
