@@ -62,7 +62,7 @@ content='['
 for filename in *.dmg ;do
 	tmp=${filename%.dmg}
 	toolname=${tmp%-*}
-	version=${tmp:${#toolname+1}
+	version=${tmp:${#toolname+1}}
 
 	[[ "$version" == 'latest' ]] && continue
 
