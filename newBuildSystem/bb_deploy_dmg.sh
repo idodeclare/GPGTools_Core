@@ -53,8 +53,8 @@ pushd "$1" >/dev/null
 lf="
 "
 latest="$lf"
-for dmgName in *-latest.dmg ;do
-	dest="$(basename "$(readlink "$dmgName")")"
+for filename in *-latest.dmg ;do
+	dest="$(basename "$(readlink "$filename")")"
 	latest="$latest$dest$lf"
 done
 
