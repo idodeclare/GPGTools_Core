@@ -66,7 +66,6 @@ for filename in *.dmg ;do
 
 	[[ "$version" == 'latest' ]] && continue
 
-	echo "$latest : $filename"
 	if [[ "$latest" == *"$lf$filename$lf"* ]] ;then
 		last='true'
 	else
@@ -78,8 +77,12 @@ for filename in *.dmg ;do
 	else
 		signature='false'
 	fi
-		
-	content="$content{\"name\":\"$toolname\",\"version\":\"$version\",\"file\":\"$filename\",\"signature\":$signature,\"latest\":$last},"
+	
+	size=$(stat -f "%z" "$filename")
+	hash=$(openssl sha1 <"$filename")
+	
+	
+	content="$content{\"name\":\"$toolname\",\"version\":\"$version\",\"file\":\"$filename\",\"signature\":$signature,\"latest\":$last,\"size\":$size,\"hash\":\"$hash\"},"
 done
 content="${content%,}]";
 
