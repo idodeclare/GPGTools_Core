@@ -67,10 +67,7 @@ def html_for_release_notes(release_notes, tool):
                 E("div", 
                     E("div", {"class": "sparkle-release-notes"}),
                     role="main"
-                ),
-                E("script", src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"),
-                E("script", """window.jQuery || document.write('<script src="/js/libs/jquery-1.7.1.min.js"><\/script>')"""),
-                E("script", src="https://gpgtools.org/js/sparkle-release-notes.js")
+                )
             )
         )
         
