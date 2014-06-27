@@ -31,7 +31,13 @@ keys="`su \"$USER\" -c 'gpg --homedir=\"$HOME/.gnupg\" -K 2>/dev/null'`"
 
 echo "[GCK] Open GKA..."
 if [ "$keys" == "" ]; then
-  sudo -u "$USER" open -b "org.gpgtools.gpgkeychainaccess" --args --gen-key
+  sudo -u "$USER" osascript <<-EOT
+	tell application "GPG Keychain Access"
+	generate new key
+	activate
+	end tell
+EOT
+  
   echo "[GCK] Open First Steps page..."
   sudo -u "$USER" open http://support.gpgtools.org/kb/how-to/first-steps-where-do-i-start-where-do-i-begin
 else
