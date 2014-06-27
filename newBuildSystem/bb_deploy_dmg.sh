@@ -91,7 +91,7 @@ if cd nightly-info && echo "$content" > nightlies.json ;then
 	git reset
 	git add nightlies.json
 	git commit -m "New nightly: '$dmgName'"
-	git push origin master
+	#git push origin master
 else
 	echo "Unable to write nightlies.json"
 fi
