@@ -38,8 +38,6 @@ if [ "$keys" == "" ]; then
 	end tell
 EOT
   
-  echo "[GCK] Open First Steps page..."
-  sudo -u "$USER" open http://support.gpgtools.org/kb/how-to/first-steps-where-do-i-start-where-do-i-begin
 else
   echo "[GCK] Sec-Key found"
 fi
