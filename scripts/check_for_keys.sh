@@ -29,17 +29,25 @@ fi
 echo "[GCK] Test for keys..."
 keys="`su \"$USER\" -c 'gpg --homedir=\"$HOME/.gnupg\" -K 2>/dev/null'`"
 
-echo "[GCK] Open GKA..."
-if [ "$keys" == "" ]; then
-  sudo -u "$USER" osascript <<-EOT
-	tell application "GPG Keychain Access"
-	generate new key
-	activate
-	end tell
+
+if [[ -z "$keys" ]]; then
+	echo "[GCK] No Sec-Key found"
+	
+	if [[ "$COMMAND_LINE_INSTALL" -eq 1 ]] ;then
+		echo "[GCK] No GUI"
+	else
+		echo "[GCK] Open GKA..."
+		sudo -u "$USER" osascript <<-EOT
+			tell application "GPG Keychain Access"
+			generate new key
+			activate
+			end tell
 EOT
+	fi
   
 else
-  echo "[GCK] Sec-Key found"
+    echo "[GCK] Sec-Key found"
 fi
+
 
 exit 0;
